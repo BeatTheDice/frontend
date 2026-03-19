@@ -15,16 +15,25 @@ export class GameOver extends Scene
     create ()
     {
         this.camera = this.cameras.main
-        this.camera.setBackgroundColor(0xff0000);
 
-        this.background = this.add.image(512, 384, 'background');
-        this.background.setAlpha(0.5);
+        this.background = this.add.image(768, 512, 'mm_background');
 
-        this.gameOverText = this.add.text(512, 384, 'Game Over', {
-            fontFamily: 'Arial Black', fontSize: 64, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+        this.gameOverText = this.add.text(768, 512, 'Game Over', {
+            fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
+            stroke: '#893700', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
+
+        this.gameOverText = this.add.text(768, 582, 'Click to Head back to Menu', {
+            fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
+            stroke: '#893700', strokeThickness: 8,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100);
+
+        // Listener für Maus-Klick 
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            this.scene.start('MainMenu');
+        });
         
         EventBus.emit('current-scene-ready', this);
     }

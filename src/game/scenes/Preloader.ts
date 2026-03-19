@@ -32,8 +32,14 @@ export class Preloader extends Scene
         //  Load the assets for the game - Replace with your own assets
         this.load.setPath('assets');
 
-        this.load.image('logo', 'logo.png');
-        this.load.image('star', 'star.png');
+        //  Load Images
+        this.load.image('logo', './images/BeatTheDiceLogo.png');
+        this.load.image('mm_background', './images/mainmenu_background.png')
+        this.load.image('dice', './images/dice.png');
+
+        //  Load Fonts
+        this.load.font('actionman', './fonts/Action-Man/Action_Man.ttf', 'truetype')
+
     }
 
     create ()
