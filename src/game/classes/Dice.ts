@@ -1,15 +1,14 @@
 export class Dice {
+    faces: number[];
+    name: string;
 
-    // Anzahl Seiten (Standard: 6)
-    sides: number;
-
-    constructor(sides: number = 6) {
-        this.sides = sides;
+    constructor(sides: number[], name: string) {
+        this.faces = sides;
+        this.name = name;
     }
 
-    // Würfeln
     roll(): number {
-        const result = Math.floor(Math.random() * this.sides) + 1;
+        const result = this.faces[Math.floor(Math.random() * this.faces.length)];
         console.log(`Gewürfelt: ${result}`);
         return result;
     }
