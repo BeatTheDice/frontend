@@ -1,13 +1,13 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
-import { Dice } from '../classes/Dice';
+import { CombatHandler } from '../classes/CombatHandler';
 
 export class Game extends Scene
 {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
-    dice: Dice;
+    CombatHandler: CombatHandler;
     diceText: Phaser.GameObjects.Text;
 
     constructor ()
@@ -25,7 +25,7 @@ export class Game extends Scene
 
         this.createButtons()
 
-        this.dice = new Dice();
+        this.CombatHandler = new CombatHandler();
 
         EventBus.emit('current-scene-ready', this);
     }
@@ -52,7 +52,7 @@ export class Game extends Scene
 
         // Klick-Event
         button.on('pointerdown', () => {
-            const result = this.dice.roll()            
+            const result = this.CombatHandler.rollAllDice();
             this.diceText.setText(result.toString());
 
             this.diceText.setScale(0);
