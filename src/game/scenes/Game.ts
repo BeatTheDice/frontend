@@ -7,7 +7,7 @@ export class Game extends Scene
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
-    CombatHandler: CombatHandler;
+    combatHandler: CombatHandler;
     diceText: Phaser.GameObjects.Text;
 
     constructor ()
@@ -25,7 +25,7 @@ export class Game extends Scene
 
         this.createButtons()
 
-        this.CombatHandler = new CombatHandler(this);
+        this.combatHandler = new CombatHandler(this);
 
         EventBus.emit('current-scene-ready', this);
     }
@@ -52,16 +52,14 @@ export class Game extends Scene
 
         // Klick-Event
         button.on('pointerdown', () => {
-            this.CombatHandler.rollAllDice();
-            /*this.diceText.setText(result.toString());
-
-            this.diceText.setScale(0);
-            this.tweens.add({
-                targets: this.diceText,
-                scale: 1,
-                duration: 200,
-                ease: 'Back.Out'
-            });*/
+            
+            this.combatHandler.throwDice([
+                this.combatHandler.playersDice[0],
+                this.combatHandler.playersDice[0],
+                this.combatHandler.playersDice[0],
+                this.combatHandler.playersDice[0],
+                this.combatHandler.playersDice[0]
+            ]);
         });
 
         // Hover-Effekt

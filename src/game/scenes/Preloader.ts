@@ -39,12 +39,12 @@ export class Preloader extends Scene
         this.load.image('dice', './images/dice.png');
 
         // Dice face images (files in public/assets/images named "Dice 1.png" .. "Dice 6.png")
-        this.load.image('dice1', './images/Dice 1.png');
-        this.load.image('dice2', './images/Dice 2.png');
-        this.load.image('dice3', './images/Dice 3.png');
-        this.load.image('dice4', './images/Dice 4.png');
-        this.load.image('dice5', './images/Dice 5.png');
-        this.load.image('dice6', './images/Dice 6.png');
+        this.load.image('regular-dice-1', './images/Dice 1.png');
+        this.load.image('regular-dice-2', './images/Dice 2.png');
+        this.load.image('regular-dice-3', './images/Dice 3.png');
+        this.load.image('regular-dice-4', './images/Dice 4.png');
+        this.load.image('regular-dice-5', './images/Dice 5.png');
+        this.load.image('regular-dice-6', './images/Dice 6.png');
 
         //  Load Fonts
         this.load.font('actionman', './fonts/Action-Man/Action_Man.ttf', 'truetype')
