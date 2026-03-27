@@ -25,7 +25,7 @@ export class Game extends Scene
 
         this.createButtons()
 
-        this.CombatHandler = new CombatHandler();
+        this.CombatHandler = new CombatHandler(this);
 
         EventBus.emit('current-scene-ready', this);
     }
@@ -52,8 +52,8 @@ export class Game extends Scene
 
         // Klick-Event
         button.on('pointerdown', () => {
-            const result = this.CombatHandler.rollAllDice();
-            this.diceText.setText(result.toString());
+            this.CombatHandler.rollAllDice();
+            /*this.diceText.setText(result.toString());
 
             this.diceText.setScale(0);
             this.tweens.add({
@@ -61,7 +61,7 @@ export class Game extends Scene
                 scale: 1,
                 duration: 200,
                 ease: 'Back.Out'
-            });
+            });*/
         });
 
         // Hover-Effekt

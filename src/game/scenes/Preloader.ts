@@ -35,7 +35,16 @@ export class Preloader extends Scene
         //  Load Images
         this.load.image('logo', './images/BeatTheDiceLogo.png');
         this.load.image('mm_background', './images/mainmenu_background.png')
+
         this.load.image('dice', './images/dice.png');
+
+        // Dice face images (files in public/assets/images named "Dice 1.png" .. "Dice 6.png")
+        this.load.image('dice1', './images/Dice 1.png');
+        this.load.image('dice2', './images/Dice 2.png');
+        this.load.image('dice3', './images/Dice 3.png');
+        this.load.image('dice4', './images/Dice 4.png');
+        this.load.image('dice5', './images/Dice 5.png');
+        this.load.image('dice6', './images/Dice 6.png');
 
         //  Load Fonts
         this.load.font('actionman', './fonts/Action-Man/Action_Man.ttf', 'truetype')

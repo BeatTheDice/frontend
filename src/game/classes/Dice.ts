@@ -9,7 +9,6 @@ export class Dice {
 
     roll(): number {
         const result = this.faces[Math.floor(Math.random() * this.faces.length)];
-        console.log(`Gewürfelt: ${result}`);
         return result;
     }
 }
