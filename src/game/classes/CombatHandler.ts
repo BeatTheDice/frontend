@@ -111,7 +111,8 @@ export class CombatHandler {
 
         if (Array.isArray(diceOrCount)) {
             dicePool = diceOrCount;
-        } else {
+        }//hier schnickschnack...noch unnötig 
+        else {
             const template = this.playersDice[0];
             if (!template) return [];
             dicePool = Array.from({ length: diceOrCount }, () => template);
