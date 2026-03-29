@@ -1,15 +1,14 @@
 export class Dice {
-    faces: number[];
+    // Speichert Key-Values, Key: Augenzahl, Value: Entsprechendes PNG aus dem preloader
+    faces: Record<number, string>[];
     name: string;
 
-    constructor(sides: number[], name: string) {
-        this.faces = sides;
+    constructor(faces: Record<number, string>[], name: string) {
+        this.faces = faces;
         this.name = name;
     }
 
-    roll(): number {
-        const result = this.faces[Math.floor(Math.random() * this.faces.length)];
-        console.log(`Gewürfelt: ${result}`);
-        return result;
+    roll(): Record<number, string> {
+        return this.faces[Math.floor(Math.random() * this.faces.length)];
     }
 }

@@ -1,22 +1,19 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
-import { CombatHandler } from '../classes/CombatHandler';
+import { DiceHandler } from '../classes/DiceHandler';
 
-export class Game extends Scene
-{
+export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
-    CombatHandler: CombatHandler;
+    diceHandler: DiceHandler;
     diceText: Phaser.GameObjects.Text;
 
-    constructor ()
-    {
+    constructor() {
         super('Game');
     }
 
-    create ()
-    {
+    create() {
         this.camera = this.cameras.main;
 
         this.background = this.add.image(768, 512, 'mm_background');
@@ -25,26 +22,23 @@ export class Game extends Scene
 
         this.createButtons()
 
-        this.CombatHandler = new CombatHandler();
+        this.diceHandler = new DiceHandler(this);
 
         EventBus.emit('current-scene-ready', this);
     }
 
-    changeScene ()
-    {
+    changeScene() {
         this.scene.start('GameOver');
     }
 
-    createTexts ()
-    {
+    createTexts() {
         this.diceText = this.add.text(768, 512, '', {
             fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
             stroke: '#893700', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
     }
-    createButtons ()
-    {
+    createButtons() {
         const button = this.add.image(1100, 900, 'dice');
 
         // Interaktiv machen
@@ -52,8 +46,11 @@ export class Game extends Scene
 
         // Klick-Event
         button.on('pointerdown', () => {
-            const result = this.CombatHandler.rollAllDice();
-            this.diceText.setText(result.toString());
+
+            const result = this.diceHandler.throwDice();
+            const total = result.reduce((s, v) => s + v, 0);
+
+            this.diceText.setText(total.toString());
 
             this.diceText.setScale(0);
             this.tweens.add({
