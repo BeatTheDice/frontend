@@ -1,12 +1,12 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
-import { CombatHandler } from '../classes/CombatHandler';
+import { DiceHandler } from '../classes/DiceHandler';
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
-    combatHandler: CombatHandler;
+    diceHandler: DiceHandler;
     diceText: Phaser.GameObjects.Text;
 
     constructor() {
@@ -22,7 +22,7 @@ export class Game extends Scene {
 
         this.createButtons()
 
-        this.combatHandler = new CombatHandler(this);
+        this.diceHandler = new DiceHandler(this);
 
         EventBus.emit('current-scene-ready', this);
     }
@@ -47,13 +47,7 @@ export class Game extends Scene {
         // Klick-Event
         button.on('pointerdown', () => {
 
-            const result = this.combatHandler.throwDice([
-                this.combatHandler.playersDice[0],
-                this.combatHandler.playersDice[0],
-                this.combatHandler.playersDice[0],
-                this.combatHandler.playersDice[0],
-                this.combatHandler.playersDice[0]
-            ]);
+            const result = this.diceHandler.throwDice();
             const total = result.reduce((s, v) => s + v, 0);
 
             this.diceText.setText(total.toString());

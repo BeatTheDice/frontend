@@ -1,7 +1,7 @@
 import { Scene, GameObjects } from 'phaser';
 import { Dice } from '../classes/Dice';
 
-export class CombatHandler {
+export class DiceHandler {
     scene: Scene;
     diceScale = 0.3;
     playersDice: Dice[] = [];
@@ -10,28 +10,12 @@ export class CombatHandler {
     constructor(scene: Scene) {
         this.scene = scene;
 
-        // Standard-Würfel mit deinem bisherigen Bildset
+        //Zwei Startwürfel generieren
         this.playersDice.push(
-            new Dice([1, 2, 3, 4, 5, 6], 'Regular Dice', {
-                1: 'regular-dice-1',
-                2: 'regular-dice-2',
-                3: 'regular-dice-3',
-                4: 'regular-dice-4',
-                5: 'regular-dice-5',
-                6: 'regular-dice-6'
-            })
+            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
         );
-
-        // Optional: nur benutzen, wenn du diese Keys wirklich preloadest
         this.playersDice.push(
-            new Dice([1, 2, 3, 4, 5, 6], 'Fire Dice', {
-                1: 'fire-dice-1',
-                2: 'fire-dice-2',
-                3: 'fire-dice-3',
-                4: 'fire-dice-4',
-                5: 'fire-dice-5',
-                6: 'fire-dice-6'
-            })
+            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
         );
     }
 
@@ -40,19 +24,18 @@ export class CombatHandler {
             this.scene.tweens.killTweensOf(sprite);
             if (sprite.active) sprite.destroy();
         }
-
         this.activeDiceSprites = [];
     }
 
     private createDiceSprite(dice: Dice, x: number, y: number, depth: number) {
-        const textureKey = dice.getFirstTexture();
+        const texture = Object.values(dice.faces[0])[0];
 
-        if (!this.scene.textures.exists(textureKey)) {
-            throw new Error(`Texture "${textureKey}" is not loaded`);
+        if (!this.scene.textures.exists(texture)) {
+            throw new Error(`Texture "${texture}" is not loaded`);
         }
 
         return this.scene.add
-            .image(x, y, textureKey)
+            .image(x, y, texture)
             .setOrigin(0.5)
             .setDepth(depth)
             .setScale(0)
@@ -60,7 +43,7 @@ export class CombatHandler {
             .setVisible(true);
     }
 
-    private animateDice(sprite: GameObjects.Image, dice: Dice, finalValue: number, delayOffset = 0) {
+    private animateDice(sprite: GameObjects.Image, dice: Dice, finalTexture: string, delayOffset = 0) {
         let totalDuration = 0;
 
         for (let i = 0; i < 12; i++) {
@@ -70,8 +53,9 @@ export class CombatHandler {
             this.scene.time.delayedCall(delay, () => {
                 if (!sprite.active) return;
 
-                const face = dice.getRandomFaceValue();
-                const textureKey = dice.getTextureForValue(face);
+
+                const face = dice.roll();
+                const textureKey = Object.values(face)[0];
 
                 if (this.scene.textures.exists(textureKey)) {
                     sprite.setTexture(textureKey);
@@ -89,8 +73,6 @@ export class CombatHandler {
         this.scene.time.delayedCall(totalDuration, () => {
             if (!sprite.active) return;
 
-            const finalTexture = dice.getTextureForValue(finalValue);
-
             if (this.scene.textures.exists(finalTexture)) {
                 sprite.setTexture(finalTexture);
             }
@@ -106,20 +88,7 @@ export class CombatHandler {
         });
     }
 
-    throwDice(diceOrCount: Dice[] | number = 1, spacing = 90): number[] {
-        let dicePool: Dice[] = [];
-
-        if (Array.isArray(diceOrCount)) {
-            dicePool = diceOrCount;
-        }//hier schnickschnack...noch unnötig 
-        else {
-            const template = this.playersDice[0];
-            if (!template) return [];
-            dicePool = Array.from({ length: diceOrCount }, () => template);
-        }
-
-        if (dicePool.length === 0) return [];
-
+    throwDice(): number[] {
         this.clearDice();
 
         const cam = this.scene.cameras.main;
@@ -130,9 +99,9 @@ export class CombatHandler {
 
         const results: number[] = [];
 
-        dicePool.forEach((dice, index) => {
+        this.playersDice.forEach((dice, index) => {
             const result = dice.roll();
-            results.push(result);
+            results.push(Number(Object.keys(result)[0]));
 
             let sprite: GameObjects.Image;
 
@@ -145,26 +114,17 @@ export class CombatHandler {
 
             this.activeDiceSprites.push(sprite);
 
-            this.animateDice(sprite, dice, result, index * 10);
+            this.animateDice(sprite, dice, Object.values(result)[0], index * 10);
 
             this.scene.tweens.add({
                 targets: sprite,
-                x: baseX + index * spacing,
+                x: baseX + index * 90,
                 y: targetY + (index % 2 === 0 ? -8 : 8),
                 scale: { from: 0, to: this.diceScale },
                 duration: 700 + index * 80,
                 ease: 'Cubic.Out'
             });
         });
-
         return results;
-    }
-
-    throwAllPlayerDice(): number[] {
-        return this.throwDice(this.playersDice);
-    }
-
-    throwSameDiceType(dice: Dice, count: number): number[] {
-        return this.throwDice(Array.from({ length: count }, () => dice));
     }
 }
