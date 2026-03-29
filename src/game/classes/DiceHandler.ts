@@ -27,8 +27,7 @@ export class DiceHandler {
         this.activeDiceSprites = [];
     }
 
-    private createDiceSprite(dice: Dice, x: number, y: number, depth: number) {
-        const texture = Object.values(dice.faces[0])[0];
+    private createDiceSprite(texture: string, x: number, y: number, depth: number) {
 
         if (!this.scene.textures.exists(texture)) {
             throw new Error(`Texture "${texture}" is not loaded`);
@@ -106,7 +105,7 @@ export class DiceHandler {
             let sprite: GameObjects.Image;
 
             try {
-                sprite = this.createDiceSprite(dice, startX, startY, 200 + index);
+                sprite = this.createDiceSprite(Object.values(result)[0], startX, startY, 200 + index);
             } catch (error) {
                 console.error(error);
                 return;
