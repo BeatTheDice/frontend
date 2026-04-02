@@ -24,7 +24,7 @@ export class GameOver extends Scene
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
-        this.gameOverText = this.add.text(768, 582, 'Click to Head back to Menu', {
+        this.gameOverText = this.add.text(768, 582, 'Klicke, um zum Hauptmenü zurückzukehren', {
             fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
             stroke: '#893700', strokeThickness: 8,
             align: 'center'

@@ -80,6 +80,8 @@ export class Game extends Scene {
                 duration: 200,
                 ease: 'Back.Out'
             });
+            this.levelEngine.dealDamageToEnemy(total);
+            this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
         });
 
         // Hover-Effekt

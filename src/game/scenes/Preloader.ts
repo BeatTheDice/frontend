@@ -48,6 +48,10 @@ export class Preloader extends Scene
 
         // Enemy images
         this.load.image('slime_idle', './images/slime_idle.png');
+        this.load.image('slime_damage_low', './images/slime_damage_low.png');
+        this.load.image('slime_damage_high', './images/slime_damage_high.png');
+        this.load.image('slime_win', './images/slime_win.png');
+        this.load.image('slime_dead', './images/slime_dead.png');
 
         //  Load Fonts
         this.load.font('actionman', './fonts/Action-Man/Action_Man.ttf', 'truetype')
