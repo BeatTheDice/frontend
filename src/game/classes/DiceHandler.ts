@@ -41,7 +41,7 @@ export class DiceHandler {
             .setVisible(true);
     }
 
-    private animateDice(sprite: GameObjects.Image, dice: Dice, finalTexture: string, delayOffset = 0) {
+    private animateDice(sprite: GameObjects.Image, dice: Dice, finalTexture: string, delayOffset = 0): number {
         let totalDuration = 0;
 
         for (let i = 0; i < 12; i++) {
@@ -50,7 +50,6 @@ export class DiceHandler {
 
             this.scene.time.delayedCall(delay, () => {
                 if (!sprite.active) return;
-
 
                 const face = dice.roll();
                 const textureKey = Object.values(face)[0];
@@ -84,9 +83,11 @@ export class DiceHandler {
                 ease: 'Quad.Out'
             });
         });
+
+        return totalDuration + 120; // include final settle tween time
     }
 
-    throwDice(): number[] {
+    throwDice(): Promise<number[]> {
         this.clearDice();
 
         const cam = this.scene.cameras.main;
@@ -96,6 +97,7 @@ export class DiceHandler {
         const targetY = cam.centerY;
 
         const results: number[] = [];
+        let maxDuration = 0;
 
         this.playersDice.forEach((dice, index) => {
             const result = dice.roll();
@@ -112,17 +114,26 @@ export class DiceHandler {
 
             this.activeDiceSprites.push(sprite);
 
-            this.animateDice(sprite, dice, Object.values(result)[0], index * 10);
+            const rollDuration = this.animateDice(sprite, dice, Object.values(result)[0], index * 10);
+            maxDuration = Math.max(maxDuration, rollDuration);
+
+            const moveDuration = 700 + index * 80;
+            maxDuration = Math.max(maxDuration, moveDuration);
 
             this.scene.tweens.add({
                 targets: sprite,
                 x: baseX + index * 90,
                 y: targetY + (index % 2 === 0 ? -8 : 8),
                 scale: { from: 0, to: this.diceScale },
-                duration: 700 + index * 80,
+                duration: moveDuration,
                 ease: 'Cubic.Out'
             });
         });
-        return results;
+
+        return new Promise((resolve) => {
+            this.scene.time.delayedCall(maxDuration, () => {
+                resolve(results);
+            });
+        });
     }
 }
