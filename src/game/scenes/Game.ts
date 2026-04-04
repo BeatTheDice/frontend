@@ -12,6 +12,7 @@ export class Game extends Scene {
     levelNumberText: Phaser.GameObjects.Text;
     enemyNameText: Phaser.GameObjects.Text;
     enemyHealthText: Phaser.GameObjects.Text;
+    remainingThrowsText: Phaser.GameObjects.Text;
     levelEngine: LevelEngine;
 
     constructor() {
@@ -59,6 +60,11 @@ export class Game extends Scene {
             stroke: '#893700', strokeThickness: 8,
             align: 'center'
         });
+        this.remainingThrowsText = this.add.text(524, 50, `Würfe übrig: ${this.levelEngine.remainingThrows}`, {
+            fontFamily: 'actionman', fontSize: 48, color: '#ff9000',
+            stroke: '#893700', strokeThickness: 8,
+            align: 'center'
+        });
     }
 
     createButtons() {
@@ -69,6 +75,8 @@ export class Game extends Scene {
 
         // Klick-Event
         button.on('pointerdown', async () => {
+            this.levelEngine.decreaseRemainingThrows();
+            this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
             const result = await this.diceHandler.throwDice();
             const total = result.reduce((s, v) => s + v, 0);
 
@@ -82,6 +90,9 @@ export class Game extends Scene {
             });
             this.levelEngine.dealDamageToEnemy(total);
             this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+            if (this.levelEngine.IsRemainingThrowsZero()) {
+                this.scene.start('GameOver');
+            }
         });
 
         // Hover-Effekt

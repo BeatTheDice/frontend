@@ -5,11 +5,13 @@ export class LevelEngine {
     scene: Scene;
     currentEnemy : Enemy;
     currentLevel : number;
+    remainingThrows: number;
     enemySprite: Phaser.GameObjects.Sprite;
 
     constructor(scene: Scene) {
         this.scene = scene;
         this.currentLevel = 1;
+        this.remainingThrows = 3;
         this.startLevel(this.currentLevel)
     }
 
@@ -46,6 +48,16 @@ export class LevelEngine {
             this.currentEnemy.currentHitPoints -= damage;
         }
         this.updateEnemyTexture();
+    }
+
+    decreaseRemainingThrows() {
+        if (this.remainingThrows > 0) {
+            this.remainingThrows--;
+        }
+    }
+
+    IsRemainingThrowsZero() {
+        return this.remainingThrows === 0;
     }
 
     getCurrentEnemyHitPoints() {
