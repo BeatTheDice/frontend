@@ -38,6 +38,9 @@ export class Preloader extends Scene
 
         this.load.image('dice', './images/dice.png');
 
+        // Neues Bild für Würfelbeutel
+        this.load.image('bag', './images/bag.png');
+
         // Dice face images 
         this.load.image('regular-dice-1', './images/Dice 1.png');
         this.load.image('regular-dice-2', './images/Dice 2.png');

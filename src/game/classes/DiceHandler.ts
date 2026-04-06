@@ -1,22 +1,33 @@
 import { Scene, GameObjects } from 'phaser';
 import { Dice } from '../classes/Dice';
+import { GameData } from '../GameData';
 
 export class DiceHandler {
     scene: Scene;
     diceScale = 0.3;
     playersDice: Dice[] = [];
     activeDiceSprites: GameObjects.Image[] = [];
+    inventorySprites: GameObjects.Image[] = [];
+    infoText: GameObjects.Text | null = null;
 
     constructor(scene: Scene) {
         this.scene = scene;
 
-        //Zwei Startwürfel generieren
-        this.playersDice.push(
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
-        );
-        this.playersDice.push(
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
-        );
+        this.initializeDice(GameData.selectedDiceType);
+    }
+
+    private initializeDice(type: string) {
+        this.playersDice = [];
+        if (type === 'regular' || type === '') {
+            // Zwei Standardwürfel
+            this.playersDice.push(
+                new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
+            );
+            this.playersDice.push(
+                new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
+            );
+        }
+        // Hier können weitere Typen hinzugefügt werden
     }
 
     private clearDice() {

@@ -1,12 +1,14 @@
 import { GameObjects, Scene } from 'phaser';
 
 import { EventBus } from '../EventBus';
+import { GameData } from '../GameData';
 
 export class MainMenu extends Scene
 {
     background: GameObjects.Image;
     logo: GameObjects.Image;
     title: GameObjects.Text;
+    selectDiceButton: GameObjects.Image;
     logoTween: Phaser.Tweens.Tween | null;
 
     constructor ()
@@ -25,11 +27,33 @@ export class MainMenu extends Scene
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
+        this.selectDiceButton = this.add.image(1400, 900, 'bag').setOrigin(0.5).setDepth(100).setScale(0.3).setInteractive();
+
         EventBus.emit('current-scene-ready', this);
 
-        // Listener für Maus-Klick 
+        // Globaler Klick-Listener für Spielstart (außer auf Beutel)
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-            this.scene.start('Game');
+            if (!this.selectDiceButton.getBounds().contains(pointer.x, pointer.y)) {
+                if (GameData.selectedDiceType === '') {
+                    // Fehlermeldung anzeigen
+                    const errorText = this.add.text(768, 600, 'Wähle zuerst einen Würfel aus!', {
+                        fontFamily: 'actionman', fontSize: 40, color: '#ff0000',
+                        stroke: '#000000', strokeThickness: 4,
+                        align: 'center'
+                    }).setOrigin(0.5).setDepth(200);
+                    // Nach 3 Sekunden entfernen
+                    this.time.delayedCall(3000, () => {
+                        errorText.destroy();
+                    });
+                } else {
+                    this.scene.start('Game');
+                }
+            }
+        });
+
+        // Listener für Select Dice Button
+        this.selectDiceButton.on('pointerdown', () => {
+            this.scene.start('DiceSelection');
         });
     }
     
