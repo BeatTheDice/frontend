@@ -38,13 +38,20 @@ export class Preloader extends Scene
 
         this.load.image('dice', './images/dice.png');
 
-        // Dice face images (files in public/assets/images named "Dice 1.png" .. "Dice 6.png")
+        // Dice face images 
         this.load.image('regular-dice-1', './images/Dice 1.png');
         this.load.image('regular-dice-2', './images/Dice 2.png');
         this.load.image('regular-dice-3', './images/Dice 3.png');
         this.load.image('regular-dice-4', './images/Dice 4.png');
         this.load.image('regular-dice-5', './images/Dice 5.png');
         this.load.image('regular-dice-6', './images/Dice 6.png');
+
+        // Enemy images
+        this.load.image('slime_idle', './images/slime_idle.png');
+        this.load.image('slime_damage_low', './images/slime_damage_low.png');
+        this.load.image('slime_damage_high', './images/slime_damage_high.png');
+        this.load.image('slime_win', './images/slime_win.png');
+        this.load.image('slime_dead', './images/slime_dead.png');
 
         //  Load Fonts
         this.load.font('actionman', './fonts/Action-Man/Action_Man.ttf', 'truetype')
