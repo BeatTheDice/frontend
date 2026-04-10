@@ -5,11 +5,13 @@ export class LevelEngine {
     scene: Scene;
     currentEnemy : Enemy;
     currentLevel : number;
+    remainingThrows: number;
     enemySprite: Phaser.GameObjects.Sprite;
 
     constructor(scene: Scene) {
         this.scene = scene;
         this.currentLevel = 1;
+        this.remainingThrows = 3;
         this.startLevel(this.currentLevel)
     }
 
