@@ -75,7 +75,7 @@ export class Game extends Scene {
 
         // Klick-Event
         button.on('pointerdown', async () => {
-            this.levelEngine.decreaseRemainingThrows();
+            this.levelEngine.remainingThrows --;
             this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
             const result = await this.diceHandler.throwDice();
             const total = result.reduce((s, v) => s + v, 0);
@@ -90,7 +90,7 @@ export class Game extends Scene {
             });
             this.levelEngine.dealDamageToEnemy(total);
             this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-            if (this.levelEngine.IsRemainingThrowsZero()) {
+            if (this.levelEngine.remainingThrows === 0 && this.levelEngine.getCurrentEnemyHitPoints() > 0) {
                 this.scene.start('GameOver');
             }
         });

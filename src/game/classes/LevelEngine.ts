@@ -50,16 +50,6 @@ export class LevelEngine {
         this.updateEnemyTexture();
     }
 
-    decreaseRemainingThrows() {
-        if (this.remainingThrows > 0) {
-            this.remainingThrows--;
-        }
-    }
-
-    IsRemainingThrowsZero() {
-        return this.remainingThrows === 0;
-    }
-
     getCurrentEnemyHitPoints() {
         return this.currentEnemy.currentHitPoints;
     }
