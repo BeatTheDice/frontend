@@ -63,6 +63,12 @@ export class DiceHandler {
     }
 
     renderPlayerDice() {
+        // Remove old sprites
+        this.playerDiceSprites.forEach(sprite => sprite.destroy());
+        this.playerDiceSprites = [];
+        if (this.bagSprite) this.bagSprite.destroy();
+        if (this.diceInfoText) this.diceInfoText.destroy();
+
         const cam = this.scene.cameras.main;
         const baseX = 210;
         const baseY = cam.height - 150;
@@ -215,6 +221,12 @@ export class DiceHandler {
                 resolve(results);
             });
         });
+    }
+
+    addDice(dice: Dice) {
+        this.playersDice.push(dice);
+        // Re-render player dice
+        this.renderPlayerDice();
     }
 
     private toggleDiceBag() {
