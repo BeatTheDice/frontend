@@ -25,6 +25,7 @@ export class Game extends Scene {
         this.background = this.add.image(768, 512, 'mm_background');
 
         this.diceHandler = new DiceHandler(this);
+        this.diceHandler.renderPlayerDice();
 
         this.levelEngine = new LevelEngine(this);
         

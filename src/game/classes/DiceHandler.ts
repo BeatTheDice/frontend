@@ -6,11 +6,15 @@ export class DiceHandler {
     diceScale = 0.3;
     playersDice: Dice[] = [];
     activeDiceSprites: GameObjects.Image[] = [];
+    playerDiceSprites: GameObjects.Image[] = [];
+    diceInfoText?: GameObjects.Text;
+    bagSprite?: GameObjects.Image;
+    diceBagOpen = false;
 
     constructor(scene: Scene) {
         this.scene = scene;
 
-        //Zwei Startwürfel generieren
+        // Zwei Startwürfel generieren
         this.playersDice.push(
             new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
         );
@@ -39,6 +43,82 @@ export class DiceHandler {
             .setScale(0)
             .setAlpha(1)
             .setVisible(true);
+    }
+
+    private createPlayerDiceSprite(texture: string, x: number, y: number, depth: number) {
+        if (!this.scene.textures.exists(texture)) {
+            console.warn(`Texture "${texture}" is not loaded for player dice display`);
+            texture = 'regular-dice-6';
+        }
+
+        const sprite = this.scene.add.image(x, y, texture)
+            .setOrigin(0.5)
+            .setDepth(depth)
+            .setScale(this.diceScale)
+            .setAlpha(1)
+            .setVisible(true)
+            .setInteractive({ useHandCursor: true });
+
+        return sprite;
+    }
+
+    renderPlayerDice() {
+        const cam = this.scene.cameras.main;
+        const baseX = 210;
+        const baseY = cam.height - 150;
+
+        // Erstelle den Beutel-Sprite
+        this.bagSprite = this.scene.add.image(baseX, baseY, 'bag')
+            .setOrigin(0.5)
+            .setDepth(100)
+            .setScale(0.4)
+            .setInteractive({ useHandCursor: true });
+
+        this.bagSprite.on('pointerdown', () => {
+            this.toggleDiceBag();
+        });
+
+        // Erstelle den Info-Text für Hover
+        this.diceInfoText = this.scene.add.text(baseX, baseY - 90, '', {
+            fontFamily: 'actionman',
+            fontSize: 32,
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 6,
+            align: 'left',
+            wordWrap: { width: 240 }
+        })
+            .setDepth(300)
+            .setAlpha(0.95)
+            .setVisible(false);
+
+        // Erstelle die Würfel-Sprites (initial versteckt)
+        this.playersDice.forEach((dice, index) => {
+            const x = baseX + index * 120;
+            const sprite = this.createPlayerDiceSprite(dice.getDisplayTexture(), x, baseY, 100);
+            sprite.setVisible(false);
+
+            sprite.on('pointerover', () => {
+                if (this.diceBagOpen) {
+                    this.diceInfoText?.setText(dice.getHoverLabel()).setX(x - 40).setY(baseY - 90).setVisible(true);
+                    this.scene.tweens.add({
+                        targets: sprite,
+                        scale: { from: this.diceScale, to: this.diceScale * 1.1 },
+                        duration: 120,
+                        ease: 'Quad.Out'
+                    });
+                }
+            });
+
+            sprite.on('pointerout', () => {
+                this.diceInfoText?.setVisible(false);
+                if (this.diceBagOpen) {
+                    sprite.setScale(this.diceScale);
+                }
+            });
+
+            this.playerDiceSprites.push(sprite);
+        });
     }
 
     private animateDice(sprite: GameObjects.Image, dice: Dice, finalTexture: string, delayOffset = 0): number {
@@ -135,5 +215,66 @@ export class DiceHandler {
                 resolve(results);
             });
         });
+    }
+
+    private toggleDiceBag() {
+        this.diceBagOpen = !this.diceBagOpen;
+
+        if (this.diceBagOpen) {
+            // Würfel aufgefächert anzeigen
+            this.playerDiceSprites.forEach((sprite, index) => {
+                const cam = this.scene.cameras.main;
+                const baseX = 210;
+                const baseY = cam.height - 150;
+                const targetX = baseX + index * 120;
+
+                sprite.setVisible(true);
+                this.scene.tweens.add({
+                    targets: sprite,
+                    x: targetX,
+                    y: baseY,
+                    scale: this.diceScale,
+                    duration: 300,
+                    ease: 'Back.Out',
+                    delay: index * 50
+                });
+            });
+
+            // Beutel leicht nach hinten verschieben
+            this.scene.tweens.add({
+                targets: this.bagSprite,
+                x: 140,
+                duration: 300,
+                ease: 'Back.Out'
+            });
+        } else {
+            // Würfel wieder einfalten
+            this.playerDiceSprites.forEach((sprite, index) => {
+                const cam = this.scene.cameras.main;
+                const baseX = 210;
+                const baseY = cam.height - 150;
+
+                this.scene.tweens.add({
+                    targets: sprite,
+                    x: baseX,
+                    y: baseY,
+                    scale: 0,
+                    duration: 200,
+                    ease: 'Back.In',
+                    delay: index * 30,
+                    onComplete: () => {
+                        sprite.setVisible(false);
+                    }
+                });
+            });
+
+            // Beutel zurück an ursprüngliche Position
+            this.scene.tweens.add({
+                targets: this.bagSprite,
+                x: 210,
+                duration: 300,
+                ease: 'Back.Out'
+            });
+        }
     }
 }
