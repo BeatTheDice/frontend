@@ -37,6 +37,7 @@ export class Preloader extends Scene
         this.load.image('mm_background', './images/mainmenu_background.png')
 
         this.load.image('dice', './images/dice.png');
+        this.load.image('bag', './images/bag.png');
 
         // Dice face images 
         this.load.image('regular-dice-1', './images/Dice 1.png');

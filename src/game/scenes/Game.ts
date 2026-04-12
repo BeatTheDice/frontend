@@ -19,12 +19,21 @@ export class Game extends Scene {
         super('Game');
     }
 
+    init(data: { restart?: boolean }) {
+        if (data.restart) {
+            this.levelEngine.nextLevel();
+            this.diceHandler.renderPlayerDice();
+            this.updateTexts();
+        }
+    }
+
     create() {
         this.camera = this.cameras.main;
 
         this.background = this.add.image(768, 512, 'mm_background');
 
         this.diceHandler = new DiceHandler(this);
+        this.diceHandler.renderPlayerDice();
 
         this.levelEngine = new LevelEngine(this);
         
@@ -67,6 +76,13 @@ export class Game extends Scene {
         });
     }
 
+    updateTexts() {
+        this.levelNumberText.setText(`Level ${this.levelEngine.currentLevel}`);
+        this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
+        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+    }
+
     createButtons() {
         const button = this.add.image(1100, 900, 'dice');
 
@@ -90,7 +106,9 @@ export class Game extends Scene {
             });
             this.levelEngine.dealDamageToEnemy(total);
             this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-            if (this.levelEngine.remainingThrows === 0 && this.levelEngine.getCurrentEnemyHitPoints() > 0) {
+            if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
+                this.scene.start('Reward', { diceHandler: this.diceHandler });
+            } else if (this.levelEngine.remainingThrows === 0) {
                 this.scene.start('GameOver');
             }
         });

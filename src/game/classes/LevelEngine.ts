@@ -58,6 +58,12 @@ export class LevelEngine {
         return this.currentEnemy.maxHitPoints;
     }
 
+    nextLevel() {
+        this.currentLevel++;
+        this.remainingThrows = 3;
+        this.startLevel(this.currentLevel);
+    }
+
     getEnemyName() {
         return this.currentEnemy.name;
     }

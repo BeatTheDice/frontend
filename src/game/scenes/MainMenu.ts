@@ -28,7 +28,7 @@ export class MainMenu extends Scene
         EventBus.emit('current-scene-ready', this);
 
         // Listener für Maus-Klick 
-        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+        this.input.on('pointerdown', () => {
             this.scene.start('Game');
         });
     }
