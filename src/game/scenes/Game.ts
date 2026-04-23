@@ -14,6 +14,7 @@ export class Game extends Scene {
     remainingThrowsText: Phaser.GameObjects.Text;
     levelEngine: LevelEngine;
     generateNextLevel: boolean = false;
+    isDiceRolling: boolean = false;
 
     constructor() {
         super('Game');
@@ -24,6 +25,7 @@ export class Game extends Scene {
     }
 
     create() {
+        this.isDiceRolling = false;
         this.camera = this.cameras.main;
 
         this.background = this.add.image(768, 512, 'mm_background');
@@ -87,13 +89,6 @@ export class Game extends Scene {
         this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
     }
 
-    updateTexts() {
-        this.levelNumberText.setText(`Level ${this.levelEngine.currentLevel}`);
-        this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
-        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
-    }
-
     createButtons() {
         const button = this.add.image(1100, 900, 'dice');
 
@@ -102,6 +97,11 @@ export class Game extends Scene {
 
         // Klick-Event
         button.on('pointerdown', async () => {
+            if (this.isDiceRolling) return;
+            
+            this.isDiceRolling = true;
+            button.setAlpha(0.5);
+            
             const result = await this.diceHandler.throwDice();
             const total = result.reduce((s, v) => s + v, 0);
 
@@ -129,16 +129,23 @@ export class Game extends Scene {
                 this.time.delayedCall(2000, () => {
                     this.scene.start('GameOver');
                 });
+            } else {
+                this.isDiceRolling = false;
+                button.setAlpha(1);
             }
         });
 
         // Hover-Effekt
         button.on('pointerover', () => {
-            button.setScale(1.1);
+            if (!this.isDiceRolling) {
+                button.setScale(1.1);
+            }
         });
 
         button.on('pointerout', () => {
-            button.setScale(1);
+            if (!this.isDiceRolling) {
+                button.setScale(1);
+            }
         });
 
     }
