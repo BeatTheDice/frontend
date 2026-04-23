@@ -23,7 +23,7 @@ export class DiceHandler {
         );
     }
 
-    private clearDice() {
+    clearDice() {
         for (const sprite of this.activeDiceSprites) {
             this.scene.tweens.killTweensOf(sprite);
             if (sprite.active) sprite.destroy();
@@ -225,8 +225,6 @@ export class DiceHandler {
 
     addDice(dice: Dice) {
         this.playersDice.push(dice);
-        // Re-render player dice
-        this.renderPlayerDice();
     }
 
     private toggleDiceBag() {
