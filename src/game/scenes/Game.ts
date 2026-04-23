@@ -87,6 +87,13 @@ export class Game extends Scene {
         this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
     }
 
+    updateTexts() {
+        this.levelNumberText.setText(`Level ${this.levelEngine.currentLevel}`);
+        this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
+        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+    }
+
     createButtons() {
         const button = this.add.image(1100, 900, 'dice');
 
