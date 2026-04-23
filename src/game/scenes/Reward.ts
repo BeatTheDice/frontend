@@ -18,8 +18,8 @@ export class Reward extends Scene {
         super('Reward');
     }
 
-    init(data: { diceHandler: DiceHandler }) {
-        this.diceHandler = data.diceHandler;
+    init() {
+        this.diceHandler = window.diceHandler!;
     }
 
     create() {
@@ -108,9 +108,24 @@ export class Reward extends Scene {
     }
 
     continueToNextLevel() {
+        console.log('continueToNextLevel called');
+        console.log('selectedDice:', this.selectedDice);
+        console.log('diceHandler:', this.diceHandler);
         if (this.selectedDice) {
+            console.log('Adding dice');
             this.diceHandler.addDice(this.selectedDice);
-            this.scene.start('Game', { restart: true });
+            this.rewardDiceSprites.forEach(sprite => sprite.destroy());
+            this.continueButton.destroy();
+            this.continueText.destroy();
+            this.titleText.destroy();
+            this.infoText.destroy();
+            this.background.destroy();
+            console.log('Stopping scene');
+            this.scene.stop();
+            console.log('Starting Game');
+            this.scene.start('Game', { nextLevel: true });
+        } else {
+            console.log('No selectedDice');
         }
     }
 }

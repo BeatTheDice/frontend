@@ -1,4 +1,3 @@
-import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
@@ -14,17 +13,14 @@ export class Game extends Scene {
     enemyHealthText: Phaser.GameObjects.Text;
     remainingThrowsText: Phaser.GameObjects.Text;
     levelEngine: LevelEngine;
+    generateNextLevel: boolean = false;
 
     constructor() {
         super('Game');
     }
 
-    init(data: { restart?: boolean }) {
-        if (data.restart) {
-            this.levelEngine.nextLevel();
-            this.diceHandler.renderPlayerDice();
-            this.updateTexts();
-        }
+    init(data: { nextLevel: boolean }) {
+        this.generateNextLevel = data.nextLevel;
     }
 
     create() {
@@ -32,16 +28,24 @@ export class Game extends Scene {
 
         this.background = this.add.image(768, 512, 'mm_background');
 
-        this.diceHandler = new DiceHandler(this);
-        this.diceHandler.renderPlayerDice();
+        if (!window.levelEngine) {
+            window.levelEngine = new LevelEngine(this);
+        }
+        this.levelEngine = window.levelEngine;
 
-        this.levelEngine = new LevelEngine(this);
+        if (!window.diceHandler) {
+            window.diceHandler = new DiceHandler(this);
+        }
+        this.diceHandler = window.diceHandler;
+        this.diceHandler.renderPlayerDice();
+        
+        if (this.generateNextLevel) {
+            this.levelEngine.nextLevel();
+        }
         
         this.createTexts();
         
         this.createButtons();
-
-        EventBus.emit('current-scene-ready', this);
     }
 
     changeScene() {
@@ -83,6 +87,13 @@ export class Game extends Scene {
         this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
     }
 
+    updateTexts() {
+        this.levelNumberText.setText(`Level ${this.levelEngine.currentLevel}`);
+        this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
+        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+    }
+
     createButtons() {
         const button = this.add.image(1100, 900, 'dice');
 
@@ -91,8 +102,6 @@ export class Game extends Scene {
 
         // Klick-Event
         button.on('pointerdown', async () => {
-            this.levelEngine.remainingThrows --;
-            this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
             const result = await this.diceHandler.throwDice();
             const total = result.reduce((s, v) => s + v, 0);
 
@@ -104,12 +113,22 @@ export class Game extends Scene {
                 duration: 200,
                 ease: 'Back.Out'
             });
+
+            this.levelEngine.remainingThrows --;
+            this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
             this.levelEngine.dealDamageToEnemy(total);
             this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+
             if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-                this.scene.start('Reward', { diceHandler: this.diceHandler });
+                this.time.delayedCall(2000, () => {
+                    this.diceHandler.clearDice();
+                    this.diceText.setVisible(false);
+                    this.scene.start('Reward');
+                });
             } else if (this.levelEngine.remainingThrows === 0) {
-                this.scene.start('GameOver');
+                this.time.delayedCall(2000, () => {
+                    this.scene.start('GameOver');
+                });
             }
         });
 

@@ -54,6 +54,23 @@ export class Preloader extends Scene
         this.load.image('slime_win', './images/slime_win.png');
         this.load.image('slime_dead', './images/slime_dead.png');
 
+        this.load.image('skeleton_idle', './images/skeleton_idle.png');
+        this.load.image('skeleton_damage_low', './images/skeleton_damage_low.png');
+        this.load.image('skeleton_damage_high', './images/skeleton_damage_high.png');
+        this.load.image('skeleton_win', './images/skeleton_win.png');
+        this.load.image('skeleton_dead', './images/skeleton_dead.png');
+
+        this.load.image('goblin_idle', './images/goblin_idle.png');
+        this.load.image('goblin_damage_low', './images/goblin_damage_low.png');
+        this.load.image('goblin_damage_high', './images/goblin_damage_high.png');
+        this.load.image('goblin_win', './images/goblin_win.png');
+        this.load.image('goblin_dead', './images/goblin_dead.png');
+
+        this.load.image('dwarf_idle', './images/dwarf_idle.png');
+        this.load.image('dwarf_damage_low', './images/dwarf_damage_low.png');
+        this.load.image('dwarf_damage_high', './images/dwarf_damage_high.png');
+        this.load.image('dwarf_win', './images/dwarf_win.png');
+        this.load.image('dwarf_dead', './images/dwarf_dead.png');
         //  Load Fonts
         this.load.font('actionman', './fonts/Action-Man/Action_Man.ttf', 'truetype')
 
