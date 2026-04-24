@@ -13,40 +13,29 @@ export class Game extends Scene {
     enemyHealthText: Phaser.GameObjects.Text;
     remainingThrowsText: Phaser.GameObjects.Text;
     levelEngine: LevelEngine;
-    generateNextLevel: boolean = false;
     isDiceRolling: boolean = false;
 
     constructor() {
         super('Game');
     }
 
-    init(data: { nextLevel: boolean }) {
-        this.generateNextLevel = data.nextLevel;
+    init() {        
+        // Update scene context 
+        this.levelEngine = window.levelEngine as LevelEngine;
+        this.diceHandler = window.diceHandler as DiceHandler;
+        if (this.levelEngine) this.levelEngine.scene = this;
+        if (this.diceHandler) this.diceHandler.scene = this;
     }
 
     create() {
         this.isDiceRolling = false;
         this.camera = this.cameras.main;
-
         this.background = this.add.image(768, 512, 'mm_background');
 
-        if (!window.levelEngine) {
-            window.levelEngine = new LevelEngine(this);
-        }
-        this.levelEngine = window.levelEngine;
-
-        if (!window.diceHandler) {
-            window.diceHandler = new DiceHandler(this);
-        }
-        this.diceHandler = window.diceHandler;
+        this.levelEngine.nextLevel();                
         this.diceHandler.renderPlayerDice();
         
-        if (this.generateNextLevel) {
-            this.levelEngine.nextLevel();
-        }
-        
-        this.createTexts();
-        
+        this.createTexts();        
         this.createButtons();
     }
 
@@ -101,6 +90,7 @@ export class Game extends Scene {
             
             this.isDiceRolling = true;
             button.setAlpha(0.5);
+            button.setScale(1);
             
             const result = await this.diceHandler.throwDice();
             const total = result.reduce((s, v) => s + v, 0);

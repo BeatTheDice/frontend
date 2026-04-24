@@ -10,9 +10,8 @@ export class LevelEngine {
 
     constructor(scene: Scene) {
         this.scene = scene;
-        this.currentLevel = 1;
+        this.currentLevel = 0;
         this.remainingThrows = 3;
-        this.startLevel(this.currentLevel)
     }
     
     startLevel(level: number) {       
@@ -21,7 +20,6 @@ export class LevelEngine {
             this.enemySprite.destroy();
         }
 
-        //Level Nummer wird später genutzt für Prozedurale Formeln von Gegnern etc.
         switch (level) {
             case 1:
                 this.currentEnemy = new Enemy('Slime', 15 + level, 'slime_idle', 'slime_damage_low', 'slime_damage_high', 'slime_win', 'slime_dead'); //TODO Passende Leben
@@ -52,6 +50,12 @@ export class LevelEngine {
     }
 
     updateEnemyTexture() {
+        // Ensure scene is set
+        if (!this.scene) {
+            console.error('Scene is not set in LevelEngine');
+            return;
+        }
+
         const percentageHitpoints = this.currentEnemy.currentHitPoints / this.currentEnemy.maxHitPoints;
         switch (true) {
             case percentageHitpoints === 0:
