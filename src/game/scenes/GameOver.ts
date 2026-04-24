@@ -31,7 +31,7 @@ export class GameOver extends Scene
         }).setOrigin(0.5).setDepth(100);
 
         // Listener für Maus-Klick 
-        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+        this.input.on('pointerdown', () => {
             this.scene.start('MainMenu');
         });
         
