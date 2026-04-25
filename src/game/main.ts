@@ -3,6 +3,7 @@ import { GameOver } from './scenes/GameOver';
 import { Game as MainGame } from './scenes/Game';
 import { MainMenu } from './scenes/MainMenu';
 import { Reward } from './scenes/Reward';
+import { Winner } from './scenes/Winner';
 import { AUTO, Game } from 'phaser';
 import { Preloader } from './scenes/Preloader';
 
@@ -20,6 +21,7 @@ const config: Phaser.Types.Core.GameConfig = {
         MainMenu,
         MainGame,
         Reward,
+        Winner,
         GameOver
     ]
 };

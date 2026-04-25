@@ -58,6 +58,13 @@ export class Preloader extends Scene
         this.load.image('steeldice-4', './images/steeldice 4.png');
         this.load.image('steeldice-5', './images/steeldice 5.png');
 
+        // Vampire boss assets
+        this.load.image('vampire_idle', './images/vampire/idle.png');
+        this.load.image('vampire_hit_light', './images/vampire/hit_light.png');
+        this.load.image('vampire_hit_heavy', './images/vampire/hit_heavy.png');
+        this.load.image('vampire_dead', './images/vampire/dead.png');
+        this.load.image('vampire_victory', './images/vampire/victory.png');
+
         // Enemy images
         this.load.image('slime_idle', './images/slime_idle.png');
         this.load.image('slime_damage_low', './images/slime_damage_low.png');
