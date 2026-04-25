@@ -41,6 +41,11 @@ export class LevelEngine {
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
+            case 5:
+                this.currentEnemy = new Enemy('Vampire', 40 + level, 'vampire_idle', 'vampire_hit_light', 'vampire_hit_heavy', 'vampire_victory', 'vampire_dead');
+                this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
+                this.enemySprite.setScale(1.1, 1.1);
+                break;
             default:      
                 this.currentEnemy = new Enemy('Dwarf', 35 + level, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
@@ -99,5 +104,19 @@ export class LevelEngine {
 
     getEnemyName() {
         return this.currentEnemy.name;
+    }
+
+    healEnemy(amount: number) {
+        if (!this.currentEnemy) return;
+        this.currentEnemy.currentHitPoints = Math.min(this.currentEnemy.currentHitPoints + amount, this.currentEnemy.maxHitPoints);
+        this.updateEnemyTexture();
+    }
+
+    reset() {
+        this.currentLevel = 0;
+        this.remainingThrows = 3;
+        if (this.enemySprite) {
+            this.enemySprite.destroy();
+        }
     }
 }

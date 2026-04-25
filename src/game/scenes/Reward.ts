@@ -49,20 +49,23 @@ export class Reward extends Scene {
             new Dice([{ 3: 'steeldice-3' }, { 4: 'steeldice-4' }, { 5: 'steeldice-5' }], 'Steel Dice')
         ];
 
+        const diceOptions: Dice[] = this.getRandomDiceOptions(allDiceOptions, 3);
+
         const baseX = 768;
         const baseY = 400;
-        const spacing = 200;
+        const spacing = 250;
 
         allDiceOptions.forEach((dice, index) => {
             const x = baseX + (index - 1) * spacing;
-            const sprite = this.add.image(x, baseY, 'regular-dice-6')
+            const sprite = this.add.image(x, baseY, dice.getDisplayTexture())
                 .setOrigin(0.5)
-                .setScale(0.5)
+                .setScale(0.55)
                 .setDepth(50)
                 .setInteractive({ useHandCursor: true });
 
             sprite.on('pointerover', () => {
-                this.infoText.setText(dice.getHoverLabel()).setVisible(true);
+                const values = dice.getFaceValues().join(', ');
+                this.infoText.setText(`${dice.name}: ${values}`).setVisible(true);
                 sprite.setScale(0.6);
             });
 
@@ -130,5 +133,14 @@ export class Reward extends Scene {
         } else {
             console.log('No selectedDice');
         }
+    }
+
+    getRandomDiceOptions(diceOptions: Dice[], count: number): Dice[] {
+        const options = [...diceOptions];
+        for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+        }
+        return options.slice(0, count);
     }
 }
