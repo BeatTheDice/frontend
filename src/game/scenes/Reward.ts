@@ -40,18 +40,20 @@ export class Reward extends Scene {
             align: 'center'
         }).setOrigin(0.5).setDepth(100).setVisible(false);
 
-        // 3 Würfel anzeigen (alle Standard für jetzt)
-        const diceOptions: Dice[] = [
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Standard Würfel'),
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Standard Würfel'),
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Standard Würfel')
+        // 3 zufällige Würfel aus dem verfügbaren Pool anzeigen
+        const allDiceOptions: Dice[] = [
+            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice'),
+            new Dice([{ 2: 'evendice-2' }, { 4: 'evendice-4' }, { 6: 'evendice-6' }], 'Even Dice'),
+            new Dice([{ 1: 'odddice-1' }, { 3: 'odddice-3' }, { 5: 'odddice-5' }, { 7: 'odddice-7' }], 'Odd Dice'),
+            new Dice([{ 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 12: 'riskdice-12' }, { 16: 'riskdice-16' }], 'Risk Dice'),
+            new Dice([{ 3: 'steeldice-3' }, { 4: 'steeldice-4' }, { 5: 'steeldice-5' }], 'Steel Dice')
         ];
 
         const baseX = 768;
         const baseY = 400;
         const spacing = 200;
 
-        diceOptions.forEach((dice, index) => {
+        allDiceOptions.forEach((dice, index) => {
             const x = baseX + (index - 1) * spacing;
             const sprite = this.add.image(x, baseY, 'regular-dice-6')
                 .setOrigin(0.5)
