@@ -100,4 +100,13 @@ export class LevelEngine {
     getEnemyName() {
         return this.currentEnemy.name;
     }
+
+    reset() {
+        this.currentLevel = 0;
+        this.remainingThrows = 3;
+        if (this.enemySprite) {
+            this.enemySprite.destroy();
+        }
+        this.startLevel(1);
+    }
 }

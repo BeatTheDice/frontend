@@ -40,6 +40,24 @@ export class Preloader extends Scene
         this.load.image('regular-dice-5', './images/Dice 5.png');
         this.load.image('regular-dice-6', './images/Dice 6.png');
 
+        // New dice face images
+        this.load.image('evendice-2', './images/evendice 2.png');
+        this.load.image('evendice-4', './images/evendice 4.png');
+        this.load.image('evendice-6', './images/evendice 6.png');
+
+        this.load.image('odddice-1', './images/odddice 1.png');
+        this.load.image('odddice-3', './images/odddice 3.png');
+        this.load.image('odddice-5', './images/odddice 5.png');
+        this.load.image('odddice-7', './images/odddice 7.png');
+
+        this.load.image('riskdice-0', './images/riskdice 0.png');
+        this.load.image('riskdice-12', './images/riskdice 12.png');
+        this.load.image('riskdice-16', './images/riskdice 16.png');
+
+        this.load.image('steeldice-3', './images/steeldice 3.png');
+        this.load.image('steeldice-4', './images/steeldice 4.png');
+        this.load.image('steeldice-5', './images/steeldice 5.png');
+
         // Enemy images
         this.load.image('slime_idle', './images/slime_idle.png');
         this.load.image('slime_damage_low', './images/slime_damage_low.png');

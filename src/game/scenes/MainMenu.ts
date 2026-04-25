@@ -29,6 +29,10 @@ export class MainMenu extends Scene
 
         // Listener für Maus-Klick 
         this.input.on('pointerdown', () => {
+            const levelEngine = window.levelEngine;
+            if (levelEngine) {
+                levelEngine.reset();
+            }
             this.scene.start('Game');
         });
     }
