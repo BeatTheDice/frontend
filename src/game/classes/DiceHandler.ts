@@ -13,9 +13,7 @@ export class DiceHandler {
 
     constructor(scene: Scene) {
         this.scene = scene;
-
-        // Zwei Startwürfel generieren
-        // Zwei Startwürfel generieren
+        
         this.playersDice.push(
             new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
         );

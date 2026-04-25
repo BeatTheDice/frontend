@@ -19,7 +19,8 @@ export class Reward extends Scene {
     }
 
     init() {
-        this.diceHandler = window.diceHandler!;
+        this.diceHandler = window.diceHandler as DiceHandler;
+        this.diceHandler.scene = this;
     }
 
     create() {
