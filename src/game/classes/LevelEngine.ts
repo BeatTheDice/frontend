@@ -23,27 +23,27 @@ export class LevelEngine {
 
         switch (level) {
             case 1:
-                this.currentEnemy = new Enemy('Slime', 15 + level, 'slime_idle', 'slime_damage_low', 'slime_damage_high', 'slime_win', 'slime_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('Slime', 18, 'slime_idle', 'slime_damage_low', 'slime_damage_high', 'slime_win', 'slime_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 620, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 2:
-                this.currentEnemy = new Enemy('Skeleton', 20 + level, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('Skeleton',30, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 3:
-                this.currentEnemy = new Enemy('Goblin', 25 + level, 'goblin_idle', 'goblin_damage_low', 'goblin_damage_high', 'goblin_win', 'goblin_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('Goblin', 43, 'goblin_idle', 'goblin_damage_low', 'goblin_damage_high', 'goblin_win', 'goblin_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 4:
-                this.currentEnemy = new Enemy('Dwarf', 30 + level, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('Dwarf', 60, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 5:
-                this.currentEnemy = new Enemy('Vampire', 40 + level, 'vampire_idle', 'vampire_hit_light', 'vampire_hit_heavy', 'vampire_victory', 'vampire_dead');
+                this.currentEnemy = new Enemy('Vampire', 70, 'vampire_idle', 'vampire_hit_light', 'vampire_hit_heavy', 'vampire_victory', 'vampire_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(1.1, 1.1);
                 break;
@@ -55,10 +55,15 @@ export class LevelEngine {
            }
     }
 
-    updateEnemyTexture() {
+    updateEnemyTexture(lastThrow: boolean) {
         // Ensure scene is set
         if (!this.scene) {
             console.error('Scene is not set in LevelEngine');
+            return;
+        }
+
+        if (lastThrow && this.currentEnemy.currentHitPoints > 0) {
+            this.enemySprite.setTexture(this.currentEnemy.winTexture);
             return;
         }
 
@@ -79,14 +84,14 @@ export class LevelEngine {
         }
     }
 
-    dealDamageToEnemy(damage: number) {
+    dealDamageToEnemy(damage: number, lastThrow: boolean) {
         if (damage >= this.currentEnemy.currentHitPoints) {
             this.currentEnemy.currentHitPoints = 0;
         }
         else {
             this.currentEnemy.currentHitPoints -= damage;
         }
-        this.updateEnemyTexture();
+        this.updateEnemyTexture(lastThrow);
     }
 
     getCurrentEnemyHitPoints() {
@@ -110,7 +115,7 @@ export class LevelEngine {
     healEnemy(amount: number) {
         if (!this.currentEnemy) return;
         this.currentEnemy.currentHitPoints = Math.min(this.currentEnemy.currentHitPoints + amount, this.currentEnemy.maxHitPoints);
-        this.updateEnemyTexture();
+        this.updateEnemyTexture(false);
     }
 
     reset() {
@@ -120,5 +125,11 @@ export class LevelEngine {
             this.enemySprite.destroy();
         }
         window.diceHandler = new DiceHandler(this.scene);
+    }
+
+    setEnemyWinTexture() {
+        if (this.enemySprite) {
+            this.enemySprite.setTexture(this.currentEnemy.winTexture);
+        }
     }
 }

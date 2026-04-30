@@ -29,13 +29,13 @@ export class Reward extends Scene {
         this.background = this.add.image(768, 512, 'mm_background');
 
         this.titleText = this.add.text(768, 100, 'Wähle deinen Belohnungswürfel!', {
-            fontFamily: 'actionman', fontSize: 48, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
+            fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
         this.infoText = this.add.text(768, 900, '', {
-            fontFamily: 'actionman', fontSize: 32, color: '#ffffff',
+            fontFamily: 'funblob', fontSize: 32, color: '#ffffff',
             stroke: '#000000', strokeThickness: 6,
             align: 'center'
         }).setOrigin(0.5).setDepth(100).setVisible(false);
@@ -45,7 +45,7 @@ export class Reward extends Scene {
             new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice'),
             new Dice([{ 2: 'evendice-2' }, { 4: 'evendice-4' }, { 6: 'evendice-6' }], 'Even Dice'),
             new Dice([{ 1: 'odddice-1' }, { 3: 'odddice-3' }, { 5: 'odddice-5' }, { 7: 'odddice-7' }], 'Odd Dice'),
-            new Dice([{ 0: 'riskdice-0' }, { 12: 'riskdice-12' }, { 16: 'riskdice-16' }], 'Risk Dice'),
+            new Dice([{ 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 12: 'riskdice-12' }, { 16: 'riskdice-16' }], 'Risk Dice'),
             new Dice([{ 3: 'steeldice-3' }, { 4: 'steeldice-4' }, { 5: 'steeldice-5' }], 'Steel Dice')
         ];
 
@@ -90,8 +90,8 @@ export class Reward extends Scene {
             .setInteractive({ useHandCursor: true });
 
         this.continueText = this.add.text(768, 800, 'Weiter', {
-            fontFamily: 'actionman', fontSize: 32, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 4,
+            fontFamily: 'funblob', fontSize: 32, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 4,
             align: 'center'
         }).setOrigin(0.5).setDepth(60).setVisible(false);
 

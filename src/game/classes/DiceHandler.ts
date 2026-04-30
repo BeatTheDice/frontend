@@ -85,7 +85,7 @@ export class DiceHandler {
 
         // Erstelle den Info-Text für Hover
         this.diceInfoText = this.scene.add.text(baseX, baseY - 90, '', {
-            fontFamily: 'actionman',
+            fontFamily: 'funblob',
             fontSize: 32,
             color: '#ffffff',
             stroke: '#000000',

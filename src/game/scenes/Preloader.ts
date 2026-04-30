@@ -91,8 +91,7 @@ export class Preloader extends Scene
         this.load.image('dwarf_dead', './images/dwarf_dead.png');
 
         //  Load Fonts
-        this.load.font('actionman', './fonts/Action-Man/Action_Man.ttf', 'truetype')
-
+        this.load.font('funblob', 'fonts/fun-blob/FunBlob.ttf', 'truetype')
     }
 
     create ()
