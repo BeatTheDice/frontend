@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: "pages"
@@ -18,9 +16,18 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://beatthedice.github.io/
     runs-on: ubuntu-latest
     steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: BeatTheDice
+          repositories: beatthedice.github.io
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -36,14 +43,10 @@ jobs:
       - name: Build project
         run: npm run build-nolog
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to beatthedice.github.io
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ./dist
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+          personal_token: ${{ steps.app-token.outputs.token }}
+          external_repository: BeatTheDice/beatthedice.github.io
+          publish_branch: main
+          publish_dir: ./dist
