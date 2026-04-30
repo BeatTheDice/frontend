@@ -8,7 +8,7 @@ export class Game extends Scene {
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
     diceHandler: DiceHandler;
-    diceText: Phaser.GameObjects.Text;
+    diceSumText: Phaser.GameObjects.Text;
     levelNumberText: Phaser.GameObjects.Text;
     enemyNameText: Phaser.GameObjects.Text;
     enemyHealthText: Phaser.GameObjects.Text;
@@ -46,11 +46,6 @@ export class Game extends Scene {
     }
 
     createTexts() {
-        this.diceText = this.add.text(768, 512, '', {
-            fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5).setDepth(100);
         this.levelNumberText = this.add.text(50, 50, `Level ${this.levelEngine.currentLevel}`, {
             fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
             stroke: '#893700', strokeThickness: 8,
@@ -71,6 +66,12 @@ export class Game extends Scene {
             stroke: '#893700', strokeThickness: 8,
             align: 'center'
         });
+
+        this.diceSumText = this.add.text(1048, 400, '', {
+            fontFamily: 'actionman', fontSize: 48, color: '#ffffff',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100).setVisible(false);
 
         this.bossEffectText = this.add.text(768, 180, '', {
             fontFamily: 'actionman', fontSize: 36, color: '#ffffff',
@@ -102,17 +103,10 @@ export class Game extends Scene {
             button.setScale(1);
             
             const result = await this.diceHandler.throwDice();
-            const total = result.reduce((s, v) => s + v, 0);
-
-            this.diceText.setText(total.toString());
             
-            this.tweens.add({
-                targets: this.diceText,
-                scale: 1,
-                duration: 200,
-                ease: 'Back.Out'
-            });
-
+            await this.animateProgressiveSum(result);
+            
+            const total = result.reduce((s, v) => s + v, 0);
             this.levelEngine.remainingThrows --;
             this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
             this.levelEngine.dealDamageToEnemy(total);
@@ -121,7 +115,7 @@ export class Game extends Scene {
             if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
                 this.time.delayedCall(2000, () => {
                     this.diceHandler.clearDice();
-                    this.diceText.setVisible(false);
+                    this.diceSumText.setVisible(false);
                     if (this.levelEngine.currentLevel === 5) {
                         this.scene.start('Winner');
                     } else {
@@ -134,11 +128,14 @@ export class Game extends Scene {
                 if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
                     this.time.delayedCall(1000, () => {
                         this.diceHandler.clearDice();
-                        this.diceText.setVisible(false);
+                        this.diceSumText.setVisible(false);
                         this.scene.start('Winner');
                     });
                 } else if (this.levelEngine.remainingThrows === 0) {
                     this.time.delayedCall(1000, () => {
+                        if (this.levelEngine.enemySprite) {
+                            this.levelEngine.setEnemyWinTexture();
+                        }
                         this.scene.start('GameOver');
                     });
                 } else {
@@ -147,6 +144,9 @@ export class Game extends Scene {
                 }
             } else if (this.levelEngine.remainingThrows === 0) {
                 this.time.delayedCall(2000, () => {
+                    if (this.levelEngine.enemySprite) {
+                        this.levelEngine.setEnemyWinTexture();
+                    }
                     this.scene.start('GameOver');
                 });
             } else {
@@ -168,6 +168,55 @@ export class Game extends Scene {
             }
         });
 
+    }
+
+    private async animateProgressiveSum(results: number[]): Promise<void> {
+        this.diceSumText.setVisible(true);
+        let currentSum = 0;
+
+        for (let i = 0; i < results.length; i++) {
+            currentSum += results[i];
+            this.diceSumText.setText(currentSum.toString());
+
+            // Scale animation: grow and shrink
+            await new Promise<void>((resolve) => {
+                this.tweens.add({
+                    targets: this.diceSumText,
+                    scale: { from: 1, to: 1.3 },
+                    duration: 150,
+                    ease: 'Back.Out',
+                    onComplete: () => {
+                        this.tweens.add({
+                            targets: this.diceSumText,
+                            scale: { from: 1.3, to: 1 },
+                            duration: 150,
+                            ease: 'Back.In',
+                            onComplete: () => {
+                                resolve();
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Small delay between each dice sum
+            if (i < results.length - 1) {
+                await new Promise<void>((resolve) => {
+                    this.time.delayedCall(150, () => {
+                        resolve();
+                    });
+                });
+            }
+        }
+
+        // Check if critical hit (damage > half max HP)
+        const maxHP = this.levelEngine.getEnemyMaxHitPoints();
+        if (currentSum > maxHP / 2) {
+            this.diceSumText.setText(currentSum.toString() + ' Crit!');
+            this.diceSumText.setFontSize(64);
+            this.diceSumText.setColor('#ff0000');
+            this.diceSumText.setStroke('#ffff00', 8);
+        }
     }
 
     async handleVampireCounterattack() {

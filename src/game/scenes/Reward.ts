@@ -55,7 +55,7 @@ export class Reward extends Scene {
         const baseY = 400;
         const spacing = 250;
 
-        allDiceOptions.forEach((dice, index) => {
+        diceOptions.forEach((dice, index) => {
             const x = baseX + (index - 1) * spacing;
             const sprite = this.add.image(x, baseY, dice.getDisplayTexture())
                 .setOrigin(0.5)
