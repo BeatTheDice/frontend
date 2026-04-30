@@ -20,8 +20,8 @@ export class MainMenu extends Scene
         this.logo = this.add.image(768,512, 'logo');
 
         this.title = this.add.text(768, 980, 'Klicke zum Starten', {
-            fontFamily: 'actionman', fontSize: 60, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
+            fontFamily: 'funblob', fontSize: 60, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 10,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 

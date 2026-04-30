@@ -29,13 +29,13 @@ export class Reward extends Scene {
         this.background = this.add.image(768, 512, 'mm_background');
 
         this.titleText = this.add.text(768, 100, 'Wähle deinen Belohnungswürfel!', {
-            fontFamily: 'actionman', fontSize: 48, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
+            fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
         this.infoText = this.add.text(768, 900, '', {
-            fontFamily: 'actionman', fontSize: 32, color: '#ffffff',
+            fontFamily: 'funblob', fontSize: 32, color: '#ffffff',
             stroke: '#000000', strokeThickness: 6,
             align: 'center'
         }).setOrigin(0.5).setDepth(100).setVisible(false);
@@ -90,8 +90,8 @@ export class Reward extends Scene {
             .setInteractive({ useHandCursor: true });
 
         this.continueText = this.add.text(768, 800, 'Weiter', {
-            fontFamily: 'actionman', fontSize: 32, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 4,
+            fontFamily: 'funblob', fontSize: 32, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 4,
             align: 'center'
         }).setOrigin(0.5).setDepth(60).setVisible(false);
 

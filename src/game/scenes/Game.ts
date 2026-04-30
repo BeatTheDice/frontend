@@ -47,35 +47,35 @@ export class Game extends Scene {
 
     createTexts() {
         this.levelNumberText = this.add.text(50, 50, `Level ${this.levelEngine.currentLevel}`, {
-            fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
-            align: 'center'
-        });
-        this.enemyNameText = this.add.text(1048, 50, `${this.levelEngine.getEnemyName()}`, {
-            fontFamily: 'actionman', fontSize: 48, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
-            align: 'center'
-        });
-        this.enemyHealthText = this.add.text(1048, 100, `HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`, {
-            fontFamily: 'actionman', fontSize: 48, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
-            align: 'center'
-        });
-        this.remainingThrowsText = this.add.text(524, 50, `Würfe übrig: ${this.levelEngine.remainingThrows}`, {
-            fontFamily: 'actionman', fontSize: 48, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
-            align: 'center'
-        });
+            fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 10,
+            align: 'left'
+        }).setOrigin(0, 0);
+        this.remainingThrowsText = this.add.text(50, 130, `Würfe übrig: ${this.levelEngine.remainingThrows}`, {
+            fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 10,
+            align: 'left'
+        }).setOrigin(0, 0);
+        this.enemyNameText = this.add.text(1486, 50, `${this.levelEngine.getEnemyName()}`, {
+            fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 10,
+            align: 'right'
+        }).setOrigin(1, 0);
+        this.enemyHealthText = this.add.text(1486, 100, `HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`, {
+            fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 10,
+            align: 'right'
+        }).setOrigin(1, 0);
 
-        this.diceSumText = this.add.text(1048, 400, '', {
-            fontFamily: 'actionman', fontSize: 48, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+        this.diceSumText = this.add.text(748, 300, '', {
+            fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 10,
             align: 'center'
         }).setOrigin(0.5).setDepth(100).setVisible(false);
 
         this.bossEffectText = this.add.text(768, 180, '', {
-            fontFamily: 'actionman', fontSize: 36, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 6,
+            fontFamily: 'funblob', fontSize: 36, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 10,
             align: 'center',
             wordWrap: { width: 500 }
         }).setOrigin(0.5).setDepth(100).setVisible(false);
@@ -109,7 +109,7 @@ export class Game extends Scene {
             const total = result.reduce((s, v) => s + v, 0);
             this.levelEngine.remainingThrows --;
             this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
-            this.levelEngine.dealDamageToEnemy(total);
+            this.levelEngine.dealDamageToEnemy(total, this.levelEngine.remainingThrows === 0);
             this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
 
             if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
@@ -134,7 +134,6 @@ export class Game extends Scene {
                 } else if (this.levelEngine.remainingThrows === 0) {
                     this.time.delayedCall(1000, () => {
                         if (this.levelEngine.enemySprite) {
-                            this.levelEngine.setEnemyWinTexture();
                         }
                         this.scene.start('GameOver');
                     });
@@ -145,7 +144,6 @@ export class Game extends Scene {
             } else if (this.levelEngine.remainingThrows === 0) {
                 this.time.delayedCall(2000, () => {
                     if (this.levelEngine.enemySprite) {
-                        this.levelEngine.setEnemyWinTexture();
                     }
                     this.scene.start('GameOver');
                 });
@@ -176,7 +174,8 @@ export class Game extends Scene {
 
         for (let i = 0; i < results.length; i++) {
             currentSum += results[i];
-            this.diceSumText.setText(currentSum.toString());
+            this.diceSumText.setText(currentSum.toString());            
+            this.diceSumText.setColor('#ff9000');
 
             // Scale animation: grow and shrink
             await new Promise<void>((resolve) => {
@@ -215,7 +214,6 @@ export class Game extends Scene {
             this.diceSumText.setText(currentSum.toString() + ' Crit!');
             this.diceSumText.setFontSize(64);
             this.diceSumText.setColor('#ff0000');
-            this.diceSumText.setStroke('#ffff00', 8);
         }
     }
 
@@ -244,7 +242,7 @@ export class Game extends Scene {
 
         const startX = enemySprite.x;
         const startY = enemySprite.y - 120;
-        const targetX = 768;
+        const targetX = 1298;
         const targetY = 400;
 
         const rollSprite = this.add.image(startX, startY, texture)
@@ -259,11 +257,11 @@ export class Game extends Scene {
                 x: targetX,
                 y: targetY,
                 angle: 720,
-                scale: { from: 0, to: 0.7 },
+                scale: { from: 0, to: 0.3 },
                 duration: 900,
                 ease: 'Cubic.Out',
                 onComplete: () => {
-                    this.bossEffectText.setText(`Vampir wirft zurück und heilt sich um ${value} HP`).setVisible(true);
+                    this.bossEffectText.setText('Der Vampir saugt dich aus und heilt sich um ' + value + ' HP').setVisible(true);
                     this.levelEngine.healEnemy(value);
                     this.time.delayedCall(2500, () => {
                         this.bossEffectText.setVisible(false);

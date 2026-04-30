@@ -54,10 +54,15 @@ export class LevelEngine {
            }
     }
 
-    updateEnemyTexture() {
+    updateEnemyTexture(lastThrow: boolean) {
         // Ensure scene is set
         if (!this.scene) {
             console.error('Scene is not set in LevelEngine');
+            return;
+        }
+
+        if (lastThrow && this.currentEnemy.currentHitPoints > 0) {
+            this.enemySprite.setTexture(this.currentEnemy.winTexture);
             return;
         }
 
@@ -78,14 +83,14 @@ export class LevelEngine {
         }
     }
 
-    dealDamageToEnemy(damage: number) {
+    dealDamageToEnemy(damage: number, lastThrow: boolean) {
         if (damage >= this.currentEnemy.currentHitPoints) {
             this.currentEnemy.currentHitPoints = 0;
         }
         else {
             this.currentEnemy.currentHitPoints -= damage;
         }
-        this.updateEnemyTexture();
+        this.updateEnemyTexture(lastThrow);
     }
 
     getCurrentEnemyHitPoints() {
@@ -109,7 +114,7 @@ export class LevelEngine {
     healEnemy(amount: number) {
         if (!this.currentEnemy) return;
         this.currentEnemy.currentHitPoints = Math.min(this.currentEnemy.currentHitPoints + amount, this.currentEnemy.maxHitPoints);
-        this.updateEnemyTexture();
+        this.updateEnemyTexture(false);
     }
 
     reset() {
