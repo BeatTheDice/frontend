@@ -1,5 +1,6 @@
 import { Scene,  } from 'phaser';
 import { Enemy } from './Enemy';
+import { DiceHandler } from './DiceHandler';
 
 export class LevelEngine {
     scene: Scene;
@@ -123,6 +124,7 @@ export class LevelEngine {
         if (this.enemySprite) {
             this.enemySprite.destroy();
         }
+        window.diceHandler = new DiceHandler(this.scene);
     }
 
     setEnemyWinTexture() {
