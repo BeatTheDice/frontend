@@ -2,6 +2,7 @@ import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { Dice } from '../classes/Dice';
+import { DiceCollection } from '../classes/DiceCollection';
 
 export class Reward extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -13,6 +14,7 @@ export class Reward extends Scene {
     diceHandler: DiceHandler;
     selectedDice: Dice | null = null;
     infoText: Phaser.GameObjects.Text;
+    diceCollection: DiceCollection;
 
     constructor() {
         super('Reward');
@@ -21,6 +23,7 @@ export class Reward extends Scene {
     init() {
         this.diceHandler = window.diceHandler as DiceHandler;
         this.diceHandler.scene = this;
+        this.diceCollection = window.diceCollection as DiceCollection;
     }
 
     create() {
@@ -40,16 +43,7 @@ export class Reward extends Scene {
             align: 'center'
         }).setOrigin(0.5).setDepth(100).setVisible(false);
 
-        // 3 zufällige Würfel aus dem verfügbaren Pool anzeigen
-        const allDiceOptions: Dice[] = [
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice'),
-            new Dice([{ 2: 'evendice-2' }, { 4: 'evendice-4' }, { 6: 'evendice-6' }], 'Even Dice'),
-            new Dice([{ 1: 'odddice-1' }, { 3: 'odddice-3' }, { 5: 'odddice-5' }, { 7: 'odddice-7' }], 'Odd Dice'),
-            new Dice([{ 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 0: 'riskdice-0' }, { 12: 'riskdice-12' }, { 16: 'riskdice-16' }], 'Risk Dice'),
-            new Dice([{ 3: 'steeldice-3' }, { 4: 'steeldice-4' }, { 5: 'steeldice-5' }], 'Steel Dice')
-        ];
-
-        const diceOptions: Dice[] = this.getRandomDiceOptions(allDiceOptions, 3);
+        const diceOptions: Dice[] = this.diceCollection.getRandomDiceOptions(3);
 
         const baseX = 768;
         const baseY = 400;
@@ -133,14 +127,5 @@ export class Reward extends Scene {
         } else {
             console.log('No selectedDice');
         }
-    }
-
-    getRandomDiceOptions(diceOptions: Dice[], count: number): Dice[] {
-        const options = [...diceOptions];
-        for (let i = options.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [options[i], options[j]] = [options[j], options[i]];
-        }
-        return options.slice(0, count);
     }
 }

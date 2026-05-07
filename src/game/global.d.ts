@@ -5,6 +5,7 @@ declare global {
     interface Window {
         levelEngine?: LevelEngine;
         diceHandler?: DiceHandler;
+        diceCollection?: DiceCollection;
     }
 }
 

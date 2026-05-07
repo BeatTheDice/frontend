@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
 import { Dice } from '../classes/Dice';
+import { DiceCollection } from '../classes/DiceCollection';
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -16,6 +17,7 @@ export class Game extends Scene {
     bossEffectText: Phaser.GameObjects.Text;
     levelEngine: LevelEngine;
     isDiceRolling: boolean = false;
+    diceCollection: DiceCollection;
 
     constructor() {
         super('Game');
@@ -25,6 +27,7 @@ export class Game extends Scene {
         // Update scene context 
         this.levelEngine = window.levelEngine as LevelEngine;
         this.diceHandler = window.diceHandler as DiceHandler;
+        this.diceCollection = window.diceCollection as DiceCollection;
         if (this.levelEngine) this.levelEngine.scene = this;
         if (this.diceHandler) this.diceHandler.scene = this;
     }
@@ -227,15 +230,7 @@ export class Game extends Scene {
             return;
         }
 
-        const vampireDice = new Dice([
-            { 1: 'regular-dice-1' },
-            { 2: 'regular-dice-2' },
-            { 3: 'regular-dice-3' },
-            { 4: 'regular-dice-4' },
-            { 5: 'regular-dice-5' },
-            { 6: 'regular-dice-6' }
-        ], 'Vampire Dice');
-
+        const vampireDice = this.diceCollection.getRandomDiceOptions(1)[0];
         const result = vampireDice.roll();
         const value = Number(Object.keys(result)[0]);
         const texture = Object.values(result)[0];
