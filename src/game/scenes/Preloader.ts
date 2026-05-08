@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceHandler } from '../classes/DiceHandler';
+import { DiceCollection } from '../classes/DiceCollection';
 
 export class Preloader extends Scene
 {
@@ -33,66 +34,65 @@ export class Preloader extends Scene
         this.load.image('bag', './images/bag.png');
 
         // Dice face images 
-        this.load.image('regular-dice-1', './images/Dice 1.png');
-        this.load.image('regular-dice-2', './images/Dice 2.png');
-        this.load.image('regular-dice-3', './images/Dice 3.png');
-        this.load.image('regular-dice-4', './images/Dice 4.png');
-        this.load.image('regular-dice-5', './images/Dice 5.png');
-        this.load.image('regular-dice-6', './images/Dice 6.png');
+        this.load.image('regular-dice-1', './images/dice/dice1.png');
+        this.load.image('regular-dice-2', './images/dice/dice2.png');
+        this.load.image('regular-dice-3', './images/dice/dice3.png');
+        this.load.image('regular-dice-4', './images/dice/dice4.png');
+        this.load.image('regular-dice-5', './images/dice/dice5.png');
+        this.load.image('regular-dice-6', './images/dice/dice6.png');
 
         // New dice face images
-        this.load.image('evendice-2', './images/evendice 2.png');
-        this.load.image('evendice-4', './images/evendice 4.png');
-        this.load.image('evendice-6', './images/evendice 6.png');
+        this.load.image('evendice-2', './images/dice/evendice 2.png');
+        this.load.image('evendice-4', './images/dice/evendice 4.png');
+        this.load.image('evendice-6', './images/dice/evendice 6.png');
 
-        this.load.image('odddice-1', './images/odddice 1.png');
-        this.load.image('odddice-3', './images/odddice 3.png');
-        this.load.image('odddice-5', './images/odddice 5.png');
-        this.load.image('odddice-7', './images/odddice 7.png');
+        this.load.image('odddice-1', './images/dice/odddice 1.png');
+        this.load.image('odddice-3', './images/dice/odddice 3.png');
+        this.load.image('odddice-5', './images/dice/odddice 5.png');
+        this.load.image('odddice-7', './images/dice/odddice 7.png');
 
-        this.load.image('riskdice-0', './images/riskdice 0.png');
-        this.load.image('riskdice-12', './images/riskdice 12.png');
-        this.load.image('riskdice-16', './images/riskdice 16.png');
+        this.load.image('riskdice-0', './images/dice/riskdice 0.png');
+        this.load.image('riskdice-12', './images/dice/riskdice 12.png');
+        this.load.image('riskdice-16', './images/dice/riskdice 16.png');
 
-        this.load.image('steeldice-3', './images/steeldice 3.png');
-        this.load.image('steeldice-4', './images/steeldice 4.png');
-        this.load.image('steeldice-5', './images/steeldice 5.png');
+        this.load.image('steeldice-3', './images/dice/steeldice 3.png');
+        this.load.image('steeldice-4', './images/dice/steeldice 4.png');
+        this.load.image('steeldice-5', './images/dice/steeldice 5.png');
 
         // Vampire boss assets
-        this.load.image('vampire_idle', './images/vampire/idle.png');
-        this.load.image('vampire_hit_light', './images/vampire/hit_light.png');
-        this.load.image('vampire_hit_heavy', './images/vampire/hit_heavy.png');
-        this.load.image('vampire_dead', './images/vampire/dead.png');
-        this.load.image('vampire_victory', './images/vampire/victory.png');
+        this.load.image('vampire_idle', './images/enemy/vampire/idle.png');
+        this.load.image('vampire_hit_light', './images/enemy/vampire/hit_light.png');
+        this.load.image('vampire_hit_heavy', './images/enemy/vampire/hit_heavy.png');
+        this.load.image('vampire_dead', './images/enemy/vampire/dead.png');
+        this.load.image('vampire_victory', './images/enemy/vampire/victory.png');
 
         // Enemy images
-        this.load.image('slime_idle', './images/slime_idle.png');
-        this.load.image('slime_damage_low', './images/slime_damage_low.png');
-        this.load.image('slime_damage_high', './images/slime_damage_high.png');
-        this.load.image('slime_win', './images/slime_win.png');
-        this.load.image('slime_dead', './images/slime_dead.png');
+        this.load.image('slime_green_idle', './images/enemy/slime_green/idle.png');
+        this.load.image('slime_green_damage_low', './images/enemy/slime_green/damage_low.png');
+        this.load.image('slime_green_damage_high', './images/enemy/slime_green/damage_high.png');
+        this.load.image('slime_green_win', './images/enemy/slime_green/win.png');
+        this.load.image('slime_green_dead', './images/enemy/slime_green/dead.png');
 
-        this.load.image('skeleton_idle', './images/skeleton_idle.png');
-        this.load.image('skeleton_damage_low', './images/skeleton_damage_low.png');
-        this.load.image('skeleton_damage_high', './images/skeleton_damage_high.png');
-        this.load.image('skeleton_win', './images/skeleton_win.png');
-        this.load.image('skeleton_dead', './images/skeleton_dead.png');
+        this.load.image('skeleton_idle', './images/enemy/skeleton/idle.png');
+        this.load.image('skeleton_damage_low', './images/enemy/skeleton/damage_low.png');
+        this.load.image('skeleton_damage_high', './images/enemy/skeleton/damage_high.png');
+        this.load.image('skeleton_win', './images/enemy/skeleton/win.png');
+        this.load.image('skeleton_dead', './images/enemy/skeleton/dead.png');
 
-        this.load.image('goblin_idle', './images/goblin_idle.png');
-        this.load.image('goblin_damage_low', './images/goblin_damage_low.png');
-        this.load.image('goblin_damage_high', './images/goblin_damage_high.png');
-        this.load.image('goblin_win', './images/goblin_win.png');
-        this.load.image('goblin_dead', './images/goblin_dead.png');
+        this.load.image('goblin_green_idle', './images/enemy/goblin_green/idle.png');
+        this.load.image('goblin_green_damage_low', './images/enemy/goblin_green/damage_low.png');
+        this.load.image('goblin_green_damage_high', './images/enemy/goblin_green/damage_high.png');
+        this.load.image('goblin_green_win', './images/enemy/goblin_green/win.png');
+        this.load.image('goblin_green_dead', './images/enemy/goblin_green/dead.png');
 
-        this.load.image('dwarf_idle', './images/dwarf_idle.png');
-        this.load.image('dwarf_damage_low', './images/dwarf_damage_low.png');
-        this.load.image('dwarf_damage_high', './images/dwarf_damage_high.png');
-        this.load.image('dwarf_win', './images/dwarf_win.png');
-        this.load.image('dwarf_dead', './images/dwarf_dead.png');
+        this.load.image('dwarf_idle', './images/enemy/dwarf/idle.png');
+        this.load.image('dwarf_damage_low', './images/enemy/dwarf/damage_low.png');
+        this.load.image('dwarf_damage_high', './images/enemy/dwarf/damage_high.png');
+        this.load.image('dwarf_win', './images/enemy/dwarf/win.png');
+        this.load.image('dwarf_dead', './images/enemy/dwarf/dead.png');
 
         //  Load Fonts
-        this.load.font('actionman', './fonts/Action-Man/Action_Man.ttf', 'truetype')
-
+        this.load.font('funblob', 'fonts/fun-blob/FunBlob.ttf', 'truetype')
     }
 
     create ()
@@ -100,6 +100,7 @@ export class Preloader extends Scene
         // create global instances of LevelEngine and DiceHandler
         window.levelEngine = new LevelEngine(this);
         window.diceHandler = new DiceHandler(this);
+        window.diceCollection = new DiceCollection();
         
 
         // Move to the MainMenu.

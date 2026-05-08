@@ -19,14 +19,14 @@ export class GameOver extends Scene
         this.background = this.add.image(768, 512, 'mm_background');
 
         this.gameOverText = this.add.text(768, 512, 'Game Over', {
-            fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
+            fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
         this.gameOverText = this.add.text(768, 582, 'Klicke, um zum Hauptmenü zurückzukehren', {
-            fontFamily: 'actionman', fontSize: 64, color: '#ff9000',
-            stroke: '#893700', strokeThickness: 8,
+            fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
+            stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
