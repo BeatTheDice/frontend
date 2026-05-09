@@ -8,12 +8,16 @@ export class DiceHandler {
     activeDiceSprites: GameObjects.Image[] = [];
     playerDiceSprites: GameObjects.Image[] = [];
     diceInfoText?: GameObjects.Text;
-    bagSprite?: GameObjects.Image;
+    bagSprite: GameObjects.Image;
     diceBagOpen = false;
+    baseX = 600;
+    baseY = 880;
+    bagTooltip: GameObjects.Text;
+    toolTipTimer?: Phaser.Time.TimerEvent;
 
     constructor(scene: Scene) {
         this.scene = scene;
-        
+
         this.playersDice.push(
             new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
         );
@@ -68,12 +72,8 @@ export class DiceHandler {
         if (this.bagSprite) this.bagSprite.destroy();
         if (this.diceInfoText) this.diceInfoText.destroy();
 
-        const cam = this.scene.cameras.main;
-        const baseX = 210;
-        const baseY = cam.height - 150;
-
         // Erstelle den Beutel-Sprite
-        this.bagSprite = this.scene.add.image(baseX, baseY, 'bag')
+        this.bagSprite = this.scene.add.image(this.baseX, this.baseY, 'bag')
             .setOrigin(0.5)
             .setDepth(100)
             .setScale(0.4)
@@ -83,8 +83,42 @@ export class DiceHandler {
             this.toggleDiceBag();
         });
 
+        this.bagTooltip = this.scene.add.text(0, 0, 'Würfel anschauen', {
+        fontSize: '24px',
+        fontFamily: 'funblob',
+        backgroundColor: '#000000aa',
+        color: '#ffffff',
+        padding: { x: 6, y: 4 }
+        })
+        .setDepth(1000)
+        .setVisible(false)
+        .setOrigin(0.5);
+
+        // Hover-Effekt
+        this.bagSprite.on('pointerover', () => {
+            this.bagSprite.setScale(0.43);
+
+            if (this.toolTipTimer) {
+                this.toolTipTimer.remove(false);
+            }
+            this.toolTipTimer = this.scene.time.delayedCall(500, () => {
+                this.bagTooltip.setVisible(true);
+                this.bagTooltip.setPosition(this.bagSprite.x, this.bagSprite.y - 150);
+            });
+        });
+
+        this.bagSprite.on('pointerout', () => {
+            this.bagSprite.setScale(0.4);
+
+            if (this.toolTipTimer) {
+                this.toolTipTimer.remove(false);
+                this.toolTipTimer = undefined;
+            }
+            this.bagTooltip.setVisible(false);
+        });
+
         // Erstelle den Info-Text für Hover
-        this.diceInfoText = this.scene.add.text(baseX, baseY - 90, '', {
+        this.diceInfoText = this.scene.add.text(this.baseX, this.baseY - 90, '', {
             fontFamily: 'funblob',
             fontSize: 32,
             color: '#ffffff',
@@ -99,13 +133,13 @@ export class DiceHandler {
 
         // Erstelle die Würfel-Sprites (initial versteckt)
         this.playersDice.forEach((dice, index) => {
-            const x = baseX + index * 120;
-            const sprite = this.createPlayerDiceSprite(dice.getDisplayTexture(), x, baseY, 100);
+            const x = this.baseX + index * 120;
+            const sprite = this.createPlayerDiceSprite(dice.getDisplayTexture(), x, this.baseY, 100);
             sprite.setVisible(false);
 
             sprite.on('pointerover', () => {
                 if (this.diceBagOpen) {
-                    this.diceInfoText?.setText(dice.getHoverLabel()).setX(x - 40).setY(baseY - 90).setVisible(true);
+                    this.diceInfoText?.setText(dice.getHoverLabel()).setX(x - 40).setY(this.baseY - 90).setVisible(true);
                     this.scene.tweens.add({
                         targets: sprite,
                         scale: { from: this.diceScale, to: this.diceScale * 1.1 },
@@ -178,7 +212,7 @@ export class DiceHandler {
         const cam = this.scene.cameras.main;
         const startX = 200;
         const startY = cam.height + 100;
-        const baseX = 300;
+        const targetX = 300;
         const targetY = cam.centerY;
 
         const results: number[] = [];
@@ -207,7 +241,7 @@ export class DiceHandler {
 
             this.scene.tweens.add({
                 targets: sprite,
-                x: baseX + index * 90,
+                x: targetX + index * 90,
                 y: targetY + (index % 2 === 0 ? -8 : 8),
                 scale: { from: 0, to: this.diceScale },
                 duration: moveDuration,
@@ -232,16 +266,13 @@ export class DiceHandler {
         if (this.diceBagOpen) {
             // Würfel aufgefächert anzeigen
             this.playerDiceSprites.forEach((sprite, index) => {
-                const cam = this.scene.cameras.main;
-                const baseX = 210;
-                const baseY = cam.height - 150;
-                const targetX = baseX + index * 120;
+                const targetX = this.baseX + index * 120;
 
                 sprite.setVisible(true);
                 this.scene.tweens.add({
                     targets: sprite,
                     x: targetX,
-                    y: baseY,
+                    y: this.baseY,
                     scale: this.diceScale,
                     duration: 300,
                     ease: 'Back.Out',
@@ -252,21 +283,17 @@ export class DiceHandler {
             // Beutel leicht nach hinten verschieben
             this.scene.tweens.add({
                 targets: this.bagSprite,
-                x: 140,
+                x: this.baseX - 120,
                 duration: 300,
                 ease: 'Back.Out'
             });
         } else {
             // Würfel wieder einfalten
             this.playerDiceSprites.forEach((sprite, index) => {
-                const cam = this.scene.cameras.main;
-                const baseX = 210;
-                const baseY = cam.height - 150;
-
                 this.scene.tweens.add({
                     targets: sprite,
-                    x: baseX,
-                    y: baseY,
+                    x: this.baseX,
+                    y: this.baseY,
                     scale: 0,
                     duration: 200,
                     ease: 'Back.In',
@@ -280,7 +307,7 @@ export class DiceHandler {
             // Beutel zurück an ursprüngliche Position
             this.scene.tweens.add({
                 targets: this.bagSprite,
-                x: 210,
+                x: this.baseX,
                 duration: 300,
                 ease: 'Back.Out'
             });

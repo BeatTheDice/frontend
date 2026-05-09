@@ -1,7 +1,6 @@
 import { Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
-import { Dice } from '../classes/Dice';
 import { DiceCollection } from '../classes/DiceCollection';
 
 export class Game extends Scene {
@@ -18,6 +17,8 @@ export class Game extends Scene {
     levelEngine: LevelEngine;
     isDiceRolling: boolean = false;
     diceCollection: DiceCollection;
+    cupTooltip: Phaser.GameObjects.Text;
+    toolTipTimer: any;
 
     constructor() {
         super('Game');
@@ -92,60 +93,101 @@ export class Game extends Scene {
     }
 
     createButtons() {
-        const button = this.add.image(1100, 900, 'dice');
+        const button = this.add.image(200, 880, 'dicecupStanding');
+        button.setScale(0.25);
 
         // Interaktiv machen
         button.setInteractive();
 
+        this.cupTooltip = this.add.text(0, 0, 'Würfeln', {
+        fontSize: '24px',
+        fontFamily: 'funblob',
+        backgroundColor: '#000000aa',
+        color: '#ffffff',
+        padding: { x: 6, y: 4 }
+        })
+        .setDepth(1000)
+        .setVisible(false)
+        .setOrigin(0.5);
+
         // Klick-Event
         button.on('pointerdown', async () => {
-            if (this.isDiceRolling) return;
+            if (this.toolTipTimer) {
+            this.toolTipTimer.remove(false);
+            this.toolTipTimer = undefined;
+            }            
+            this.cupTooltip.setVisible(false);
             
-            this.isDiceRolling = true;
-            button.setAlpha(0.5);
-            button.setScale(1);
-            
-            const result = await this.diceHandler.throwDice();
-            
-            await this.animateProgressiveSum(result);
-            
-            const total = result.reduce((s, v) => s + v, 0);
-            this.levelEngine.remainingThrows --;
-            this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
-            this.levelEngine.dealDamageToEnemy(total, this.levelEngine.remainingThrows === 0);
-            this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+            button.setTexture('dicecupLying');
+            await this.handleDiceThrow(button);
+            button.setTexture('dicecupStanding');
+        });
 
+        // Hover-Effekt
+        button.on('pointerover', () => {
+            if (!this.isDiceRolling) {
+                button.setScale(0.27);
+
+                if (this.toolTipTimer) {
+                    this.toolTipTimer.remove(false);
+                }
+                this.toolTipTimer = this.time.delayedCall(500, () => {
+                this.cupTooltip.setVisible(true);
+                this.cupTooltip.setPosition(button.x, button.y - 150);
+            });
+            }
+        });
+
+        button.on('pointerout', () => {
+            if (!this.isDiceRolling) {
+                button.setScale(0.25);
+                if (this.toolTipTimer) {
+                    this.toolTipTimer.remove(false);
+                    this.toolTipTimer = undefined;
+                }
+                this.cupTooltip.setVisible(false);
+            }
+        });
+
+    }
+
+    private async handleDiceThrow(button: Phaser.GameObjects.Image) {
+        if (this.isDiceRolling) return;
+            
+        this.isDiceRolling = true;
+        button.setScale(0.25);
+        
+        const result = await this.diceHandler.throwDice();
+        
+        await this.animateProgressiveSum(result);
+        
+        const total = result.reduce((s, v) => s + v, 0);
+        this.levelEngine.remainingThrows --;
+        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+        this.levelEngine.dealDamageToEnemy(total, this.levelEngine.remainingThrows === 0);
+        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+
+        if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
+            this.time.delayedCall(2000, () => {
+                this.diceHandler.clearDice();
+                this.diceSumText.setVisible(false);
+                if (this.levelEngine.currentLevel === 5) {
+                    this.scene.start('Winner');
+                } else {
+                    this.scene.start('Reward');
+                }
+            });
+        } else if (this.levelEngine.currentLevel === 5) {
+            await this.handleVampireCounterattack();
+            this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
             if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-                this.time.delayedCall(2000, () => {
+                this.time.delayedCall(1000, () => {
                     this.diceHandler.clearDice();
                     this.diceSumText.setVisible(false);
-                    if (this.levelEngine.currentLevel === 5) {
-                        this.scene.start('Winner');
-                    } else {
-                        this.scene.start('Reward');
-                    }
+                    this.scene.start('Winner');
                 });
-            } else if (this.levelEngine.currentLevel === 5) {
-                await this.handleVampireCounterattack();
-                this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-                if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-                    this.time.delayedCall(1000, () => {
-                        this.diceHandler.clearDice();
-                        this.diceSumText.setVisible(false);
-                        this.scene.start('Winner');
-                    });
-                } else if (this.levelEngine.remainingThrows === 0) {
-                    this.time.delayedCall(1000, () => {
-                        if (this.levelEngine.enemySprite) {
-                        }
-                        this.scene.start('GameOver');
-                    });
-                } else {
-                    this.isDiceRolling = false;
-                    button.setAlpha(1);
-                }
             } else if (this.levelEngine.remainingThrows === 0) {
-                this.time.delayedCall(2000, () => {
+                this.time.delayedCall(1000, () => {
                     if (this.levelEngine.enemySprite) {
                     }
                     this.scene.start('GameOver');
@@ -154,21 +196,16 @@ export class Game extends Scene {
                 this.isDiceRolling = false;
                 button.setAlpha(1);
             }
-        });
-
-        // Hover-Effekt
-        button.on('pointerover', () => {
-            if (!this.isDiceRolling) {
-                button.setScale(1.1);
-            }
-        });
-
-        button.on('pointerout', () => {
-            if (!this.isDiceRolling) {
-                button.setScale(1);
-            }
-        });
-
+        } else if (this.levelEngine.remainingThrows === 0) {
+            this.time.delayedCall(2000, () => {
+                if (this.levelEngine.enemySprite) {
+                }
+                this.scene.start('GameOver');
+            });
+        } else {
+            this.isDiceRolling = false;
+            button.setAlpha(1);
+        }
     }
 
     private async animateProgressiveSum(results: number[]): Promise<void> {
@@ -185,13 +222,13 @@ export class Game extends Scene {
                 this.tweens.add({
                     targets: this.diceSumText,
                     scale: { from: 1, to: 1.3 },
-                    duration: 150,
+                    duration: 100,
                     ease: 'Back.Out',
                     onComplete: () => {
                         this.tweens.add({
                             targets: this.diceSumText,
                             scale: { from: 1.3, to: 1 },
-                            duration: 150,
+                            duration: 100,
                             ease: 'Back.In',
                             onComplete: () => {
                                 resolve();
@@ -220,7 +257,7 @@ export class Game extends Scene {
         }
     }
 
-    async handleVampireCounterattack() {
+    private async handleVampireCounterattack() {
         if (this.levelEngine.currentLevel !== 5 || this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
             return;
         }
