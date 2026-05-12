@@ -13,6 +13,10 @@ export class DiceCollection {
         ];
     }
 
+    getAllDiceOptions(): Dice[] {
+        return [...this.allDiceOptions];
+    }
+
     getRandomDiceOptions(count: number): Dice[] {
         const options = [...this.allDiceOptions];
         for (let i = options.length - 1; i > 0; i--) {
