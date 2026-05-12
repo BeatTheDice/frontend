@@ -19,6 +19,11 @@ export class Game extends Scene {
     diceCollection: DiceCollection;
     cupTooltip: Phaser.GameObjects.Text;
     toolTipTimer: any;
+    enemyHealthBarX: number;
+    enemyHealthBarY: number;
+    enemyHealthBarWidth: number;
+    enemyHealthBarHeight: number;
+    enemyHealthBar: Phaser.GameObjects.Graphics;
 
     constructor() {
         super('Game');
@@ -43,6 +48,7 @@ export class Game extends Scene {
         
         this.createTexts();        
         this.createButtons();
+        this.createEnemyHealthBar();
     }
 
     changeScene() {
@@ -85,11 +91,66 @@ export class Game extends Scene {
         }).setOrigin(0.5).setDepth(100).setVisible(false);
     }
 
+    createEnemyHealthBar() {
+        // Position 
+        this.enemyHealthBarWidth = 350;
+        this.enemyHealthBarHeight = 32;
+        this.enemyHealthBarX = 1048 - this.enemyHealthBarWidth / 2;
+        this.enemyHealthBarY = 220;
+
+        // Graphics Objekt
+        this.enemyHealthBar = this.add.graphics();        
+        this.updateEnemyHealthBar();
+    }
+
     updateTexts() {
         this.levelNumberText.setText(`Level ${this.levelEngine.currentLevel}`);
         this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
         this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
         this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+        this.updateEnemyHealthBar();
+    }
+
+    updateEnemyHealthBar() {
+        const currentHp = this.levelEngine.getCurrentEnemyHitPoints();
+        const maxHp = this.levelEngine.getEnemyMaxHitPoints();
+
+        const percentage = Phaser.Math.Clamp(currentHp / maxHp, 0, 1);
+
+        this.enemyHealthBar.clear();
+
+        // Hintergrund / Rahmen
+        this.enemyHealthBar.fillStyle(0x000000, 0.8);
+        this.enemyHealthBar.fillRoundedRect(
+            this.enemyHealthBarX - 4,
+            this.enemyHealthBarY - 4,
+            this.enemyHealthBarWidth + 8,
+            this.enemyHealthBarHeight + 8,
+            10
+        );
+
+        // Rot leerer Balken
+        this.enemyHealthBar.fillStyle(0xaa0000, 1);
+        this.enemyHealthBar.fillRoundedRect(
+            this.enemyHealthBarX,
+            this.enemyHealthBarY,
+            this.enemyHealthBarWidth,
+            this.enemyHealthBarHeight,
+            8
+        );
+        
+        if (percentage)
+        {
+            // Grüner HP Anteil
+            this.enemyHealthBar.fillStyle(0x00ff00, 1);
+            this.enemyHealthBar.fillRoundedRect(
+                this.enemyHealthBarX,
+                this.enemyHealthBarY,
+                this.enemyHealthBarWidth * percentage,
+                this.enemyHealthBarHeight,
+                8
+            );
+        }
     }
 
     createButtons() {
@@ -206,6 +267,7 @@ export class Game extends Scene {
             this.isDiceRolling = false;
             button.setAlpha(1);
         }
+        this.updateEnemyHealthBar();
     }
 
     private async animateProgressiveSum(results: number[]): Promise<void> {
