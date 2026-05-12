@@ -1,4 +1,4 @@
-import { Scene } from 'phaser';
+import { Math as PhaserMath, Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceCollection } from '../classes/DiceCollection';
@@ -115,7 +115,7 @@ export class Game extends Scene {
         const currentHp = this.levelEngine.getCurrentEnemyHitPoints();
         const maxHp = this.levelEngine.getEnemyMaxHitPoints();
 
-        const percentage = Phaser.Math.Clamp(currentHp / maxHp, 0, 1);
+        const percentage = PhaserMath.Clamp(currentHp / maxHp, 0, 1);
 
         this.enemyHealthBar.clear();
 
