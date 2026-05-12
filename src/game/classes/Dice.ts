@@ -20,6 +20,11 @@ export class Dice {
         return this.faces.map(face => Object.values(face)[0]);
     }
 
+    getFaceValueLabel(): string {
+        const values = this.getFaceValues();
+        return this.formatFaceValues(values);
+    }
+
     getDisplayTexture(): string {
         const textures = this.getFaceTextures();
         return textures[textures.length - 1] ?? textures[0] ?? '';
