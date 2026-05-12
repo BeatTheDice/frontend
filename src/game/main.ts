@@ -5,20 +5,20 @@ import { Game as MainGame } from './scenes/Game';
 import { MainMenu } from './scenes/MainMenu';
 import { Reward } from './scenes/Reward';
 import { Winner } from './scenes/Winner';
-import { AUTO, Game } from 'phaser';
+import { AUTO, Game, Scale, type Types } from 'phaser';
 import { Preloader } from './scenes/Preloader';
 
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
-const config: Phaser.Types.Core.GameConfig = {
+const config: Types.Core.GameConfig = {
     type: AUTO,
     width: 1536,
     height: 1024,
     parent: 'game-container',
     backgroundColor: '#000000',
     scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
+        mode: Scale.FIT,
+        autoCenter: Scale.CENTER_BOTH,
         expandParent: true
     },
     scene: [
