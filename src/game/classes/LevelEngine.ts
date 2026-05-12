@@ -43,7 +43,7 @@ export class LevelEngine {
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 5:
-                this.currentEnemy = new Enemy('Vampire', 70, 'vampire_idle', 'vampire_hit_light', 'vampire_hit_heavy', 'vampire_victory', 'vampire_dead');
+                this.currentEnemy = new Enemy('Vampire', 70, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_victory', 'vampire_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(1.1, 1.1);
                 break;
