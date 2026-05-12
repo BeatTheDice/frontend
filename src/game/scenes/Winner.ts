@@ -14,7 +14,7 @@ export class Winner extends Scene {
     create() {
         this.camera = this.cameras.main;
 
-        this.background = this.add.image(768, 512, 'mm_background');
+        this.background = this.add.image(768, 512, 'main_background');
 
         this.titleText = this.add.text(768, 452, 'Gewonnen!', {
             fontFamily: 'funblob', fontSize: 80, color: '#ff9000',

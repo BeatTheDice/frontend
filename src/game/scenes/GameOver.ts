@@ -16,7 +16,7 @@ export class GameOver extends Scene
     {
         this.camera = this.cameras.main
 
-        this.background = this.add.image(768, 512, 'mm_background');
+        this.background = this.add.image(768, 512, 'main_background');
 
         this.gameOverText = this.add.text(768, 512, 'Game Over', {
             fontFamily: 'funblob', fontSize: 64, color: '#ff9000',

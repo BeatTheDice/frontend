@@ -29,9 +29,12 @@ export class Preloader extends Scene
         //  Load Images
         this.load.image('logo', './images/BeatTheDiceLogo.png');
         this.load.image('mm_background', './images/mainmenu_background.png')
+        this.load.image('main_background', './images/ingame_background.png');
 
         this.load.image('dice', './images/dice.png');
         this.load.image('bag', './images/bag.png');
+        this.load.image('dicecupStanding', './images/dicecup standing.png');
+        this.load.image('dicecupLying', './images/dicecup tilted 2.png');
 
         // Dice face images 
         this.load.image('regular-dice-1', './images/dice/dice1.png');
@@ -41,7 +44,6 @@ export class Preloader extends Scene
         this.load.image('regular-dice-5', './images/dice/dice5.png');
         this.load.image('regular-dice-6', './images/dice/dice6.png');
 
-        // New dice face images
         this.load.image('evendice-2', './images/dice/evendice 2.png');
         this.load.image('evendice-4', './images/dice/evendice 4.png');
         this.load.image('evendice-6', './images/dice/evendice 6.png');
@@ -61,8 +63,10 @@ export class Preloader extends Scene
 
         // Vampire boss assets
         this.load.image('vampire_idle', './images/enemy/vampire/idle.png');
-        this.load.image('vampire_hit_light', './images/enemy/vampire/damage_low.png');
-        this.load.image('vampire_hit_heavy', './images/enemy/vampire/damage_high.png');
+        
+        this.load.image('vampire_damage_low', './images/enemy/vampire/damage_low.png');
+        this.load.image('vampire_damage_high', './images/enemy/vampire/damage_high.png');
+
         this.load.image('vampire_dead', './images/enemy/vampire/dead.png');
         this.load.image('vampire_victory', './images/enemy/vampire/victory.png');
 

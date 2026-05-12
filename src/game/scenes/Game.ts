@@ -1,7 +1,6 @@
 import { Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
-import { Dice } from '../classes/Dice';
 import { DiceCollection } from '../classes/DiceCollection';
 
 export class Game extends Scene {
@@ -18,6 +17,13 @@ export class Game extends Scene {
     levelEngine: LevelEngine;
     isDiceRolling: boolean = false;
     diceCollection: DiceCollection;
+    cupTooltip: Phaser.GameObjects.Text;
+    toolTipTimer: any;
+    enemyHealthBarX: number;
+    enemyHealthBarY: number;
+    enemyHealthBarWidth: number;
+    enemyHealthBarHeight: number;
+    enemyHealthBar: Phaser.GameObjects.Graphics;
 
     constructor() {
         super('Game');
@@ -35,13 +41,14 @@ export class Game extends Scene {
     create() {
         this.isDiceRolling = false;
         this.camera = this.cameras.main;
-        this.background = this.add.image(768, 512, 'mm_background');
+        this.background = this.add.image(768, 512, 'main_background');
 
         this.levelEngine.nextLevel();                
         this.diceHandler.renderPlayerDice();
         
         this.createTexts();        
         this.createButtons();
+        this.createEnemyHealthBar();
     }
 
     changeScene() {
@@ -84,68 +91,164 @@ export class Game extends Scene {
         }).setOrigin(0.5).setDepth(100).setVisible(false);
     }
 
+    createEnemyHealthBar() {
+        // Position 
+        this.enemyHealthBarWidth = 350;
+        this.enemyHealthBarHeight = 32;
+        this.enemyHealthBarX = 1048 - this.enemyHealthBarWidth / 2;
+        this.enemyHealthBarY = 220;
+
+        // Graphics Objekt
+        this.enemyHealthBar = this.add.graphics();        
+        this.updateEnemyHealthBar();
+    }
+
     updateTexts() {
         this.levelNumberText.setText(`Level ${this.levelEngine.currentLevel}`);
         this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
         this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
         this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+        this.updateEnemyHealthBar();
+    }
+
+    updateEnemyHealthBar() {
+        const currentHp = this.levelEngine.getCurrentEnemyHitPoints();
+        const maxHp = this.levelEngine.getEnemyMaxHitPoints();
+
+        const percentage = Phaser.Math.Clamp(currentHp / maxHp, 0, 1);
+
+        this.enemyHealthBar.clear();
+
+        // Hintergrund / Rahmen
+        this.enemyHealthBar.fillStyle(0x000000, 0.8);
+        this.enemyHealthBar.fillRoundedRect(
+            this.enemyHealthBarX - 4,
+            this.enemyHealthBarY - 4,
+            this.enemyHealthBarWidth + 8,
+            this.enemyHealthBarHeight + 8,
+            10
+        );
+
+        // Rot leerer Balken
+        this.enemyHealthBar.fillStyle(0xaa0000, 1);
+        this.enemyHealthBar.fillRoundedRect(
+            this.enemyHealthBarX,
+            this.enemyHealthBarY,
+            this.enemyHealthBarWidth,
+            this.enemyHealthBarHeight,
+            8
+        );
+        
+        if (percentage)
+        {
+            // Grüner HP Anteil
+            this.enemyHealthBar.fillStyle(0x00ff00, 1);
+            this.enemyHealthBar.fillRoundedRect(
+                this.enemyHealthBarX,
+                this.enemyHealthBarY,
+                this.enemyHealthBarWidth * percentage,
+                this.enemyHealthBarHeight,
+                8
+            );
+        }
     }
 
     createButtons() {
-        const button = this.add.image(1100, 900, 'dice');
+        const button = this.add.image(200, 880, 'dicecupStanding');
+        button.setScale(0.25);
 
         // Interaktiv machen
         button.setInteractive();
 
+        this.cupTooltip = this.add.text(0, 0, 'Würfeln', {
+        fontSize: '24px',
+        fontFamily: 'funblob',
+        backgroundColor: '#000000aa',
+        color: '#ffffff',
+        padding: { x: 6, y: 4 }
+        })
+        .setDepth(1000)
+        .setVisible(false)
+        .setOrigin(0.5);
+
         // Klick-Event
         button.on('pointerdown', async () => {
-            if (this.isDiceRolling) return;
+            if (this.toolTipTimer) {
+            this.toolTipTimer.remove(false);
+            this.toolTipTimer = undefined;
+            }            
+            this.cupTooltip.setVisible(false);
             
-            this.isDiceRolling = true;
-            button.setAlpha(0.5);
-            button.setScale(1);
-            
-            const result = await this.diceHandler.throwDice();
-            
-            await this.animateProgressiveSum(result);
-            
-            const total = result.reduce((s, v) => s + v, 0);
-            this.levelEngine.remainingThrows --;
-            this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
-            this.levelEngine.dealDamageToEnemy(total, this.levelEngine.remainingThrows === 0);
-            this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+            button.setTexture('dicecupLying');
+            await this.handleDiceThrow(button);
+            button.setTexture('dicecupStanding');
+        });
 
+        // Hover-Effekt
+        button.on('pointerover', () => {
+            if (!this.isDiceRolling) {
+                button.setScale(0.27);
+
+                if (this.toolTipTimer) {
+                    this.toolTipTimer.remove(false);
+                }
+                this.toolTipTimer = this.time.delayedCall(500, () => {
+                this.cupTooltip.setVisible(true);
+                this.cupTooltip.setPosition(button.x, button.y - 150);
+            });
+            }
+        });
+
+        button.on('pointerout', () => {
+            if (!this.isDiceRolling) {
+                button.setScale(0.25);
+                if (this.toolTipTimer) {
+                    this.toolTipTimer.remove(false);
+                    this.toolTipTimer = undefined;
+                }
+                this.cupTooltip.setVisible(false);
+            }
+        });
+
+    }
+
+    private async handleDiceThrow(button: Phaser.GameObjects.Image) {
+        if (this.isDiceRolling) return;
+            
+        this.isDiceRolling = true;
+        button.setScale(0.25);
+        
+        const result = await this.diceHandler.throwDice();
+        
+        await this.animateProgressiveSum(result);
+        
+        const total = result.reduce((s, v) => s + v, 0);
+        this.levelEngine.remainingThrows --;
+        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+        this.levelEngine.dealDamageToEnemy(total, this.levelEngine.remainingThrows === 0);
+        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+
+        if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
+            this.time.delayedCall(2000, () => {
+                this.diceHandler.clearDice();
+                this.diceSumText.setVisible(false);
+                if (this.levelEngine.currentLevel === 5) {
+                    this.scene.start('Winner');
+                } else {
+                    this.scene.start('Reward');
+                }
+            });
+        } else if (this.levelEngine.currentLevel === 5) {
+            await this.handleVampireCounterattack();
+            this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
             if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-                this.time.delayedCall(2000, () => {
+                this.time.delayedCall(1000, () => {
                     this.diceHandler.clearDice();
                     this.diceSumText.setVisible(false);
-                    if (this.levelEngine.currentLevel === 5) {
-                        this.scene.start('Winner');
-                    } else {
-                        this.scene.start('Reward');
-                    }
+                    this.scene.start('Winner');
                 });
-            } else if (this.levelEngine.currentLevel === 5) {
-                await this.handleVampireCounterattack();
-                this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-                if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-                    this.time.delayedCall(1000, () => {
-                        this.diceHandler.clearDice();
-                        this.diceSumText.setVisible(false);
-                        this.scene.start('Winner');
-                    });
-                } else if (this.levelEngine.remainingThrows === 0) {
-                    this.time.delayedCall(1000, () => {
-                        if (this.levelEngine.enemySprite) {
-                        }
-                        this.scene.start('GameOver');
-                    });
-                } else {
-                    this.isDiceRolling = false;
-                    button.setAlpha(1);
-                }
             } else if (this.levelEngine.remainingThrows === 0) {
-                this.time.delayedCall(2000, () => {
+                this.time.delayedCall(1000, () => {
                     if (this.levelEngine.enemySprite) {
                     }
                     this.scene.start('GameOver');
@@ -154,21 +257,17 @@ export class Game extends Scene {
                 this.isDiceRolling = false;
                 button.setAlpha(1);
             }
-        });
-
-        // Hover-Effekt
-        button.on('pointerover', () => {
-            if (!this.isDiceRolling) {
-                button.setScale(1.1);
-            }
-        });
-
-        button.on('pointerout', () => {
-            if (!this.isDiceRolling) {
-                button.setScale(1);
-            }
-        });
-
+        } else if (this.levelEngine.remainingThrows === 0) {
+            this.time.delayedCall(2000, () => {
+                if (this.levelEngine.enemySprite) {
+                }
+                this.scene.start('GameOver');
+            });
+        } else {
+            this.isDiceRolling = false;
+            button.setAlpha(1);
+        }
+        this.updateEnemyHealthBar();
     }
 
     private async animateProgressiveSum(results: number[]): Promise<void> {
@@ -185,13 +284,13 @@ export class Game extends Scene {
                 this.tweens.add({
                     targets: this.diceSumText,
                     scale: { from: 1, to: 1.3 },
-                    duration: 150,
+                    duration: 100,
                     ease: 'Back.Out',
                     onComplete: () => {
                         this.tweens.add({
                             targets: this.diceSumText,
                             scale: { from: 1.3, to: 1 },
-                            duration: 150,
+                            duration: 100,
                             ease: 'Back.In',
                             onComplete: () => {
                                 resolve();
@@ -220,7 +319,7 @@ export class Game extends Scene {
         }
     }
 
-    async handleVampireCounterattack() {
+    private async handleVampireCounterattack() {
         if (this.levelEngine.currentLevel !== 5 || this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
             return;
         }
