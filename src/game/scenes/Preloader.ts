@@ -29,6 +29,7 @@ export class Preloader extends Scene
         //  Load Images
         this.load.image('logo', './images/BeatTheDiceLogo.png');
         this.load.image('mm_background', './images/mainmenu_background.png')
+        this.load.image('main_background', './images/ingame_background.png');
 
         this.load.image('dice', './images/dice.png');
         this.load.image('bag', './images/bag.png');
