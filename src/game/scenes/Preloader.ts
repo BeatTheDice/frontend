@@ -62,8 +62,8 @@ export class Preloader extends Scene
 
         // Vampire boss assets
         this.load.image('vampire_idle', './images/enemy/vampire/idle.png');
-        this.load.image('vampire_hit_light', './images/enemy/vampire/hit_light.png');
-        this.load.image('vampire_hit_heavy', './images/enemy/vampire/hit_heavy.png');
+        this.load.image('vampire_hit_light', './images/enemy/vampire/damage_light.png');
+        this.load.image('vampire_hit_heavy', './images/enemy/vampire/damage_heavy.png');
         this.load.image('vampire_dead', './images/enemy/vampire/dead.png');
         this.load.image('vampire_victory', './images/enemy/vampire/victory.png');
 
