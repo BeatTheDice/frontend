@@ -2,6 +2,7 @@ import { Math as PhaserMath, Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceCollection } from '../classes/DiceCollection';
+import { t } from '../labels';
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -56,12 +57,12 @@ export class Game extends Scene {
     }
 
     createTexts() {
-        this.levelNumberText = this.add.text(50, 50, `Level ${this.levelEngine.currentLevel}`, {
+        this.levelNumberText = this.add.text(50, 50, `${t('game.level')} ${this.levelEngine.currentLevel}`, {
             fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'left'
         }).setOrigin(0, 0);
-        this.remainingThrowsText = this.add.text(50, 130, `Würfe übrig: ${this.levelEngine.remainingThrows}`, {
+        this.remainingThrowsText = this.add.text(50, 130, `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`, {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'left'
@@ -71,7 +72,7 @@ export class Game extends Scene {
             stroke: '#000000', strokeThickness: 10,
             align: 'right'
         }).setOrigin(1, 0);
-        this.enemyHealthText = this.add.text(1486, 100, `HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`, {
+        this.enemyHealthText = this.add.text(1486, 100, `${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`, {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'right'
@@ -104,10 +105,10 @@ export class Game extends Scene {
     }
 
     updateTexts() {
-        this.levelNumberText.setText(`Level ${this.levelEngine.currentLevel}`);
+        this.levelNumberText.setText(`${t('game.level')} ${this.levelEngine.currentLevel}`);
         this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
-        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+        this.enemyHealthText.setText(`${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+        this.remainingThrowsText.setText(`${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`);
         this.updateEnemyHealthBar();
     }
 
@@ -160,7 +161,7 @@ export class Game extends Scene {
         // Interaktiv machen
         button.setInteractive();
 
-        this.cupTooltip = this.add.text(0, 0, 'Würfeln', {
+        this.cupTooltip = this.add.text(0, 0, t('game.rollTooltip'), {
         fontSize: '24px',
         fontFamily: 'funblob',
         backgroundColor: '#000000aa',
@@ -224,9 +225,9 @@ export class Game extends Scene {
         
         const total = result.reduce((s, v) => s + v, 0);
         this.levelEngine.remainingThrows --;
-        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+        this.remainingThrowsText.setText(`${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`);
         this.levelEngine.dealDamageToEnemy(total, this.levelEngine.remainingThrows === 0);
-        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+        this.enemyHealthText.setText(`${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
 
         if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
             this.time.delayedCall(2000, () => {
@@ -240,7 +241,7 @@ export class Game extends Scene {
             });
         } else if (this.levelEngine.currentLevel === 5) {
             await this.handleVampireCounterattack();
-            this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+            this.enemyHealthText.setText(`${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
             if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
                 this.time.delayedCall(1000, () => {
                     this.diceHandler.clearDice();
@@ -313,7 +314,7 @@ export class Game extends Scene {
         // Check if critical hit (damage > half max HP)
         const maxHP = this.levelEngine.getEnemyMaxHitPoints();
         if (currentSum > maxHP / 2) {
-            this.diceSumText.setText(currentSum.toString() + ' Crit!');
+            this.diceSumText.setText(`${currentSum} ${t('game.crit')}`);
             this.diceSumText.setFontSize(64);
             this.diceSumText.setColor('#ff0000');
         }
@@ -355,7 +356,7 @@ export class Game extends Scene {
                 duration: 900,
                 ease: 'Cubic.Out',
                 onComplete: () => {
-                    this.bossEffectText.setText('Der Vampir saugt dich aus und heilt sich um ' + value + ' HP').setVisible(true);
+                    this.bossEffectText.setText(t('boss.vampireDrain', { value })).setVisible(true);
                     this.levelEngine.healEnemy(value);
                     this.time.delayedCall(2500, () => {
                         this.bossEffectText.setVisible(false);

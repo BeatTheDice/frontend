@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { t } from '../labels';
 
 export class DiceList extends Scene {
     constructor() {
@@ -10,7 +11,7 @@ export class DiceList extends Scene {
         this.add.rectangle(cam.centerX, cam.centerY, cam.width * 0.92, cam.height * 0.92, 0x0f1726, 0.96);
         this.add.rectangle(cam.centerX, 76, cam.width * 0.96, 120, 0x111827, 0.95).setStrokeStyle(3, 0x4f46e5);
 
-        this.add.text(cam.centerX, 80, 'Würfel-Beutel', {
+        this.add.text(cam.centerX, 80, t('diceList.header'), {
             fontFamily: 'funblob',
             fontSize: 64,
             color: '#ffda6f',
@@ -19,7 +20,7 @@ export class DiceList extends Scene {
             align: 'center'
         }).setOrigin(0.5, 0);
 
-        const backButton = this.add.text(90, 60, 'Zurück', {
+        const backButton = this.add.text(90, 60, t('diceList.back'), {
             fontFamily: 'funblob',
             fontSize: 34,
             color: '#ffffff',
@@ -36,7 +37,7 @@ export class DiceList extends Scene {
         const diceList = diceCollection?.getAllDiceOptions() ?? [];
 
         if (diceList.length === 0) {
-            this.add.text(cam.centerX, cam.centerY, 'Keine Würfel gefunden.', {
+            this.add.text(cam.centerX, cam.centerY, t('diceList.noDiceFound'), {
                 fontFamily: 'funblob',
                 fontSize: 36,
                 color: '#ffffff',
@@ -56,7 +57,7 @@ export class DiceList extends Scene {
 
             this.add.rectangle(cam.centerX, y + 70, rowWidth, 140, 0x1f2937, 0.92).setStrokeStyle(2, 0x374151);
 
-            this.add.text(140, y + 22, dice.name, {
+            this.add.text(140, y + 22, dice.getDisplayName(), {
                 fontFamily: 'funblob',
                 fontSize: 42,
                 color: '#fbbf24',
@@ -64,7 +65,7 @@ export class DiceList extends Scene {
                 strokeThickness: 8
             }).setOrigin(0, 0);
 
-            this.add.text(140, y + 72, `Augen: ${dice.getFaceValueLabel()}`, {
+            this.add.text(140, y + 72, `${t('diceList.faceValues')}: ${dice.getFaceValueLabel()}`, {
                 fontFamily: 'funblob',
                 fontSize: 28,
                 color: '#e5e7eb',

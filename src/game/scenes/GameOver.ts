@@ -1,5 +1,6 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
+import { t } from '../labels';
 
 export class GameOver extends Scene
 {
@@ -18,13 +19,13 @@ export class GameOver extends Scene
 
         this.background = this.add.image(768, 512, 'main_background');
 
-        this.gameOverText = this.add.text(768, 512, 'Game Over', {
+        this.gameOverText = this.add.text(768, 512, t('gameOver.title'), {
             fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
-        this.gameOverText = this.add.text(768, 582, 'Klicke, um zum Hauptmenü zurückzukehren', {
+        this.gameOverText = this.add.text(768, 582, t('gameOver.subtitle'), {
             fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'

@@ -1,5 +1,6 @@
 import { Scene, GameObjects } from 'phaser';
 import { Dice } from '../classes/Dice';
+import { t } from '../labels';
 
 export class DiceHandler {
     scene: Scene;
@@ -19,10 +20,10 @@ export class DiceHandler {
         this.scene = scene;
 
         this.playersDice.push(
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
+            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'dice.name.regular')
         );
         this.playersDice.push(
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'Regular Dice')
+            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'dice.name.regular')
         );
     }
 
@@ -83,7 +84,7 @@ export class DiceHandler {
             this.toggleDiceBag();
         });
 
-        this.bagTooltip = this.scene.add.text(0, 0, 'Würfel anschauen', {
+        this.bagTooltip = this.scene.add.text(0, 0, t('diceBag.tooltip'), {
         fontSize: '24px',
         fontFamily: 'funblob',
         backgroundColor: '#000000aa',
