@@ -180,9 +180,7 @@ export class Game extends Scene {
             }            
             this.cupTooltip.setVisible(false);
             
-            button.setTexture('dicecupLying');
             await this.handleDiceThrow(button);
-            button.setTexture('dicecupStanding');
         });
 
         // Hover-Effekt
@@ -218,6 +216,7 @@ export class Game extends Scene {
             
         this.isDiceRolling = true;
         button.setScale(0.25);
+        button.setTexture('dicecupLying');
         
         const result = await this.diceHandler.throwDice();
         
@@ -256,6 +255,7 @@ export class Game extends Scene {
                 });
             } else {
                 this.isDiceRolling = false;
+                button.setTexture('dicecupStanding');
                 button.setAlpha(1);
             }
         } else if (this.levelEngine.remainingThrows === 0) {
@@ -266,6 +266,7 @@ export class Game extends Scene {
             });
         } else {
             this.isDiceRolling = false;
+            button.setTexture('dicecupStanding');
             button.setAlpha(1);
         }
         this.updateEnemyHealthBar();
