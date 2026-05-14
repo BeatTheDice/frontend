@@ -17,6 +17,7 @@ export class MainMenu extends Scene
     create ()
     {
         this.background = this.add.image(768,512, 'mm_background');
+        this.background.setDepth(-100);
         this.logo = this.add.image(768,512, 'logo');
 
         this.title = this.add.text(768, 900, 'Klicke zum Starten', {

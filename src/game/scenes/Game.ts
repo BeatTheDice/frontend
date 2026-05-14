@@ -2,6 +2,7 @@ import { Math as PhaserMath, Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceCollection } from '../classes/DiceCollection';
+import { setupBackgroundAmbience } from '../BackgroundAmbience';
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -42,6 +43,8 @@ export class Game extends Scene {
         this.isDiceRolling = false;
         this.camera = this.cameras.main;
         this.background = this.add.image(768, 512, 'main_background');
+        this.background.setDepth(-100);
+        setupBackgroundAmbience(this);
 
         this.levelEngine.nextLevel();                
         this.diceHandler.renderPlayerDice();

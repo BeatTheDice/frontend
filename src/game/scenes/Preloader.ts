@@ -31,6 +31,11 @@ export class Preloader extends Scene
         this.load.image('mm_background', './images/mainmenu_background.png')
         this.load.image('main_background', './images/ingame_background.png');
 
+        // Background ambience images
+        this.load.image('cloud1', './images/Cloud 1.png');
+        this.load.image('cloud2', './images/Cloud 2.png');
+        this.load.image('cloud3', './images/Cloud 3.png');
+
         this.load.image('dice', './images/dice.png');
         this.load.image('bag', './images/bag.png');
         this.load.image('dicecupStanding', './images/dicecup standing.png');
