@@ -1,9 +1,11 @@
+import { t, DiceLabelKey } from '../labels';
+
 export class Dice {
     // Speichert Key-Values, Key: Augenzahl, Value: Entsprechendes PNG aus dem preloader
     faces: Record<number, string>[];
-    name: string;
+    name: DiceLabelKey;
 
-    constructor(faces: Record<number, string>[], name: string) {
+    constructor(faces: Record<number, string>[], name: DiceLabelKey) {
         this.faces = faces;
         this.name = name;
     }
@@ -25,6 +27,10 @@ export class Dice {
         return this.formatFaceValues(values);
     }
 
+    getDisplayName(): string {
+        return t(this.name);
+    }
+
     getDisplayTexture(): string {
         const textures = this.getFaceTextures();
         return textures[textures.length - 1] ?? textures[0] ?? '';
@@ -32,7 +38,7 @@ export class Dice {
 
     getHoverLabel(): string {
         const values = this.getFaceValues();
-        return `${this.name}: ${this.formatFaceValues(values)}`;
+        return `${this.getDisplayName()}: ${this.formatFaceValues(values)}`;
     }
 
     private formatFaceValues(values: number[]): string {

@@ -1,5 +1,6 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
+import { t } from '../labels';
 
 export class Winner extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -16,13 +17,13 @@ export class Winner extends Scene {
 
         this.background = this.add.image(768, 512, 'main_background');
 
-        this.titleText = this.add.text(768, 452, 'Gewonnen!', {
+        this.titleText = this.add.text(768, 452, t('winner.title'), {
             fontFamily: 'funblob', fontSize: 80, color: '#ff9000',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
-        this.subtitleText = this.add.text(768, 552, 'Klicke, um zum Hauptmenü zurückzukehren', {
+        this.subtitleText = this.add.text(768, 552, t('winner.subtitle'), {
             fontFamily: 'funblob', fontSize: 40, color: '#ffffff',
             stroke: '#000000', strokeThickness: 6,
             align: 'center',

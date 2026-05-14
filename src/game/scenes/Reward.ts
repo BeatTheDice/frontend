@@ -3,6 +3,7 @@ import { Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { Dice } from '../classes/Dice';
 import { DiceCollection } from '../classes/DiceCollection';
+import { t } from '../labels';
 
 export class Reward extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -31,7 +32,7 @@ export class Reward extends Scene {
 
         this.background = this.add.image(768, 512, 'main_background');
 
-        this.titleText = this.add.text(768, 100, 'Wähle deinen Belohnungswürfel!', {
+        this.titleText = this.add.text(768, 100, t('reward.title'), {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'
@@ -59,7 +60,7 @@ export class Reward extends Scene {
 
             sprite.on('pointerover', () => {
                 const values = dice.getFaceValues().join(', ');
-                this.infoText.setText(`${dice.name}: ${values}`).setVisible(true);
+                this.infoText.setText(`${dice.getDisplayName()}: ${values}`).setVisible(true);
                 sprite.setScale(0.6);
             });
 
@@ -83,7 +84,7 @@ export class Reward extends Scene {
             .setVisible(false)
             .setInteractive({ useHandCursor: true });
 
-        this.continueText = this.add.text(768, 800, 'Weiter', {
+        this.continueText = this.add.text(768, 800, t('reward.continue'), {
             fontFamily: 'funblob', fontSize: 32, color: '#ff9000',
             stroke: '#000000', strokeThickness: 4,
             align: 'center'

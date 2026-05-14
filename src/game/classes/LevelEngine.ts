@@ -1,6 +1,7 @@
-import { Scene,  } from 'phaser';
+import { Scene } from 'phaser';
 import { Enemy } from './Enemy';
 import { DiceHandler } from './DiceHandler';
+import { t } from '../labels';
 
 export class LevelEngine {
     scene: Scene;
@@ -23,32 +24,32 @@ export class LevelEngine {
 
         switch (level) {
             case 1:
-                this.currentEnemy = new Enemy('Slime', 18, 'slime_green_idle', 'slime_green_damage_low', 'slime_green_damage_high', 'slime_green_win', 'slime_green_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.slime', 18, 'slime_green_idle', 'slime_green_damage_low', 'slime_green_damage_high', 'slime_green_win', 'slime_green_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 620, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 2:
-                this.currentEnemy = new Enemy('Skeleton',30, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.skeleton',30, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 3:
-                this.currentEnemy = new Enemy('Goblin', 43, 'goblin_green_idle', 'goblin_green_damage_low', 'goblin_green_damage_high', 'goblin_green_win', 'goblin_green_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.goblin', 43, 'goblin_green_idle', 'goblin_green_damage_low', 'goblin_green_damage_high', 'goblin_green_win', 'goblin_green_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 4:
-                this.currentEnemy = new Enemy('Dwarf', 60, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.dwarf', 60, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 5:
-                this.currentEnemy = new Enemy('Vampire', 70, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_victory', 'vampire_dead');
+                this.currentEnemy = new Enemy('enemy.name.vampire', 70, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_victory', 'vampire_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(1.1, 1.1);
                 break;
             default:      
-                this.currentEnemy = new Enemy('Dwarf', 35 + level, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.dwarf', 35 + level, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;  
@@ -109,7 +110,7 @@ export class LevelEngine {
     }
 
     getEnemyName() {
-        return this.currentEnemy.name;
+        return t(this.currentEnemy.name);
     }
 
     healEnemy(amount: number) {
