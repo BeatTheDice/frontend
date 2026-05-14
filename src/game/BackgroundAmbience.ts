@@ -7,7 +7,7 @@ export function setupBackgroundAmbience(scene: Scene) {
     const leaves: FallingLeaf[] = [];
 
     // Create cloud texture keys (you added: Cloud 1.png, Cloud 2.png, Cloud 3.png)
-    const cloudKeys = ['cloud'].filter(key => scene.textures.exists(key));
+    const cloudKeys = ['cloud1'].filter(key => scene.textures.exists(key));
     const leafKeys = ['leaf1', 'leaf2', 'leaf3'].filter(key => scene.textures.exists(key));
 
     // Max entities to render
