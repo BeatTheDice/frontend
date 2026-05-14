@@ -15,7 +15,8 @@ type LabelKey =
     | 'gameOver.title'
     | 'gameOver.subtitle'
     | 'winner.title'
-    | 'winner.subtitle'
+    | 'winner.mainmenu'
+    | 'winner.endless'
     | 'reward.title'
     | 'reward.continue'
     | 'reward.chooseDice'
@@ -55,7 +56,8 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'gameOver.title': 'Spiel vorbei',
         'gameOver.subtitle': 'Klicke, um zum Hauptmenü zurückzukehren',
         'winner.title': 'Gewonnen!',
-        'winner.subtitle': 'Klicke, um zum Hauptmenü zurückzukehren',
+        'winner.mainmenu': 'Hauptmenü',
+        'winner.endless': 'Endlosmodus',
         'reward.title': 'Wähle deinen Belohnungswürfel!',
         'reward.continue': 'Weiter',
         'reward.chooseDice': 'Wähle deinen Belohnungswürfel!',
@@ -88,7 +90,8 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'gameOver.title': 'Game Over',
         'gameOver.subtitle': 'Click to return to the main menu',
         'winner.title': 'You won!',
-        'winner.subtitle': 'Click to return to the main menu',
+        'winner.mainmenu': 'Main Menu',
+        'winner.endless': 'Endless Mode',
         'reward.title': 'Choose your reward dice!',
         'reward.continue': 'Continue',
         'reward.chooseDice': 'Choose your reward dice!',

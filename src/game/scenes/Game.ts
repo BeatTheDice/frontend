@@ -234,9 +234,12 @@ export class Game extends Scene {
                 this.diceSumText.setVisible(false);
                 if (this.levelEngine.currentLevel === 5) {
                     this.scene.start('Winner');
-                } else {
+                } else if (this.levelEngine.currentLevel < 5) {
                     this.scene.start('Reward');
+                } else {
+                    this.scene.start('Game', { nextLevel: true });
                 }
+                
             });
         } else if (this.levelEngine.currentLevel === 5) {
             await this.handleVampireCounterattack();
