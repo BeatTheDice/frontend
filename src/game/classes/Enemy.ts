@@ -22,5 +22,4 @@ export class Enemy {
         this.winTexture = winTexture;
         this.deadTexture = deadTexture;
     }
-
 }

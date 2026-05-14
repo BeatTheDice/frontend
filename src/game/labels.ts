@@ -33,10 +33,15 @@ export type DiceLabelKey =
 
 export type EnemyLabelKey =
     | 'enemy.name.slime'
+    | 'enemy.name.slime_blue'
+    | 'enemy.name.slime_purple'
     | 'enemy.name.skeleton'
     | 'enemy.name.goblin'
+    | 'enemy.name.goblin_grey'
+    | 'enemy.name.goblin_red'
     | 'enemy.name.dwarf'
-    | 'enemy.name.vampire';
+    | 'enemy.name.vampire'
+    | 'enemy.name.vampire_ice';
 
 type TranslationKey = LabelKey | DiceLabelKey | EnemyLabelKey;
 
@@ -70,10 +75,15 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'dice.name.risk': 'Risiko Würfel',
         'dice.name.steel': 'Stahl Würfel',
         'enemy.name.slime': 'Schleim',
+        'enemy.name.slime_blue': 'Blauer Schleim',
+        'enemy.name.slime_purple': 'Lila Schleim',
         'enemy.name.skeleton': 'Skelett',
         'enemy.name.goblin': 'Kobold',
+        'enemy.name.goblin_grey': 'Grauer Kobold',
+        'enemy.name.goblin_red': 'Roter Kobold',
         'enemy.name.dwarf': 'Zwerg',
-        'enemy.name.vampire': 'Vampir'
+        'enemy.name.vampire': 'Vampir',
+        'enemy.name.vampire_ice': 'Eisiger Vampir'
     },
     en: {
         'mainMenu.clickToStart': 'Click to start',
@@ -104,10 +114,15 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'dice.name.risk': 'Risk Dice',
         'dice.name.steel': 'Steel Dice',
         'enemy.name.slime': 'Slime',
+        'enemy.name.slime_blue': 'Blue Slime',
+        'enemy.name.slime_purple': 'Purple Slime',
         'enemy.name.skeleton': 'Skeleton',
         'enemy.name.goblin': 'Goblin',
+        'enemy.name.goblin_grey': 'Grey Kobold',
+        'enemy.name.goblin_red': 'Red Kobold',
         'enemy.name.dwarf': 'Dwarf',
-        'enemy.name.vampire': 'Vampire'
+        'enemy.name.vampire': 'Vampire',
+        'enemy.name.vampire_ice': 'Ice Vampire'
     }
 };
 
