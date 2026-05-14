@@ -7,6 +7,7 @@ declare global {
         levelEngine?: LevelEngine;
         diceHandler?: DiceHandler;
         diceCollection?: DiceCollection;
+        enemyCollection?: EnemyCollection;
     }
 }
 

@@ -52,10 +52,6 @@ export class Game extends Scene {
         this.createEnemyHealthBar();
     }
 
-    changeScene() {
-        this.scene.start('GameOver');
-    }
-
     createTexts() {
         this.levelNumberText = this.add.text(50, 50, `${t('game.level')} ${this.levelEngine.currentLevel}`, {
             fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
@@ -213,63 +209,92 @@ export class Game extends Scene {
 
     private async handleDiceThrow(button: Phaser.GameObjects.Image) {
         if (this.isDiceRolling) return;
-            
+
         this.isDiceRolling = true;
+
         button.setScale(0.25);
         button.setTexture('dicecupLying');
-        
+
         const result = await this.diceHandler.throwDice();
-        
+
         await this.animateProgressiveSum(result);
-        
+
         const total = result.reduce((s, v) => s + v, 0);
-        this.levelEngine.remainingThrows --;
-        this.remainingThrowsText.setText(`${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`);
-        this.levelEngine.dealDamageToEnemy(total, this.levelEngine.remainingThrows === 0);
-        this.enemyHealthText.setText(`${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+
+        this.levelEngine.remainingThrows--;
+
+        this.remainingThrowsText.setText(
+            `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`
+        );
+
+        this.levelEngine.dealDamageToEnemy(
+            total,
+            this.levelEngine.remainingThrows === 0
+        );
+
+        this.updateEnemyHealthBar();
+
+        this.enemyHealthText.setText(
+            `${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`
+        );
 
         if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-            this.time.delayedCall(2000, () => {
-                this.diceHandler.clearDice();
-                this.diceSumText.setVisible(false);
-                if (this.levelEngine.currentLevel === 5) {
-                    this.scene.start('Winner');
-                } else {
-                    this.scene.start('Reward');
-                }
-            });
-        } else if (this.levelEngine.currentLevel === 5) {
-            await this.handleVampireCounterattack();
-            this.enemyHealthText.setText(`${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-            if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-                this.time.delayedCall(1000, () => {
-                    this.diceHandler.clearDice();
-                    this.diceSumText.setVisible(false);
-                    this.scene.start('Winner');
-                });
-            } else if (this.levelEngine.remainingThrows === 0) {
-                this.time.delayedCall(1000, () => {
-                    if (this.levelEngine.enemySprite) {
-                    }
-                    this.scene.start('GameOver');
-                });
-            } else {
-                this.isDiceRolling = false;
-                button.setTexture('dicecupStanding');
-                button.setAlpha(1);
-            }
-        } else if (this.levelEngine.remainingThrows === 0) {
-            this.time.delayedCall(2000, () => {
-                if (this.levelEngine.enemySprite) {
-                }
-                this.scene.start('GameOver');
-            });
-        } else {
-            this.isDiceRolling = false;
-            button.setTexture('dicecupStanding');
-            button.setAlpha(1);
+            return this.handleVictory(2000, button);
         }
-        this.updateEnemyHealthBar();
+
+        // ===== Vampire Counterattack =====
+        if (this.levelEngine.currentLevel === 5) {
+
+            await this.handleVampireCounterattack();
+
+            this.updateEnemyHealthBar();
+
+            this.enemyHealthText.setText(
+                `${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`
+            );
+
+            // Gegner nach Counterattack trotzdem tot
+            if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
+                return this.handleVictory(1000, button);                
+            }
+        }        
+
+        if (this.levelEngine.remainingThrows === 0) {
+            return this.handleGameOver();
+        }
+
+        this.resetDiceButton(button);
+    }
+
+    private handleVictory(delay = 2000, diceButton: Phaser.GameObjects.Image) {
+        this.time.delayedCall(delay, () => {
+
+            this.diceHandler.clearDice();
+            this.diceSumText.setVisible(false);            
+            
+            if (this.levelEngine.currentLevel === 5) {
+                this.scene.start('Winner');
+            } else if (this.levelEngine.currentLevel < 5) {
+                this.scene.start('Reward');
+            } else {
+                this.resetDiceButton(diceButton);
+                this.levelEngine.nextLevel();
+                this.updateTexts();            
+            }
+        });
+    }
+
+    private handleGameOver(delay = 2000) {
+        this.time.delayedCall(delay, () => {
+            this.scene.start('GameOver');
+        });
+    }
+
+    private resetDiceButton(button: Phaser.GameObjects.Image) {
+        this.isDiceRolling = false;
+
+        button.setTexture('dicecupStanding');
+        button.setAlpha(1);
     }
 
     private async animateProgressiveSum(results: number[]): Promise<void> {
@@ -358,7 +383,7 @@ export class Game extends Scene {
                 ease: 'Cubic.Out',
                 onComplete: () => {
                     this.bossEffectText.setText(t('boss.vampireDrain', { value })).setVisible(true);
-                    this.levelEngine.healEnemy(value);
+                    this.levelEngine.healEnemy(value, this.levelEngine.remainingThrows === 0);
                     this.time.delayedCall(2500, () => {
                         this.bossEffectText.setVisible(false);
                         rollSprite.destroy();

@@ -1,7 +1,8 @@
 import { Scene } from 'phaser';
 import { Enemy } from './Enemy';
 import { DiceHandler } from './DiceHandler';
-import { t } from '../labels';
+import { EnemyLabelKey, t } from '../labels';
+import { EnemyCollection } from './EnemyCollection';
 
 export class LevelEngine {
     scene: Scene;
@@ -9,11 +10,13 @@ export class LevelEngine {
     currentLevel : number;
     remainingThrows: number;
     enemySprite: Phaser.GameObjects.Sprite;
-
+    enemyCollection: EnemyCollection;
+    
     constructor(scene: Scene) {
         this.scene = scene;
         this.currentLevel = 0;
         this.remainingThrows = 3;
+        this.enemyCollection = window.enemyCollection as EnemyCollection;
     }
     
     startLevel(level: number) {       
@@ -24,34 +27,32 @@ export class LevelEngine {
 
         switch (level) {
             case 1:
-                this.currentEnemy = new Enemy('enemy.name.slime', 18, 'slime_green_idle', 'slime_green_damage_low', 'slime_green_damage_high', 'slime_green_win', 'slime_green_dead'); //TODO Passende Leben
-                this.enemySprite= this.scene.add.sprite(1048, 620, this.currentEnemy.idleTexture);
+                this.currentEnemy = new Enemy('enemy.name.slime', 16, 'slime_green_idle', 'slime_green_damage_low', 'slime_green_damage_high', 'slime_green_win', 'slime_green_dead'); //TODO Passende Leben
+                this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 2:
-                this.currentEnemy = new Enemy('enemy.name.skeleton',30, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.skeleton',26, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 3:
-                this.currentEnemy = new Enemy('enemy.name.goblin', 43, 'goblin_green_idle', 'goblin_green_damage_low', 'goblin_green_damage_high', 'goblin_green_win', 'goblin_green_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.goblin', 36, 'goblin_green_idle', 'goblin_green_damage_low', 'goblin_green_damage_high', 'goblin_green_win', 'goblin_green_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 4:
-                this.currentEnemy = new Enemy('enemy.name.dwarf', 60, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.dwarf', 48, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 5:
-                this.currentEnemy = new Enemy('enemy.name.vampire', 70, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_victory', 'vampire_dead');
+                this.currentEnemy = new Enemy('enemy.name.vampire', 60, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_victory', 'vampire_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
-                this.enemySprite.setScale(1.1, 1.1);
+                this.enemySprite.setScale(0.25, 0.25);
                 break;
             default:      
-                this.currentEnemy = new Enemy('enemy.name.dwarf', 35 + level, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
-                this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
-                this.enemySprite.setScale(0.25, 0.25);
+                this.generateEndlessLevel(level);
                 break;  
            }
     }
@@ -85,6 +86,15 @@ export class LevelEngine {
         }
     }
 
+    generateEndlessLevel(level: number) {
+        const newHp = Math.floor(60 + 2 * (level - 5) + 1.2 * Math.pow(level - 5, 2));
+        var template = this.enemyCollection.getEnemyTemplateByNumber(level - 6);
+        const newEnemy = new Enemy(template.name as EnemyLabelKey, newHp, template.idleTexture, template.lowDamageTexture, template.highDamageTexture, template.winTexture, template.deadTexture);
+        this.currentEnemy = newEnemy;
+        this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
+        this.enemySprite.setScale(0.25, 0.25);
+    }
+
     dealDamageToEnemy(damage: number, lastThrow: boolean) {
         if (damage >= this.currentEnemy.currentHitPoints) {
             this.currentEnemy.currentHitPoints = 0;
@@ -113,10 +123,10 @@ export class LevelEngine {
         return t(this.currentEnemy.name);
     }
 
-    healEnemy(amount: number) {
+    healEnemy(amount: number, lastThrow: boolean) {
         if (!this.currentEnemy) return;
         this.currentEnemy.currentHitPoints = Math.min(this.currentEnemy.currentHitPoints + amount, this.currentEnemy.maxHitPoints);
-        this.updateEnemyTexture(false);
+        this.updateEnemyTexture(lastThrow);
     }
 
     reset() {

@@ -109,11 +109,7 @@ export class Reward extends Scene {
     }
 
     continueToNextLevel() {
-        console.log('continueToNextLevel called');
-        console.log('selectedDice:', this.selectedDice);
-        console.log('diceHandler:', this.diceHandler);
         if (this.selectedDice) {
-            console.log('Adding dice');
             this.diceHandler.addDice(this.selectedDice);
             this.rewardDiceSprites.forEach(sprite => sprite.destroy());
             this.continueButton.destroy();
@@ -121,12 +117,8 @@ export class Reward extends Scene {
             this.titleText.destroy();
             this.infoText.destroy();
             this.background.destroy();
-            console.log('Stopping scene');
             this.scene.stop();
-            console.log('Starting Game');
             this.scene.start('Game', { nextLevel: true });
-        } else {
-            console.log('No selectedDice');
         }
     }
 }
