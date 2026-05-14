@@ -87,7 +87,7 @@ export class LevelEngine {
     }
 
     generateEndlessLevel(level: number) {
-        const newHp = Math.floor(50 + 1 * (level - 5) + 1.2 * Math.pow(level - 5, 2));
+        const newHp = Math.floor(60 + 2 * (level - 5) + 1.2 * Math.pow(level - 5, 2));
         var template = this.enemyCollection.getEnemyTemplateByNumber(level - 6);
         const newEnemy = new Enemy(template.name as EnemyLabelKey, newHp, template.idleTexture, template.lowDamageTexture, template.highDamageTexture, template.winTexture, template.deadTexture);
         this.currentEnemy = newEnemy;
