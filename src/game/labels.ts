@@ -29,7 +29,9 @@ export type DiceLabelKey =
     | 'dice.name.even'
     | 'dice.name.odd'
     | 'dice.name.risk'
-    | 'dice.name.steel';
+    | 'dice.name.steel'
+    | 'dice.name.d8'
+    | 'dice.name.d10';
 
 export type EnemyLabelKey =
     | 'enemy.name.slime'
@@ -74,6 +76,8 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'dice.name.odd': 'Ungerader Würfel',
         'dice.name.risk': 'Risiko Würfel',
         'dice.name.steel': 'Stahl Würfel',
+        'dice.name.d8': 'W8',
+        'dice.name.d10': 'W10',
         'enemy.name.slime': 'Schleim',
         'enemy.name.slime_blue': 'Blauer Schleim',
         'enemy.name.slime_purple': 'Lila Schleim',
@@ -113,6 +117,8 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'dice.name.odd': 'Odd Dice',
         'dice.name.risk': 'Risk Dice',
         'dice.name.steel': 'Steel Dice',
+        'dice.name.d8': 'D8',
+        'dice.name.d10': 'D10',
         'enemy.name.slime': 'Slime',
         'enemy.name.slime_blue': 'Blue Slime',
         'enemy.name.slime_purple': 'Purple Slime',

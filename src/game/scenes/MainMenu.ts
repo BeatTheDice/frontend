@@ -64,7 +64,11 @@ export class MainMenu extends Scene
             if (levelEngine) {
                 levelEngine.reset();
             }
-            this.scene.start('Game');
+            this.changeScene('Game');
         });
+    }
+
+    changeScene(newScene: string) {
+        this.scene.start(newScene);
     }
 }

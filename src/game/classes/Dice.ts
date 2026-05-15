@@ -4,10 +4,12 @@ export class Dice {
     // Speichert Key-Values, Key: Augenzahl, Value: Entsprechendes PNG aus dem preloader
     faces: Record<number, string>[];
     name: DiceLabelKey;
+    appearanceLevel: number;
 
-    constructor(faces: Record<number, string>[], name: DiceLabelKey) {
+    constructor(faces: Record<number, string>[], name: DiceLabelKey, appearanceLevel: number) {
         this.faces = faces;
         this.name = name;
+        this.appearanceLevel = appearanceLevel;
     }
 
     roll(): Record<number, string> {
