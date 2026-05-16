@@ -356,7 +356,7 @@ export class Game extends Scene {
             return;
         }
 
-        const vampireDice = this.diceCollection.getRandomDiceOptions(1)[0];
+        const vampireDice = this.diceCollection.getRandomDiceOptions(1, this.levelEngine.currentLevel)[0];
         const result = vampireDice.roll();
         const value = Number(Object.keys(result)[0]);
         const texture = Object.values(result)[0];

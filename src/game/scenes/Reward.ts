@@ -4,6 +4,7 @@ import { DiceHandler } from '../classes/DiceHandler';
 import { Dice } from '../classes/Dice';
 import { DiceCollection } from '../classes/DiceCollection';
 import { t } from '../labels';
+import { LevelEngine } from '../classes/LevelEngine';
 
 export class Reward extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -16,6 +17,7 @@ export class Reward extends Scene {
     selectedDice: Dice | null = null;
     infoText: Phaser.GameObjects.Text;
     diceCollection: DiceCollection;
+    levelEngine: LevelEngine;
 
     constructor() {
         super('Reward');
@@ -25,6 +27,7 @@ export class Reward extends Scene {
         this.diceHandler = window.diceHandler as DiceHandler;
         this.diceHandler.scene = this;
         this.diceCollection = window.diceCollection as DiceCollection;
+        this.levelEngine = window.levelEngine as LevelEngine;
     }
 
     create() {
@@ -44,7 +47,7 @@ export class Reward extends Scene {
             align: 'center'
         }).setOrigin(0.5).setDepth(100).setVisible(false);
 
-        const diceOptions: Dice[] = this.diceCollection.getRandomDiceOptions(3);
+        const diceOptions: Dice[] = this.diceCollection.getRandomDiceOptions(3, this.levelEngine.currentLevel);
 
         const baseX = 768;
         const baseY = 400;

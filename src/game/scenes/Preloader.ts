@@ -62,6 +62,26 @@ export class Preloader extends Scene
         this.load.image('steeldice-4', './images/dice/steeldice 4.png');
         this.load.image('steeldice-5', './images/dice/steeldice 5.png');
 
+        this.load.image('d8-1', './images/dice/d8 1.png');
+        this.load.image('d8-2', './images/dice/d8 2.png');
+        this.load.image('d8-3', './images/dice/d8 3.png');
+        this.load.image('d8-4', './images/dice/d8 4.png');
+        this.load.image('d8-5', './images/dice/d8 5.png');
+        this.load.image('d8-6', './images/dice/d8 6.png');
+        this.load.image('d8-7', './images/dice/d8 7.png');
+        this.load.image('d8-8', './images/dice/d8 8.png');
+
+        this.load.image('d10-1', './images/dice/d10 1.png');
+        this.load.image('d10-2', './images/dice/d10 2.png');
+        this.load.image('d10-3', './images/dice/d10 3.png');
+        this.load.image('d10-4', './images/dice/d10 4.png');
+        this.load.image('d10-5', './images/dice/d10 5.png');
+        this.load.image('d10-6', './images/dice/d10 6.png');
+        this.load.image('d10-7', './images/dice/d10 7.png');
+        this.load.image('d10-8', './images/dice/d10 8.png');
+        this.load.image('d10-9', './images/dice/d10 9.png');
+        this.load.image('d10-10', './images/dice/d10 10.png');
+
         // Enemy images
         // slime
         this.load.image('slime_green_idle', './images/enemy/slime_green/idle.png');
