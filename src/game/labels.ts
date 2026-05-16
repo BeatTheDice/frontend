@@ -11,6 +11,7 @@ type LabelKey =
     | 'game.level'
     | 'game.hp'
     | 'game.throwsLeft'
+    | 'game.bonusThrows'
     | 'game.crit'
     | 'gameOver.title'
     | 'gameOver.subtitle'
@@ -18,11 +19,23 @@ type LabelKey =
     | 'winner.mainmenu'
     | 'winner.endless'
     | 'reward.title'
+    | 'reward.titleSwap'
     | 'reward.continue'
     | 'reward.chooseDice'
+    | 'reward.swapInstruction'
+    | 'reward.swapSelect'
+    | 'reward.swapSelectPlayerDice'
+    | 'reward.selectToSwap'
     | 'game.rollTooltip'
     | 'diceBag.tooltip'
-    | 'boss.vampireDrain';
+    | 'boss.vampireDrain'
+    | 'merchant.title'
+    | 'merchant.subtitle'
+    | 'merchant.continue'
+    | 'magician.title'
+    | 'magician.selectDice'
+    | 'magician.selectEnchantment'
+    | 'magician.continue';
 
 export type DiceLabelKey =
     | 'dice.name.regular'
@@ -59,6 +72,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'game.level': 'Level',
         'game.hp': 'HP',
         'game.throwsLeft': 'Würfe übrig',
+        'game.bonusThrows': 'Bonusrundwürfe',
         'game.crit': 'Kritisch!',
         'gameOver.title': 'Spiel vorbei',
         'gameOver.subtitle': 'Klicke, um zum Hauptmenü zurückzukehren',
@@ -66,11 +80,23 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'winner.mainmenu': 'Hauptmenü',
         'winner.endless': 'Endlosmodus',
         'reward.title': 'Wähle deinen Belohnungswürfel!',
+        'reward.titleSwap': 'Wähle einen Würfel zum Tauschen!',
         'reward.continue': 'Weiter',
         'reward.chooseDice': 'Wähle deinen Belohnungswürfel!',
+        'reward.swapInstruction': 'Wähle einen neuen Würfel und dann einen deiner aktuellen Würfel zum Tauschen',
+        'reward.swapSelect': 'Neuer Würfel',
+        'reward.swapSelectPlayerDice': 'Klicke auf einen deiner Würfel, um ihn zu tauschen',
+        'reward.selectToSwap': 'Deine aktuellen Würfel:',
         'game.rollTooltip': 'Würfeln',
         'diceBag.tooltip': 'Würfel anschauen',
         'boss.vampireDrain': 'Der Vampir saugt dich aus und heilt sich um {value} HP',
+        'merchant.title': 'Der Händler',
+        'merchant.subtitle': 'Kaufe ein Artefakt mit passiven Effekten',
+        'merchant.continue': 'Kaufen',
+        'magician.title': 'Der Zauberer',
+        'magician.selectDice': 'Wähle einen Würfel zum Verzaubern',
+        'magician.selectEnchantment': 'Wähle eine Verzauberung für deinen Würfel',
+        'magician.continue': 'Verzaubern',
         'dice.name.regular': 'Regulärer Würfel',
         'dice.name.even': 'Gerader Würfel',
         'dice.name.odd': 'Ungerader Würfel',
@@ -100,6 +126,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'game.level': 'Level',
         'game.hp': 'HP',
         'game.throwsLeft': 'Throws left',
+        'game.bonusThrows': 'Bonus throws',
         'game.crit': 'Critical!',
         'gameOver.title': 'Game Over',
         'gameOver.subtitle': 'Click to return to the main menu',
@@ -107,11 +134,23 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'winner.mainmenu': 'Main Menu',
         'winner.endless': 'Endless Mode',
         'reward.title': 'Choose your reward dice!',
+        'reward.titleSwap': 'Choose a dice to swap!',
         'reward.continue': 'Continue',
         'reward.chooseDice': 'Choose your reward dice!',
+        'reward.swapInstruction': 'Choose a new dice and then one of your current dice to swap',
+        'reward.swapSelect': 'New dice',
+        'reward.swapSelectPlayerDice': 'Click one of your dice to swap it',
+        'reward.selectToSwap': 'Your current dice:',
         'game.rollTooltip': 'Roll',
         'diceBag.tooltip': 'View dice',
         'boss.vampireDrain': 'The vampire drains you and heals for {value} HP',
+        'merchant.title': 'The Merchant',
+        'merchant.subtitle': 'Buy an artifact with passive effects',
+        'merchant.continue': 'Buy',
+        'magician.title': 'The Magician',
+        'magician.selectDice': 'Choose a dice to enchant',
+        'magician.selectEnchantment': 'Choose an enchantment for your dice',
+        'magician.continue': 'Enchant',
         'dice.name.regular': 'Regular Dice',
         'dice.name.even': 'Even Dice',
         'dice.name.odd': 'Odd Dice',

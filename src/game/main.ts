@@ -5,6 +5,8 @@ import { Game as MainGame } from './scenes/Game';
 import { MainMenu } from './scenes/MainMenu';
 import { Reward } from './scenes/Reward';
 import { Winner } from './scenes/Winner';
+import { Merchant } from './scenes/Merchant';
+import { Magician } from './scenes/Magician';
 import { AUTO, Game, Scale, type Types } from 'phaser';
 import { Preloader } from './scenes/Preloader';
 
@@ -29,7 +31,9 @@ const config: Types.Core.GameConfig = {
         MainGame,
         Reward,
         Winner,
-        GameOver
+        GameOver,
+        Merchant,
+        Magician
     ]
 };
 
