@@ -8,6 +8,7 @@ export class DiceHandler {
     playersDice: Dice[] = [];
     activeDiceSprites: GameObjects.Image[] = [];
     playerDiceSprites: GameObjects.Image[] = [];
+    playerBadgeSprites: GameObjects.Text[] = [];
     diceInfoText?: GameObjects.Text;
     bagSprite: GameObjects.Image;
     diceBagOpen = false;
@@ -67,9 +68,11 @@ export class DiceHandler {
     }
 
     renderPlayerDice() {
-        // Remove old sprites
+        // Remove old sprites and badges
         this.playerDiceSprites.forEach(sprite => sprite.destroy());
         this.playerDiceSprites = [];
+        this.playerBadgeSprites.forEach(b => { if (b) b.destroy(); });
+        this.playerBadgeSprites = [];
         if (this.bagSprite) this.bagSprite.destroy();
         if (this.diceInfoText) this.diceInfoText.destroy();
 
@@ -158,6 +161,20 @@ export class DiceHandler {
             });
 
             this.playerDiceSprites.push(sprite);
+
+            // Wenn der Würfel verzaubert ist, zeige ein kleines Badge (initial versteckt)
+            if (dice.enchantment) {
+                const badge = this.scene.add.text(x + 36, this.baseY - 36, dice.enchantment.shortCode, {
+                    fontFamily: 'funblob',
+                    fontSize: '18px',
+                    color: '#ffffff',
+                    backgroundColor: '#00aa00',
+                    padding: { x: 6, y: 4 }
+                }).setDepth(200).setOrigin(0.5).setVisible(false);
+                this.playerBadgeSprites.push(badge);
+            } else {
+                this.playerBadgeSprites.push(null as any);
+            }
         });
     }
 
@@ -202,6 +219,29 @@ export class DiceHandler {
                 duration: 120,
                 ease: 'Quad.Out'
             });
+
+            // Wenn der Würfel verzaubert ist, zeige ein temporäres Badge/duplizierten Face
+            // Erzeuge eine kleine Anzeige rechts vom Würfel
+            const enchant = dice.enchantment;
+            if (enchant) {
+                if (enchant.type === 'CopyNPaste') {
+                    // Zeige ein kleineres Duplikat des Face
+                    const dup = this.scene.add.image(sprite.x + 44, sprite.y, finalTexture)
+                        .setOrigin(0.5)
+                        .setDepth(sprite.depth + 1)
+                        .setScale(this.diceScale * 0.7)
+                        .setAlpha(0);
+
+                    this.scene.tweens.add({ targets: dup, alpha: 1, duration: 200 });
+                    this.scene.time.delayedCall(900, () => { dup.destroy(); });
+                } else if (enchant.type === 'ZweiSamkeit') {
+                    const zBadge = this.scene.add.text(sprite.x + 44, sprite.y - 24, 'ZS', {
+                        fontFamily: 'funblob', fontSize: '20px', color: '#ffffff', backgroundColor: '#aa00aa', padding: { x: 6, y: 4 }
+                    }).setDepth(sprite.depth + 1).setOrigin(0.5).setAlpha(0);
+                    this.scene.tweens.add({ targets: zBadge, alpha: 1, duration: 200 });
+                    this.scene.time.delayedCall(900, () => { zBadge.destroy(); });
+                }
+            }
         });
 
         return totalDuration + 120; // include final settle tween time
@@ -221,7 +261,12 @@ export class DiceHandler {
 
         this.playersDice.forEach((dice, index) => {
             const result = dice.roll();
-            results.push(Number(Object.keys(result)[0]));
+            let value = Number(Object.keys(result)[0]);
+            
+            // Apply enchantment if present
+            value = dice.applyEnchantmentToValue(value);
+            
+            results.push(value);
 
             let sprite: GameObjects.Image;
 
@@ -279,6 +324,12 @@ export class DiceHandler {
                     ease: 'Back.Out',
                     delay: index * 50
                 });
+                // badge mit animieren
+                const badge = this.playerBadgeSprites[index];
+                if (badge) {
+                    badge.setVisible(true);
+                    this.scene.tweens.add({ targets: badge, x: targetX + 36, y: this.baseY - 36, alpha: 1, duration: 300, delay: index * 50 });
+                }
             });
 
             // Beutel leicht nach hinten verschieben
@@ -303,6 +354,10 @@ export class DiceHandler {
                         sprite.setVisible(false);
                     }
                 });
+                const badge = this.playerBadgeSprites[index];
+                if (badge) {
+                    this.scene.tweens.add({ targets: badge, x: this.baseX + 36, y: this.baseY - 36, alpha: 0, duration: 200, delay: index * 30, onComplete: () => { badge.setVisible(false); } });
+                }
             });
 
             // Beutel zurück an ursprüngliche Position

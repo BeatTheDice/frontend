@@ -61,7 +61,7 @@ export class Winner extends Scene {
         .setInteractive({ useHandCursor: true });
 
         endlessButton.on('pointerdown', () => {
-            this.scene.start('Game');
+            this.scene.start('Merchant');
         });
 
         EventBus.emit('current-scene-ready', this);

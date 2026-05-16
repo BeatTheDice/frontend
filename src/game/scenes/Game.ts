@@ -14,6 +14,7 @@ export class Game extends Scene {
     enemyNameText: Phaser.GameObjects.Text;
     enemyHealthText: Phaser.GameObjects.Text;
     remainingThrowsText: Phaser.GameObjects.Text;
+    bonusThrowsText: Phaser.GameObjects.Text;
     bossEffectText: Phaser.GameObjects.Text;
     levelEngine: LevelEngine;
     isDiceRolling: boolean = false;
@@ -44,12 +45,18 @@ export class Game extends Scene {
         this.camera = this.cameras.main;
         this.background = this.add.image(768, 512, 'main_background');
 
+        // Set endless mode flag for levels 6+
+        if (this.levelEngine.currentLevel >= 5) {
+            this.levelEngine.isEndlessMode = true;
+        }
+
         this.levelEngine.nextLevel();                
         this.diceHandler.renderPlayerDice();
         
         this.createTexts();        
         this.createButtons();
         this.createEnemyHealthBar();
+        this.updateTexts();
     }
 
     createTexts() {
@@ -58,11 +65,29 @@ export class Game extends Scene {
             stroke: '#000000', strokeThickness: 10,
             align: 'left'
         }).setOrigin(0, 0);
-        this.remainingThrowsText = this.add.text(50, 130, `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`, {
+        
+        const throwsDisplay = this.levelEngine.bonusThrows > 0 
+            ? `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows} + ${this.levelEngine.bonusThrows}`
+            : `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`;
+            
+        this.remainingThrowsText = this.add.text(50, 130, throwsDisplay, {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'left'
         }).setOrigin(0, 0);
+
+        this.bonusThrowsText = this.add.text(50, 190, '', {
+            fontFamily: 'funblob', fontSize: 36, color: '#00ff00',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'left'
+        }).setOrigin(0, 0);
+
+        if (this.levelEngine.bonusThrows > 0) {
+            this.bonusThrowsText.setText(`${t('game.bonusThrows')}: ${this.levelEngine.bonusThrows}`).setVisible(true);
+        } else {
+            this.bonusThrowsText.setVisible(false);
+        }
+
         this.enemyNameText = this.add.text(1486, 50, `${this.levelEngine.getEnemyName()}`, {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
@@ -104,7 +129,18 @@ export class Game extends Scene {
         this.levelNumberText.setText(`${t('game.level')} ${this.levelEngine.currentLevel}`);
         this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
         this.enemyHealthText.setText(`${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-        this.remainingThrowsText.setText(`${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`);
+        
+        const throwsDisplay = this.levelEngine.bonusThrows > 0 
+            ? `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows} + ${this.levelEngine.bonusThrows}`
+            : `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`;
+        this.remainingThrowsText.setText(throwsDisplay);
+
+        if (this.levelEngine.bonusThrows > 0) {
+            this.bonusThrowsText.setText(`${t('game.bonusThrows')}: ${this.levelEngine.bonusThrows}`).setVisible(true);
+        } else {
+            this.bonusThrowsText.setVisible(false);
+        }
+        
         this.updateEnemyHealthBar();
     }
 
@@ -221,15 +257,28 @@ export class Game extends Scene {
 
         const total = result.reduce((s, v) => s + v, 0);
 
-        this.levelEngine.remainingThrows--;
+        // Use bonus throw if available, otherwise use regular throw
+        const usedBonusThrow = this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows > 0 && this.levelEngine.useBonusThrow();
+        if (!usedBonusThrow) {
+            if (this.levelEngine.remainingThrows > 0) {
+                this.levelEngine.remainingThrows--;
+            }
+        }
 
-        this.remainingThrowsText.setText(
-            `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`
-        );
+        const throwsDisplay = this.levelEngine.bonusThrows > 0 
+            ? `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows} + ${this.levelEngine.bonusThrows}`
+            : `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`;
+        this.remainingThrowsText.setText(throwsDisplay);
+
+        if (this.levelEngine.bonusThrows > 0) {
+            this.bonusThrowsText.setText(`${t('game.bonusThrows')}: ${this.levelEngine.bonusThrows}`).setVisible(true);
+        } else {
+            this.bonusThrowsText.setVisible(false);
+        }
 
         this.levelEngine.dealDamageToEnemy(
             total,
-            this.levelEngine.remainingThrows === 0
+            this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows === 0
         );
 
         this.updateEnemyHealthBar();
@@ -259,7 +308,7 @@ export class Game extends Scene {
             }
         }        
 
-        if (this.levelEngine.remainingThrows === 0) {
+        if (this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows === 0) {
             return this.handleGameOver();
         }
 
@@ -277,9 +326,19 @@ export class Game extends Scene {
             } else if (this.levelEngine.currentLevel < 5) {
                 this.scene.start('Reward');
             } else {
-                this.resetDiceButton(diceButton);
-                this.levelEngine.nextLevel();
-                this.updateTexts();            
+                // Endlos-Modus: Prüfe auf Merchant, Magician oder Reward
+                if (this.levelEngine.shouldShowMerchant()) {
+                    this.scene.start('Merchant');
+                } else if (this.levelEngine.shouldShowMagician()) {
+                    this.scene.start('Magician');
+                } else if (this.levelEngine.shouldShowReward()) {
+                    this.scene.start('Reward');
+                } else {
+                    // Kein besonderes Event, nächstes Level
+                    this.resetDiceButton(diceButton);
+                    this.levelEngine.nextLevel();
+                    this.updateTexts();
+                }
             }
         });
     }
@@ -343,6 +402,15 @@ export class Game extends Scene {
             this.diceSumText.setText(`${currentSum} ${t('game.crit')}`);
             this.diceSumText.setFontSize(64);
             this.diceSumText.setColor('#ff0000');
+            
+            // Add bonus throw if artifact is equipped
+            if (this.levelEngine.hasArtifact) {
+                const beforeBonus = this.levelEngine.bonusThrows;
+                this.levelEngine.addBonusThrow();
+                if (this.levelEngine.bonusThrows !== beforeBonus) {
+                    this.updateTexts();
+                }
+            }
         }
     }
 
