@@ -140,13 +140,13 @@ export class Preloader extends Scene
         this.load.image('vampire_damage_low', './images/enemy/vampire/damage_low.png');
         this.load.image('vampire_damage_high', './images/enemy/vampire/damage_high.png');
         this.load.image('vampire_dead', './images/enemy/vampire/dead.png');
-        this.load.image('vampire_victory', './images/enemy/vampire/victory.png');
+        this.load.image('vampire_victory', './images/enemy/vampire/win.png');
 
         this.load.image('vampire_ice_idle', './images/enemy/vampire_ice/idle.png');
         this.load.image('vampire_ice_damage_low', './images/enemy/vampire_ice/damage_low.png');
         this.load.image('vampire_ice_damage_high', './images/enemy/vampire_ice/damage_high.png');
         this.load.image('vampire_ice_dead', './images/enemy/vampire_ice/dead.png');
-        this.load.image('vampire_ice_victory', './images/enemy/vampire_ice/victory.png');
+        this.load.image('vampire_ice_victory', './images/enemy/vampire_ice/win.png');
 
         //  Load Fonts
         this.load.font('funblob', 'fonts/fun-blob/FunBlob.ttf', 'truetype')
