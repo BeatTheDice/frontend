@@ -61,6 +61,8 @@ export class Preloader extends Scene
         this.load.image('steeldice-3', './images/dice/steeldice 3.png');
         this.load.image('steeldice-4', './images/dice/steeldice 4.png');
         this.load.image('steeldice-5', './images/dice/steeldice 5.png');
+        this.load.image('steeldice-6', './images/dice/steeldice 6.png');
+        this.load.image('steeldice-7', './images/dice/steeldice 7.png');
 
         this.load.image('d8-1', './images/dice/d8 1.png');
         this.load.image('d8-2', './images/dice/d8 2.png');

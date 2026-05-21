@@ -179,17 +179,6 @@ export class LevelEngine {
     }
 
     /**
-     * Prüft, ob nach diesem Level eine Würfel-Belohnung erscheinen soll
-     * Im Endlos-Modus jeden 2. Level ab Level 6 (Level 6, 8, 10, 12...)
-     */
-    shouldShowReward(): boolean {
-        if (!this.isEndlessMode) return false;
-        if (this.currentLevel < 7) return false;
-        if ((this.currentLevel - 7) % 2 === 0) return true;
-        return false;
-    }
-
-    /**
      * Sammelt einen Bonus-Wurf (wird bei Kritischen Treffern aufgerufen)
      * Maximum 3 Bonus-Würfe
      */
