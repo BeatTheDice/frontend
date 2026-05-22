@@ -108,27 +108,15 @@ export class Merchant extends Scene {
         container.add(border);
 
         // Title
-        const titleText = this.add.text(0, -35, artifact.name, {
+        const titleText = this.add.text(0, 0, artifact.name, {
             fontFamily: 'funblob',
-            fontSize: 28,
+            fontSize: 36,
             color: '#ff9000',
             stroke: '#000000',
             strokeThickness: 4,
             align: 'center'
         }).setOrigin(0.5);
         container.add(titleText);
-
-        // Description (brief)
-        const descText = this.add.text(0, 10, artifact.description.substring(0, 50) + '...', {
-            fontFamily: 'funblob',
-            fontSize: 18,
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 3,
-            align: 'center',
-            wordWrap: { width: 280 }
-        }).setOrigin(0.5);
-        container.add(descText);
 
         container.on('pointerover', () => {
             this.infoText.setText(artifact.description).setVisible(true);
@@ -140,7 +128,14 @@ export class Merchant extends Scene {
         container.on('pointerout', () => {
             this.infoText.setVisible(false);
             container.setScale(1);
-            border.lineStyle(3, 0xffaa00, 1);
+
+            const isSelected = this.selectedArtifact === artifact;
+            border.clear();
+            if (isSelected) {
+                border.lineStyle(4, 0x00ff00, 1);
+            } else {
+                border.lineStyle(3, 0xffaa00, 1);
+            }
             border.strokeRoundedRect(-150, -60, 300, 120, 10);
         });
 

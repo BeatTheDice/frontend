@@ -1,5 +1,7 @@
 export type EnchantmentType = 'CopyNPaste' | 'ZweiSamkeit';
 
+import { t } from '../labels';
+
 export class Enchantment {
     type: EnchantmentType;
     name: string;
@@ -16,9 +18,9 @@ export class Enchantment {
     private getEnchantmentName(type: EnchantmentType): string {
         switch (type) {
             case 'CopyNPaste':
-                return 'Copy & Paste';
+                return t('enchantment.name.CopyNPaste');
             case 'ZweiSamkeit':
-                return 'Zweisamkeit';
+                return t('enchantment.name.ZweiSamkeit');
         }
     }
 
@@ -34,9 +36,9 @@ export class Enchantment {
     private getEnchantmentDescription(type: EnchantmentType): string {
         switch (type) {
             case 'CopyNPaste':
-                return 'Jede gewürfelte Augenzahl wird doppelt zum Gesamt-Ergebnis addiert';
+                return t('enchantment.description.CopyNPaste');
             case 'ZweiSamkeit':
-                return 'Für jede gewürfelte Zwei +5 zur Augenzahl';
+                return t('enchantment.description.ZweiSamkeit');
         }
     }
 

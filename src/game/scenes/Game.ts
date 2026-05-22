@@ -262,8 +262,6 @@ export class Game extends Scene {
         const overlay = this.add.rectangle(0, 0, cam.width, cam.height, 0x000000, 0.6).setOrigin(0).setInteractive();
         const boxW = 700;
         const boxH = 220;
-        const boxX = cam.centerX - boxW / 2;
-        const boxY = cam.centerY - boxH / 2;
 
         const box = this.add.rectangle(cam.centerX, cam.centerY, boxW, boxH, 0x111827, 0.98).setStrokeStyle(4, 0x4f46e5);
         const msg = this.add.text(cam.centerX, cam.centerY - 30, t('game.confirmExit', { default: 'Run wird abgebrochen. Sicher?' }), {
