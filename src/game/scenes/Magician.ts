@@ -313,6 +313,6 @@ export class Magician extends Scene {
         this.diceInfoText.destroy();
         this.background.destroy();
         this.scene.stop();
-        this.scene.start('Game', { nextLevel: true });
+        this.scene.start('Reward');
     }
 }

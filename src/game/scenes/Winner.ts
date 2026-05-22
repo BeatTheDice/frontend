@@ -61,6 +61,9 @@ export class Winner extends Scene {
         .setInteractive({ useHandCursor: true });
 
         endlessButton.on('pointerdown', () => {
+            if ((window as any).levelEngine) {
+                (window as any).levelEngine.isEndlessMode = true;
+            }
             this.scene.start('Merchant');
         });
 

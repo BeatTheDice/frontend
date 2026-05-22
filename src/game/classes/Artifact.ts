@@ -1,3 +1,5 @@
+import { t } from '../labels';
+
 export type ArtifactType = 'BonusThrowsOnCrit';
 
 export class Artifact {
@@ -15,14 +17,14 @@ export class Artifact {
     private getArtifactName(type: ArtifactType): string {
         switch (type) {
             case 'BonusThrowsOnCrit':
-                return 'Glücksstein';
+                return t('artifact.name.BonusThrowsOnCrit');
         }
     }
 
     private getArtifactDescription(type: ArtifactType): string {
         switch (type) {
             case 'BonusThrowsOnCrit':
-                return 'Bei jedem kritischen Treffer sammelt der Spieler einen Bonus-Wurf (max. 3)';
+                return t('artifact.description.BonusThrowsOnCrit');
         }
     }
 }

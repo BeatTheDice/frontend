@@ -13,6 +13,12 @@ type LabelKey =
     | 'game.throwsLeft'
     | 'game.bonusThrows'
     | 'game.crit'
+    | 'artifact.name.BonusThrowsOnCrit'
+    | 'artifact.description.BonusThrowsOnCrit'
+    | 'game.exit'
+    | 'game.confirmExit'
+    | 'game.yes'
+    | 'game.no'
     | 'gameOver.title'
     | 'gameOver.subtitle'
     | 'winner.title'
@@ -21,6 +27,7 @@ type LabelKey =
     | 'reward.title'
     | 'reward.titleSwap'
     | 'reward.continue'
+    | 'reward.skip'
     | 'reward.chooseDice'
     | 'reward.swapInstruction'
     | 'reward.swapSelect'
@@ -42,6 +49,7 @@ export type DiceLabelKey =
     | 'dice.name.even'
     | 'dice.name.odd'
     | 'dice.name.risk'
+    | 'dice.name.iron'
     | 'dice.name.steel'
     | 'dice.name.d8'
     | 'dice.name.d10';
@@ -74,6 +82,12 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'game.throwsLeft': 'Würfe übrig',
         'game.bonusThrows': 'Bonusrundwürfe',
         'game.crit': 'Kritisch!',
+        'artifact.name.BonusThrowsOnCrit': 'Glücksstein',
+        'artifact.description.BonusThrowsOnCrit': 'Bei jedem kritischen Treffer sammelt der Spieler einen Bonus-Wurf (max. 3)',
+        'game.exit': 'Beenden',
+        'game.confirmExit': 'Der Run wird abgebrochen. Sicher?',
+        'game.yes': 'Ja',
+        'game.no': 'Nein',
         'gameOver.title': 'Spiel vorbei',
         'gameOver.subtitle': 'Klicke, um zum Hauptmenü zurückzukehren',
         'winner.title': 'Gewonnen!',
@@ -82,6 +96,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'reward.title': 'Wähle deinen Belohnungswürfel!',
         'reward.titleSwap': 'Wähle einen Würfel zum Tauschen!',
         'reward.continue': 'Weiter',
+        'reward.skip': 'Überspringen',
         'reward.chooseDice': 'Wähle deinen Belohnungswürfel!',
         'reward.swapInstruction': 'Wähle einen neuen Würfel und dann einen deiner aktuellen Würfel zum Tauschen',
         'reward.swapSelect': 'Neuer Würfel',
@@ -101,6 +116,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'dice.name.even': 'Gerader Würfel',
         'dice.name.odd': 'Ungerader Würfel',
         'dice.name.risk': 'Risiko Würfel',
+        'dice.name.iron': 'Eiserner Würfel',
         'dice.name.steel': 'Stahl Würfel',
         'dice.name.d8': 'W8',
         'dice.name.d10': 'W10',
@@ -128,6 +144,12 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'game.throwsLeft': 'Throws left',
         'game.bonusThrows': 'Bonus throws',
         'game.crit': 'Critical!',
+        'artifact.name.BonusThrowsOnCrit': 'Lucky Stone',
+        'artifact.description.BonusThrowsOnCrit': 'On every critical hit the player gains one bonus throw (max 3)',
+        'game.exit': 'Exit',
+        'game.confirmExit': 'This run will be aborted. Are you sure?',
+        'game.yes': 'Yes',
+        'game.no': 'No',
         'gameOver.title': 'Game Over',
         'gameOver.subtitle': 'Click to return to the main menu',
         'winner.title': 'You won!',
@@ -136,6 +158,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'reward.title': 'Choose your reward dice!',
         'reward.titleSwap': 'Choose a dice to swap!',
         'reward.continue': 'Continue',
+        'reward.skip': 'Skip',
         'reward.chooseDice': 'Choose your reward dice!',
         'reward.swapInstruction': 'Choose a new dice and then one of your current dice to swap',
         'reward.swapSelect': 'New dice',
@@ -155,6 +178,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'dice.name.even': 'Even Dice',
         'dice.name.odd': 'Odd Dice',
         'dice.name.risk': 'Risk Dice',
+        'dice.name.iron': 'Iron Dice',
         'dice.name.steel': 'Steel Dice',
         'dice.name.d8': 'D8',
         'dice.name.d10': 'D10',

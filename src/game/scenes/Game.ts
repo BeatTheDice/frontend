@@ -46,9 +46,9 @@ export class Game extends Scene {
         this.background = this.add.image(768, 512, 'main_background');
 
         // Set endless mode flag for levels 6+
-        if (this.levelEngine.currentLevel >= 5) {
-            this.levelEngine.isEndlessMode = true;
-        }
+        // if (this.levelEngine.currentLevel >= 5) {
+        //     this.levelEngine.isEndlessMode = true;
+        // }
 
         this.levelEngine.nextLevel();                
         this.diceHandler.renderPlayerDice();
@@ -241,6 +241,60 @@ export class Game extends Scene {
             }
         });
 
+        // --- Exit button (bottom-right) with confirmation modal ---
+        const cam = this.cameras.main;
+        const margin = 24;
+        const exitX = cam.width - margin - 80; // leave room for button width
+        const exitY = cam.height - margin - 40;
+
+        const exitBtn = this.add.text(exitX, exitY, t('game.exit'), {
+            fontFamily: 'funblob',
+            fontSize: 32,
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 8,
+            backgroundColor: '#1a1a1a'
+        }).setPadding(12).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setDepth(1000);
+
+        // Modal group (initially hidden)
+        const modalContainer = this.add.container(0, 0).setDepth(2000).setVisible(false);
+
+        const overlay = this.add.rectangle(0, 0, cam.width, cam.height, 0x000000, 0.6).setOrigin(0).setInteractive();
+        const boxW = 700;
+        const boxH = 220;
+        const boxX = cam.centerX - boxW / 2;
+        const boxY = cam.centerY - boxH / 2;
+
+        const box = this.add.rectangle(cam.centerX, cam.centerY, boxW, boxH, 0x111827, 0.98).setStrokeStyle(4, 0x4f46e5);
+        const msg = this.add.text(cam.centerX, cam.centerY - 30, t('game.confirmExit', { default: 'Run wird abgebrochen. Sicher?' }), {
+            fontFamily: 'funblob', fontSize: 36, color: '#ffffff', stroke: '#000000', strokeThickness: 8, align: 'center', wordWrap: { width: boxW - 60 }
+        }).setOrigin(0.5);
+
+        const yesBtn = this.add.text(cam.centerX - 80, cam.centerY + 60, t('game.yes'), {
+            fontFamily: 'funblob', fontSize: 32, color: '#ffffff', backgroundColor: '#006400', stroke: '#000000', strokeThickness: 8
+        }).setPadding(12).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        const noBtn = this.add.text(cam.centerX + 80, cam.centerY + 60, t('game.no'), {
+            fontFamily: 'funblob', fontSize: 32, color: '#ffffff', backgroundColor: '#8b0000', stroke: '#000000', strokeThickness: 8
+        }).setPadding(12).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        modalContainer.add([overlay, box, msg, yesBtn, noBtn]);
+
+        exitBtn.on('pointerdown', () => {
+            modalContainer.setVisible(true);
+        });
+
+        // Cancel
+        noBtn.on('pointerdown', () => {
+            modalContainer.setVisible(false);
+        });
+
+        // Confirm: go back to MainMenu
+        yesBtn.on('pointerdown', () => {
+            // optionally clear running level state
+            this.scene.start('MainMenu');
+        });
+
     }
 
     private async handleDiceThrow(button: Phaser.GameObjects.Image) {
@@ -331,10 +385,9 @@ export class Game extends Scene {
                     this.scene.start('Merchant');
                 } else if (this.levelEngine.shouldShowMagician()) {
                     this.scene.start('Magician');
-                } else if (this.levelEngine.shouldShowReward()) {
-                    this.scene.start('Reward');
                 } else {
                     // Kein besonderes Event, nächstes Level
+                    this.scene.start('Reward');
                     this.resetDiceButton(diceButton);
                     this.levelEngine.nextLevel();
                     this.updateTexts();
@@ -424,7 +477,7 @@ export class Game extends Scene {
             return;
         }
 
-        const vampireDice = this.diceCollection.getRandomDiceOptions(1, this.levelEngine.currentLevel)[0];
+        const vampireDice = this.diceCollection.getRandomDiceOptions(1, 1)[0];
         const result = vampireDice.roll();
         const value = Number(Object.keys(result)[0]);
         const texture = Object.values(result)[0];

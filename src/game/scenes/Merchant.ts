@@ -21,6 +21,9 @@ export class Merchant extends Scene {
 
     init() {
         this.levelEngine = window.levelEngine as LevelEngine;
+        // if (this.levelEngine.currentLevel >= 5) {
+        //     this.levelEngine.isEndlessMode = true;
+        // }
     }
 
     create() {
@@ -172,6 +175,6 @@ export class Merchant extends Scene {
         this.infoText.destroy();
         this.background.destroy();
         this.scene.stop();
-        this.scene.start('Game', { nextLevel: true });
+        this.scene.start('Reward');
     }
 }

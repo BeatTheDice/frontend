@@ -61,6 +61,8 @@ export class Preloader extends Scene
         this.load.image('steeldice-3', './images/dice/steeldice 3.png');
         this.load.image('steeldice-4', './images/dice/steeldice 4.png');
         this.load.image('steeldice-5', './images/dice/steeldice 5.png');
+        this.load.image('steeldice-6', './images/dice/steeldice 6.png');
+        this.load.image('steeldice-7', './images/dice/steeldice 7.png');
 
         this.load.image('d8-1', './images/dice/d8 1.png');
         this.load.image('d8-2', './images/dice/d8 2.png');
@@ -140,13 +142,13 @@ export class Preloader extends Scene
         this.load.image('vampire_damage_low', './images/enemy/vampire/damage_low.png');
         this.load.image('vampire_damage_high', './images/enemy/vampire/damage_high.png');
         this.load.image('vampire_dead', './images/enemy/vampire/dead.png');
-        this.load.image('vampire_victory', './images/enemy/vampire/victory.png');
+        this.load.image('vampire_victory', './images/enemy/vampire/win.png');
 
         this.load.image('vampire_ice_idle', './images/enemy/vampire_ice/idle.png');
         this.load.image('vampire_ice_damage_low', './images/enemy/vampire_ice/damage_low.png');
         this.load.image('vampire_ice_damage_high', './images/enemy/vampire_ice/damage_high.png');
         this.load.image('vampire_ice_dead', './images/enemy/vampire_ice/dead.png');
-        this.load.image('vampire_ice_victory', './images/enemy/vampire_ice/victory.png');
+        this.load.image('vampire_ice_victory', './images/enemy/vampire_ice/win.png');
 
         //  Load Fonts
         this.load.font('funblob', 'fonts/fun-blob/FunBlob.ttf', 'truetype')

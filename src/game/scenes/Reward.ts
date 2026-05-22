@@ -13,6 +13,7 @@ export class Reward extends Scene {
     rewardDiceSprites: Phaser.GameObjects.Image[] = [];
     continueButton: Phaser.GameObjects.Image;
     continueText: Phaser.GameObjects.Text;
+    skipButton: Phaser.GameObjects.Text;
     diceHandler: DiceHandler;
     levelEngine: LevelEngine;
     selectedDice: Dice | null = null;
@@ -22,6 +23,7 @@ export class Reward extends Scene {
     isSwapMode: boolean = false;
     playerDiceSprites: Phaser.GameObjects.Image[] = [];
     swapCompleted: boolean = false;
+    selectionBorder: Phaser.GameObjects.Graphics | null = null;
 
     constructor() {
         super('Reward');
@@ -126,6 +128,21 @@ export class Reward extends Scene {
             wordWrap: { width: 900 }
         }).setOrigin(0.5).setDepth(100);
 
+        this.skipButton = this.add.text(this.camera.width - 200, this.camera.height - 100, t('reward.skip'), {
+            fontFamily: 'funblob',
+            fontSize: 32,
+            color: '#ffffff',
+            backgroundColor: '#444444',
+            stroke: '#000000',
+            strokeThickness: 6,
+            padding: { x: 20, y: 12 },
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100).setInteractive({ useHandCursor: true }).setVisible(this.isSwapMode);
+
+        this.skipButton.on('pointerdown', () => {
+            this.continueToNextLevel();
+        });
+
         // Zeige neue Würfel zum Tauschen
         diceOptions.forEach((dice, index) => {
             const x = baseX + (index - 1) * spacing;
@@ -196,8 +213,8 @@ export class Reward extends Scene {
     private selectNewDiceForSwap(dice: Dice, sprite: Phaser.GameObjects.Image, index: number) {
         this.selectedDice = dice;
         this.selectedDiceIndex = index;
-        this.rewardDiceSprites.forEach(s => s.setTint(0xffffff));
-        sprite.setTint(0x00ff00);
+        this.clearSelectionBorder();
+        this.showSelectionBorder(sprite);
         this.infoText.setText(t('reward.swapSelectPlayerDice')).setVisible(true);
         // allow swap until completed
         this.swapCompleted = false;
@@ -217,9 +234,9 @@ export class Reward extends Scene {
         // Tausch durchführen nur für den angeklickten Spieler-Würfel
         this.diceHandler.playersDice[playerDiceIndex] = this.selectedDice;
 
-        // Markiere den getauschten Spieler-Würfel
-        this.playerDiceSprites.forEach(s => s.setTint(0xffffff));
-        sprite.setTint(0x00ff00);
+        // Markiere den getauschten Spieler-Würfel (orange frame)
+        this.clearSelectionBorder();
+        this.showSelectionBorder(sprite);
 
         // Deaktiviere weitere Interaktionen an den Spieler-Würfeln
         this.playerDiceSprites.forEach((s) => {
@@ -237,8 +254,8 @@ export class Reward extends Scene {
     selectDice(dice: Dice, sprite: Phaser.GameObjects.Image) {
         // Normal-Modus: Einfach den Würfel hinzufügen
         this.selectedDice = dice;
-        this.rewardDiceSprites.forEach(s => s.setTint(0xffffff));
-        sprite.setTint(0x00ff00);
+        this.clearSelectionBorder();
+        this.showSelectionBorder(sprite);
         this.continueButton.setVisible(true);
         this.continueText.setVisible(true);
     }
@@ -266,8 +283,31 @@ export class Reward extends Scene {
         this.playerDiceSprites.forEach(sprite => sprite.destroy());
         this.continueButton.destroy();
         this.continueText.destroy();
+        if (this.skipButton) this.skipButton.destroy();
+        if (this.selectionBorder) { this.selectionBorder.destroy(); this.selectionBorder = null; }
         this.titleText.destroy();
         this.infoText.destroy();
         this.background.destroy();
+    }
+
+    private clearSelectionBorder() {
+        if (this.selectionBorder) {
+            this.selectionBorder.destroy();
+            this.selectionBorder = null;
+        }
+    }
+
+    private showSelectionBorder(sprite: Phaser.GameObjects.Image) {
+        this.clearSelectionBorder();
+        const pad = 16;
+        const w = sprite.displayWidth + pad;
+        const h = sprite.displayHeight + pad;
+        const x = sprite.x - w / 2;
+        const y = sprite.y - h / 2;
+        const g = this.add.graphics();
+        g.lineStyle(6, 0xff9000, 1);
+        g.strokeRoundedRect(x, y, w, h, 12);
+        g.setDepth(sprite.depth + 1);
+        this.selectionBorder = g;
     }
 }
