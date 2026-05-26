@@ -14,9 +14,13 @@ export class Magician extends Scene {
     selectedDiceIndex: number | null = null;
     selectedEnchantment: Enchantment | null = null;
     diceSprites: Phaser.GameObjects.Image[] = [];
+    diceSelectionBadges: Phaser.GameObjects.Text[] = [];
     enchantmentButtons: Phaser.GameObjects.Container[] = [];
     enchantmentBadges: Phaser.GameObjects.Text[] = [];
     previewBadge: Phaser.GameObjects.Text | null = null;
+    selectionBorder: Phaser.GameObjects.Graphics | null = null;
+    selectedEnchantmentContainer: Phaser.GameObjects.Container | null = null;
+    selectedEnchantmentBorder: Phaser.GameObjects.Graphics | null = null;
     continueButton: Phaser.GameObjects.Image;
     continueText: Phaser.GameObjects.Text;
     infoText: Phaser.GameObjects.Text;
@@ -102,17 +106,19 @@ export class Magician extends Scene {
 
     private createDiceSelection() {
         const baseX = 768;
-        const baseY = 400;
-        const playerDiceY = baseY + 150;
+        const baseY = 340;
+        const playerDiceY = baseY + 120;
         const playerDiceCount = this.diceHandler.playersDice.length;
         const playerSpacing = 150;
+        const baseScale = 0.55;
+        const hoverScale = 0.65;
 
         this.diceHandler.playersDice.forEach((dice, index) => {
             // Zentriere die Würfel basierend auf ihrer Anzahl
             const x = baseX + (index - (playerDiceCount - 1) / 2) * playerSpacing;
             const sprite = this.add.image(x, playerDiceY, dice.getDisplayTexture())
                 .setOrigin(0.5)
-                .setScale(0.45)
+                .setScale(baseScale)
                 .setDepth(50)
                 .setInteractive({ useHandCursor: true });
 
@@ -122,12 +128,12 @@ export class Magician extends Scene {
                 this.diceInfoText.setText(
                     `${dice.getDisplayName()}${enchantmentInfo}\n${values}`
                 ).setVisible(true);
-                sprite.setScale(0.7);
+                sprite.setScale(hoverScale);
             });
 
             sprite.on('pointerout', () => {
                 this.diceInfoText.setVisible(false);
-                sprite.setScale(0.6);
+                sprite.setScale(baseScale);
             });
 
             sprite.on('pointerdown', () => {
@@ -135,6 +141,15 @@ export class Magician extends Scene {
             });
 
             this.diceSprites.push(sprite);
+
+            if (dice.enchantment) {
+                const badge = this.add.text(x + 36, playerDiceY - 36, dice.enchantment.shortCode, {
+                    fontFamily: 'funblob', fontSize: '18px', color: '#ffffff', backgroundColor: '#00aa00', padding: { x: 6, y: 4 }
+                }).setDepth(200).setOrigin(0.5);
+                this.diceSelectionBadges.push(badge);
+            } else {
+                this.diceSelectionBadges.push(null as any);
+            }
         });
     }
 
@@ -143,14 +158,19 @@ export class Magician extends Scene {
         this.selectedDiceIndex = index;
         this.currentStep = 'selectEnchantment';
 
-        // Highlight selected dice
-        // reset previous highlights/tints and remove any preview badge
-        this.diceSprites.forEach(s => { s.setScale(0.6); s.setTint(0xffffff); });
+        // Highlight selected dice and reset previous dice
+        const baseScale = 0.55;
+        this.diceSprites.forEach(s => {
+            s.setScale(baseScale);
+            s.clearTint();
+        });
         if (this.previewBadge) { this.previewBadge.destroy(); this.previewBadge = null; }
         this.selectedEnchantment = null;
+        this.clearEnchantmentSelectionBorder();
 
-        sprite.setScale(0.75);
+        sprite.setScale(0.7);
         sprite.setTint(0x00ff00);
+        this.showSelectionBorderOnSprite(sprite);
 
         // Update step text
         this.stepText.setText(t('magician.selectEnchantment'));
@@ -163,24 +183,31 @@ export class Magician extends Scene {
         // Remove old buttons if any
         this.enchantmentButtons.forEach(btn => btn.destroy());
         this.enchantmentButtons = [];
+        this.selectedEnchantmentContainer = null;
+        this.clearEnchantmentSelectionBorder();
 
         const enchantmentTypes: EnchantmentType[] = ['CopyNPaste', 'ZweiSamkeit'];
-        // Place enchantments lower so they don't overlap the player's dice
-        const baseY = this.cameras.main.centerY + 180;
-        const spacing = 360;
+        const baseY = this.cameras.main.centerY + 260;
+        const spacing = 400;
+        const startX = 768 - ((enchantmentTypes.length - 1) * spacing) / 2;
 
         enchantmentTypes.forEach((type, index) => {
             const enchantment = new Enchantment(type);
-            const x = 768 + (index - 0.5) * spacing;
+            const x = startX + index * spacing;
             this.createEnchantmentButton(enchantment, x, baseY);
         });
     }
 
     private createEnchantmentButton(enchantment: Enchantment, x: number, y: number) {
+        const width = 320;
+        const height = 150;
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+
         const container = this.add.container(x, y)
             .setDepth(50)
             .setInteractive(
-                new (window as any).Phaser.Geom.Rectangle(-140, -70, 280, 140),
+                new (window as any).Phaser.Geom.Rectangle(-halfWidth, -halfHeight, width, height),
                 (window as any).Phaser.Geom.Rectangle.Contains
             )
             .setVisible(true);
@@ -188,19 +215,19 @@ export class Magician extends Scene {
         // Background
         const bg = this.add.graphics()
             .fillStyle(0x1a1a2e, 1)
-            .fillRoundedRect(-140, -70, 280, 140, 10);
+            .fillRoundedRect(-halfWidth, -halfHeight, width, height, 12);
         container.add(bg);
 
         // Border
         const border = this.add.graphics()
             .lineStyle(3, 0x00ddff, 1)
-            .strokeRoundedRect(-140, -70, 280, 140, 10);
+            .strokeRoundedRect(-halfWidth, -halfHeight, width, height, 12);
         container.add(border);
 
         // Title
-        const titleText = this.add.text(0, -40, enchantment.name, {
+        const titleText = this.add.text(0, 0, enchantment.name, {
             fontFamily: 'funblob',
-            fontSize: 26,
+            fontSize: 34,
             color: '#00ddff',
             stroke: '#000000',
             strokeThickness: 4,
@@ -208,33 +235,26 @@ export class Magician extends Scene {
         }).setOrigin(0.5);
         container.add(titleText);
 
-        // Description (abbreviated)
-        const desc = enchantment.description.substring(0, 40);
-        const descText = this.add.text(0, 15, desc + '...', {
-            fontFamily: 'funblob',
-            fontSize: 16,
-            color: '#cccccc',
-            stroke: '#000000',
-            strokeThickness: 3,
-            align: 'center',
-            wordWrap: { width: 260 }
-        }).setOrigin(0.5);
-        container.add(descText);
-
         container.on('pointerover', () => {
             this.infoText.setText(enchantment.description).setVisible(true);
-            container.setScale(1.08);
+            container.setScale(1.04);
             border.clear();
             border.lineStyle(4, 0xffff00, 1);
-            border.strokeRoundedRect(-140, -70, 280, 140, 10);
+            border.strokeRoundedRect(-halfWidth, -halfHeight, width, height, 12);
         });
 
         container.on('pointerout', () => {
             this.infoText.setVisible(false);
             container.setScale(1);
+
+            const isSelected = this.selectedEnchantment?.type === enchantment.type;
             border.clear();
-            border.lineStyle(3, 0x00ddff, 1);
-            border.strokeRoundedRect(-140, -70, 280, 140, 10);
+            if (isSelected) {
+                border.lineStyle(4, 0x00ff00, 1);
+            } else {
+                border.lineStyle(3, 0x00ddff, 1);
+            }
+            border.strokeRoundedRect(-halfWidth, -halfHeight, width, height, 12);
         });
 
         container.on('pointerdown', () => {
@@ -246,10 +266,8 @@ export class Magician extends Scene {
 
     private applyEnchantment(enchantment: Enchantment, container: Phaser.GameObjects.Container) {
         if (this.selectedDice && this.selectedDiceIndex !== null) {
-            // Do NOT apply yet. Store chosen enchantment as preview and show preview badge on selected sprite.
             this.selectedEnchantment = enchantment;
 
-            // Remove existing preview badge
             if (this.previewBadge) { this.previewBadge.destroy(); this.previewBadge = null; }
 
             const sprite = this.diceSprites[this.selectedDiceIndex];
@@ -259,38 +277,72 @@ export class Magician extends Scene {
                 }).setDepth(200).setOrigin(0.5);
             }
 
-            // Highlight selected enchantment
-            const border = container.list[1] as Phaser.GameObjects.Graphics;
-            border.clear();
-            border.lineStyle(4, 0x00ff00, 1);
-            border.strokeRoundedRect(-140, -70, 280, 140, 10);
+            this.clearEnchantmentSelectionBorder();
+            this.showSelectionBorderOnContainer(container);
+            this.selectedEnchantmentContainer = container;
 
-            // Show continue button
             this.continueButton.setVisible(true);
             this.continueText.setVisible(true);
 
-            // Update dice info
             const values = this.selectedDice.getFaceValues().join(', ');
             this.diceInfoText.setText(
                 `${this.selectedDice.getDisplayName()}\n` +
-                `Verzauberung: ${enchantment.name}\n` +
+                `${t('magician.enchantmentLabel')}: ${enchantment.name}\n` +
                 `${values}`
             ).setVisible(true);
-
-            // preview badge already created above
         }
+    }
+
+    private clearEnchantmentSelectionBorder() {
+        if (this.selectedEnchantmentBorder) {
+            this.selectedEnchantmentBorder.destroy();
+            this.selectedEnchantmentBorder = null;
+        }
+    }
+
+    private clearDiceSelectionBorder() {
+        if (this.selectionBorder) {
+            this.selectionBorder.destroy();
+            this.selectionBorder = null;
+        }
+    }
+
+    private showSelectionBorderOnSprite(sprite: Phaser.GameObjects.Image) {
+        this.clearDiceSelectionBorder();
+        const pad = 16;
+        const w = sprite.displayWidth + pad;
+        const h = sprite.displayHeight + pad;
+        const x = sprite.x - w / 2;
+        const y = sprite.y - h / 2;
+        const g = this.add.graphics();
+        g.lineStyle(6, 0xff9000, 1);
+        g.strokeRoundedRect(x, y, w, h, 12);
+        g.setDepth(sprite.depth + 1);
+        this.selectionBorder = g;
+    }
+
+    private showSelectionBorderOnContainer(container: Phaser.GameObjects.Container) {
+        this.clearEnchantmentSelectionBorder();
+        const width = 320;
+        const height = 150;
+        const pad = 12;
+        const x = container.x - width / 2 - pad / 2;
+        const y = container.y - height / 2 - pad / 2;
+        const g = this.add.graphics();
+        g.lineStyle(6, 0xff9000, 1);
+        g.strokeRoundedRect(x, y, width + pad, height + pad, 14);
+        g.setDepth(200);
+        this.selectedEnchantmentBorder = g;
     }
 
     private continueToGame() {
         // If the player chose an enchantment preview, apply it now to only the selected dice
         if (this.selectedEnchantment && this.selectedDiceIndex !== null) {
-            // Clone selected dice instance, apply enchantment and replace in player's dice array
             const original = this.diceHandler.playersDice[this.selectedDiceIndex];
             const cloned = original.clone();
             cloned.addEnchantment(this.selectedEnchantment);
             this.diceHandler.playersDice[this.selectedDiceIndex] = cloned;
 
-            // Create a persistent badge in the scene (will be destroyed along with other scene objects)
             const sprite = this.diceSprites[this.selectedDiceIndex];
             if (sprite) {
                 const badge = this.add.text(sprite.x + 36, sprite.y - 36, this.selectedEnchantment.shortCode, {
@@ -302,9 +354,12 @@ export class Magician extends Scene {
 
         // Cleanup UI and go back to Game
         this.diceSprites.forEach(sprite => sprite.destroy());
+        this.diceSelectionBadges.forEach(badge => { if (badge) badge.destroy(); });
         this.enchantmentButtons.forEach(button => button.destroy());
         this.enchantmentBadges.forEach(b => b.destroy());
         if (this.previewBadge) { this.previewBadge.destroy(); this.previewBadge = null; }
+        if (this.selectionBorder) { this.selectionBorder.destroy(); this.selectionBorder = null; }
+        if (this.selectedEnchantmentBorder) { this.selectedEnchantmentBorder.destroy(); this.selectedEnchantmentBorder = null; }
         this.continueButton.destroy();
         this.continueText.destroy();
         this.titleText.destroy();
@@ -313,6 +368,6 @@ export class Magician extends Scene {
         this.diceInfoText.destroy();
         this.background.destroy();
         this.scene.stop();
-        this.scene.start('Reward');
+        this.scene.start('Game', { nextLevel: true });
     }
 }

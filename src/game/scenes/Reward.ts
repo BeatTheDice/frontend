@@ -18,11 +18,15 @@ export class Reward extends Scene {
     levelEngine: LevelEngine;
     selectedDice: Dice | null = null;
     selectedDiceIndex: number | null = null;
+    selectedPlayerDiceIndex: number | null = null;
     infoText: Phaser.GameObjects.Text;
     diceCollection: DiceCollection;
     isSwapMode: boolean = false;
     playerDiceSprites: Phaser.GameObjects.Image[] = [];
-    swapCompleted: boolean = false;
+    playerDiceBadgeTexts: Phaser.GameObjects.Text[] = [];
+    newDiceBadgeTexts: Phaser.GameObjects.Text[] = [];
+    selectedNewSelectionBorder: Phaser.GameObjects.Graphics | null = null;
+    selectedPlayerSelectionBorder: Phaser.GameObjects.Graphics | null = null;
     selectionBorder: Phaser.GameObjects.Graphics | null = null;
 
     constructor() {
@@ -92,23 +96,26 @@ export class Reward extends Scene {
     }
 
     private createNormalModeUI(diceOptions: Dice[], baseX: number, baseY: number, spacing: number) {
+        const itemScale = 0.55;
+        const hoverScale = 0.6;
+
         diceOptions.forEach((dice, index) => {
             const x = baseX + (index - 1) * spacing;
             const sprite = this.add.image(x, baseY, dice.getDisplayTexture())
                 .setOrigin(0.5)
-                .setScale(0.55)
+                .setScale(itemScale)
                 .setDepth(50)
                 .setInteractive({ useHandCursor: true });
 
             sprite.on('pointerover', () => {
                 const values = dice.getFaceValues().join(', ');
                 this.infoText.setText(`${dice.getDisplayName()}: ${values}`).setVisible(true);
-                sprite.setScale(0.6);
+                sprite.setScale(hoverScale);
             });
 
             sprite.on('pointerout', () => {
                 this.infoText.setVisible(false);
-                sprite.setScale(0.55);
+                sprite.setScale(itemScale);
             });
 
             sprite.on('pointerdown', () => {
@@ -140,27 +147,30 @@ export class Reward extends Scene {
         }).setOrigin(0.5).setDepth(100).setInteractive({ useHandCursor: true }).setVisible(this.isSwapMode);
 
         this.skipButton.on('pointerdown', () => {
-            this.continueToNextLevel();
+            this.skipSwap();
         });
 
         // Zeige neue Würfel zum Tauschen
+        const optionScale = 0.55;
+        const optionHoverScale = 0.6;
+
         diceOptions.forEach((dice, index) => {
             const x = baseX + (index - 1) * spacing;
             const sprite = this.add.image(x, baseY - 50, dice.getDisplayTexture())
                 .setOrigin(0.5)
-                .setScale(0.55)
+                .setScale(optionScale)
                 .setDepth(50)
                 .setInteractive({ useHandCursor: true });
 
             sprite.on('pointerover', () => {
                 const values = dice.getFaceValues().join(', ');
                 this.infoText.setText(`${t('reward.swapSelect')}: ${dice.getDisplayName()}: ${values}`).setVisible(true);
-                sprite.setScale(0.6);
+                sprite.setScale(optionHoverScale);
             });
 
             sprite.on('pointerout', () => {
                 this.infoText.setVisible(false);
-                sprite.setScale(0.55);
+                sprite.setScale(optionScale);
             });
 
             sprite.on('pointerdown', () => {
@@ -181,12 +191,15 @@ export class Reward extends Scene {
         const playerDiceCount = this.diceHandler.playersDice.length;
         const playerSpacing = 150;
         
+        const playerItemScale = 0.55;
+        const playerHoverScale = 0.6;
+
         this.diceHandler.playersDice.forEach((dice, index) => {
             // Zentriere die Würfel basierend auf ihrer Anzahl
             const x = baseX + (index - (playerDiceCount - 1) / 2) * playerSpacing;
             const sprite = this.add.image(x, playerDiceY, dice.getDisplayTexture())
                 .setOrigin(0.5)
-                .setScale(0.45)
+                .setScale(playerItemScale)
                 .setDepth(50)
                 .setInteractive({ useHandCursor: true });
 
@@ -194,12 +207,12 @@ export class Reward extends Scene {
                 const values = dice.getFaceValues().join(', ');
                 const enchantmentInfo = dice.getEnchantmentInfo();
                 this.infoText.setText(`${dice.getDisplayName()}${enchantmentInfo}: ${values}`).setVisible(true);
-                sprite.setScale(0.5);
+                sprite.setScale(playerHoverScale);
             });
 
             sprite.on('pointerout', () => {
                 this.infoText.setVisible(false);
-                sprite.setScale(0.45);
+                sprite.setScale(playerItemScale);
             });
 
             sprite.on('pointerdown', () => {
@@ -207,48 +220,41 @@ export class Reward extends Scene {
             });
 
             this.playerDiceSprites.push(sprite);
+
+            if (dice.enchantment) {
+                const badge = this.add.text(x + 36, playerDiceY - 36, dice.enchantment.shortCode, {
+                    fontFamily: 'funblob', fontSize: '18px', color: '#ffffff', backgroundColor: '#00aa00', padding: { x: 6, y: 4 }
+                }).setDepth(200).setOrigin(0.5);
+                this.playerDiceBadgeTexts.push(badge);
+            } else {
+                this.playerDiceBadgeTexts.push(null as any);
+            }
         });
     }
 
     private selectNewDiceForSwap(dice: Dice, sprite: Phaser.GameObjects.Image, index: number) {
         this.selectedDice = dice;
         this.selectedDiceIndex = index;
-        this.clearSelectionBorder();
-        this.showSelectionBorder(sprite);
+        this.clearNewSelectionBorder();
+        this.showSelectionBorder(sprite, 'new');
         this.infoText.setText(t('reward.swapSelectPlayerDice')).setVisible(true);
-        // allow swap until completed
-        this.swapCompleted = false;
+        this.continueButton.setVisible(this.selectedPlayerDiceIndex !== null);
+        this.continueText.setVisible(this.selectedPlayerDiceIndex !== null);
     }
 
     private selectPlayerDiceForSwap(playerDiceIndex: number, sprite: Phaser.GameObjects.Image) {
-        if (this.swapCompleted) {
-            // Swap already done, ignore further clicks
-            return;
-        }
-
         if (!this.selectedDice || this.selectedDiceIndex === null) {
-            this.infoText.setText('Bitte wähle zuerst einen neuen Würfel!').setVisible(true);
+            this.infoText.setText(t('reward.mustSelectNewDice')).setVisible(true);
             return;
         }
 
-        // Tausch durchführen nur für den angeklickten Spieler-Würfel
-        this.diceHandler.playersDice[playerDiceIndex] = this.selectedDice;
+        this.selectedPlayerDiceIndex = playerDiceIndex;
+        this.clearPlayerSelectionBorder();
+        this.showSelectionBorder(sprite, 'player');
 
-        // Markiere den getauschten Spieler-Würfel (orange frame)
-        this.clearSelectionBorder();
-        this.showSelectionBorder(sprite);
-
-        // Deaktiviere weitere Interaktionen an den Spieler-Würfeln
-        this.playerDiceSprites.forEach((s) => {
-            if (s.input) s.disableInteractive();
-        });
-
-        // Setze Swap-Flag, zeige Continue
-        this.swapCompleted = true;
         this.continueButton.setVisible(true);
         this.continueText.setVisible(true);
-
-        this.infoText.setText('Würfel getauscht! Klicke zum Fortfahren.').setVisible(true);
+        this.infoText.setText(t('reward.swapPrepared')).setVisible(true);
     }
 
     selectDice(dice: Dice, sprite: Phaser.GameObjects.Image) {
@@ -262,7 +268,12 @@ export class Reward extends Scene {
 
     continueToNextLevel() {
         if (this.isSwapMode) {
-            // Swap-Modus: Nur Renderer aktualisieren
+            if (!this.selectedDice || this.selectedPlayerDiceIndex === null) {
+                this.infoText.setText(t('reward.mustSelectNewAndPlayerDice')).setVisible(true);
+                return;
+            }
+
+            this.diceHandler.playersDice[this.selectedPlayerDiceIndex] = this.selectedDice;
             this.diceHandler.renderPlayerDice();
             this.cleanup();
             this.scene.stop();
@@ -278,13 +289,23 @@ export class Reward extends Scene {
         }
     }
 
+    private skipSwap() {
+        this.cleanup();
+        this.scene.stop();
+        this.scene.start('Game', { nextLevel: true });
+    }
+
     private cleanup() {
         this.rewardDiceSprites.forEach(sprite => sprite.destroy());
         this.playerDiceSprites.forEach(sprite => sprite.destroy());
+        this.playerDiceBadgeTexts.forEach(badge => { if (badge) badge.destroy(); });
+        this.newDiceBadgeTexts.forEach(badge => { if (badge) badge.destroy(); });
         this.continueButton.destroy();
         this.continueText.destroy();
         if (this.skipButton) this.skipButton.destroy();
         if (this.selectionBorder) { this.selectionBorder.destroy(); this.selectionBorder = null; }
+        if (this.selectedNewSelectionBorder) { this.selectedNewSelectionBorder.destroy(); this.selectedNewSelectionBorder = null; }
+        if (this.selectedPlayerSelectionBorder) { this.selectedPlayerSelectionBorder.destroy(); this.selectedPlayerSelectionBorder = null; }
         this.titleText.destroy();
         this.infoText.destroy();
         this.background.destroy();
@@ -295,10 +316,33 @@ export class Reward extends Scene {
             this.selectionBorder.destroy();
             this.selectionBorder = null;
         }
+        this.clearNewSelectionBorder();
+        this.clearPlayerSelectionBorder();
     }
 
-    private showSelectionBorder(sprite: Phaser.GameObjects.Image) {
-        this.clearSelectionBorder();
+    private clearNewSelectionBorder() {
+        if (this.selectedNewSelectionBorder) {
+            this.selectedNewSelectionBorder.destroy();
+            this.selectedNewSelectionBorder = null;
+        }
+    }
+
+    private clearPlayerSelectionBorder() {
+        if (this.selectedPlayerSelectionBorder) {
+            this.selectedPlayerSelectionBorder.destroy();
+            this.selectedPlayerSelectionBorder = null;
+        }
+    }
+
+    private showSelectionBorder(sprite: Phaser.GameObjects.Image, type: 'single' | 'new' | 'player' = 'single') {
+        if (type === 'single') {
+            this.clearSelectionBorder();
+        } else if (type === 'new') {
+            this.clearNewSelectionBorder();
+        } else {
+            this.clearPlayerSelectionBorder();
+        }
+
         const pad = 16;
         const w = sprite.displayWidth + pad;
         const h = sprite.displayHeight + pad;
@@ -308,6 +352,13 @@ export class Reward extends Scene {
         g.lineStyle(6, 0xff9000, 1);
         g.strokeRoundedRect(x, y, w, h, 12);
         g.setDepth(sprite.depth + 1);
-        this.selectionBorder = g;
+
+        if (type === 'single') {
+            this.selectionBorder = g;
+        } else if (type === 'new') {
+            this.selectedNewSelectionBorder = g;
+        } else {
+            this.selectedPlayerSelectionBorder = g;
+        }
     }
 }

@@ -42,7 +42,15 @@ type LabelKey =
     | 'magician.title'
     | 'magician.selectDice'
     | 'magician.selectEnchantment'
-    | 'magician.continue';
+    | 'magician.continue'
+    | 'magician.enchantmentLabel'
+    | 'reward.mustSelectNewDice'
+    | 'reward.swapPrepared'
+    | 'reward.mustSelectNewAndPlayerDice'
+    | 'enchantment.name.CopyNPaste'
+    | 'enchantment.name.ZweiSamkeit'
+    | 'enchantment.description.CopyNPaste'
+    | 'enchantment.description.ZweiSamkeit';
 
 export type DiceLabelKey =
     | 'dice.name.regular'
@@ -112,6 +120,14 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'magician.selectDice': 'Wähle einen Würfel zum Verzaubern',
         'magician.selectEnchantment': 'Wähle eine Verzauberung für deinen Würfel',
         'magician.continue': 'Verzaubern',
+        'magician.enchantmentLabel': 'Verzauberung',
+        'reward.mustSelectNewDice': 'Bitte wähle zuerst einen neuen Würfel!',
+        'reward.swapPrepared': 'Deine Wahl ist vorbereitet. Klicke auf Weiter, um den Tausch abzuschließen.',
+        'reward.mustSelectNewAndPlayerDice': 'Bitte wähle zuerst einen neuen Würfel und deinen eigenen Würfel zum Tauschen.',
+        'enchantment.name.CopyNPaste': 'Copy & Paste',
+        'enchantment.name.ZweiSamkeit': 'Zweisamkeit',
+        'enchantment.description.CopyNPaste': 'Jede gewürfelte Augenzahl wird doppelt zum Gesamt-Ergebnis addiert',
+        'enchantment.description.ZweiSamkeit': 'Für jede gewürfelte Zwei +5 zur Augenzahl',
         'dice.name.regular': 'Regulärer Würfel',
         'dice.name.even': 'Gerader Würfel',
         'dice.name.odd': 'Ungerader Würfel',
@@ -174,6 +190,14 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'magician.selectDice': 'Choose a dice to enchant',
         'magician.selectEnchantment': 'Choose an enchantment for your dice',
         'magician.continue': 'Enchant',
+        'magician.enchantmentLabel': 'Enchantment',
+        'reward.mustSelectNewDice': 'Please choose a new dice first!',
+        'reward.swapPrepared': 'Your swap is ready. Click Continue to complete the swap.',
+        'reward.mustSelectNewAndPlayerDice': 'Please choose a new dice and one of your own dice to swap first.',
+        'enchantment.name.CopyNPaste': 'Copy & Paste',
+        'enchantment.name.ZweiSamkeit': 'Togetherness',
+        'enchantment.description.CopyNPaste': 'Each rolled face value is added twice to the total result',
+        'enchantment.description.ZweiSamkeit': 'For every rolled two, add +5 to the face value',
         'dice.name.regular': 'Regular Dice',
         'dice.name.even': 'Even Dice',
         'dice.name.odd': 'Odd Dice',
