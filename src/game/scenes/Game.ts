@@ -42,8 +42,9 @@ export class Game extends Scene {
     create() {
         this.isDiceRolling = false;
         this.camera = this.cameras.main;
+        this.add.image(768, 512, 'sky_background').setDepth(-4);
         this.background = this.add.image(768, 512, 'main_background');
-        this.background.setDepth(-100);
+        this.background.setDepth(-2);
         setupBackgroundAmbience(this);
 
         this.levelEngine.nextLevel();                

@@ -6,12 +6,17 @@ export function setupBackgroundAmbience(scene: Scene) {
     const clouds: AnimatedCloud[] = [];
     const leaves: FallingLeaf[] = [];
 
-    const MAX_CLOUDS = 6;
+    const MAX_CLOUDS = 5;
     // Minimum horizontal distance (px) between any two cloud centers
-    const MIN_SEPARATION = 220;
-    const SPEED_MIN = 25;
-    const SPEED_MAX = 45;
-    const MAX_LEAVES = 10;
+    const MIN_SEPARATION = 500;
+    const speed = 20;
+    const CLOUD_Y_MIN = 0;
+    const CLOUD_Y_MAX = scene.scale.height * 0.4;
+    const MAX_LEAVES = 5;
+    // Tree position – adjust these to match the tree in the background image
+    const TREE_X = scene.scale.width * 0.15;
+    const TREE_Y = scene.scale.height * 0.4;
+    const TREE_SPREAD = 100; // horizontal spread of leaf spawn around the tree center
 
     // Pre-spawn all clouds evenly spread across the screen width
     function initClouds() {
@@ -24,8 +29,7 @@ export function setupBackgroundAmbience(scene: Scene) {
             const cloud = new AnimatedCloud(scene);
             clouds.push(cloud);
             const x = spacing * 0.5 + spacing * i;
-            const y = 50 + Math.random() * 80;
-            const speed = SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN);
+            const y = CLOUD_Y_MIN + Math.random() * (CLOUD_Y_MAX - CLOUD_Y_MIN);
             cloud.spawn(x, y, 'cloud', speed);
         }
     }
@@ -49,8 +53,7 @@ export function setupBackgroundAmbience(scene: Scene) {
             }
         }
 
-        const y = 50 + Math.random() * 80;
-        const speed = SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN);
+        const y = CLOUD_Y_MIN + Math.random() * (CLOUD_Y_MAX - CLOUD_Y_MIN);
         cloud.spawn(safeX, y, 'cloud', speed);
     }
 
@@ -66,9 +69,9 @@ export function setupBackgroundAmbience(scene: Scene) {
 
         if (!leaf) return;
 
-        const speed = 60 + Math.random() * 60;
-        const startX = Math.random() * scene.scale.width;
-        leaf.spawn(startX, -50, 'leaf', speed);
+        const leafSpeed = 60 + Math.random() * 60;
+        const startX = TREE_X + (Math.random() * 2 - 1) * TREE_SPREAD;
+        leaf.spawn(startX, TREE_Y, 'leaf', leafSpeed);
     }
 
     let leafTimer = 0;
