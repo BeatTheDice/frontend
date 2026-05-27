@@ -6,41 +6,58 @@ export function setupBackgroundAmbience(scene: Scene) {
     const clouds: AnimatedCloud[] = [];
     const leaves: FallingLeaf[] = [];
 
-    // Create cloud texture keys (you added: Cloud 1.png, Cloud 2.png, Cloud 3.png)
-    const cloudKeys = ['cloud1'].filter(key => scene.textures.exists(key));
-    const leafKeys = ['leaf1', 'leaf2', 'leaf3'].filter(key => scene.textures.exists(key));
+    const MAX_CLOUDS = 6;
+    // Minimum horizontal distance (px) between any two cloud centers
+    const MIN_SEPARATION = 220;
+    const SPEED_MIN = 25;
+    const SPEED_MAX = 45;
+    const MAX_LEAVES = 10;
 
-    // Max entities to render
-    const MAX_CLOUDS = 3;
-    const MAX_LEAVES = 12;
+    // Pre-spawn all clouds evenly spread across the screen width
+    function initClouds() {
+        if (!scene.textures.exists('cloud')) return;
 
-    // Spawn a cloud randomly
-    function spawnCloud() {
-        if (cloudKeys.length === 0) return;
+        const width = scene.scale.width;
+        const spacing = width / MAX_CLOUDS;
 
-        // Get or create cloud
-        let cloud = clouds.find(c => !c.isActive);
-        if (!cloud && clouds.length < MAX_CLOUDS) {
-            cloud = new AnimatedCloud(scene);
+        for (let i = 0; i < MAX_CLOUDS; i++) {
+            const cloud = new AnimatedCloud(scene);
             clouds.push(cloud);
+            const x = spacing * 0.5 + spacing * i;
+            const y = 50 + Math.random() * 80;
+            const speed = SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN);
+            cloud.spawn(x, y, 'cloud', speed);
         }
-
-        if (!cloud) return;
-
-        const texture = cloudKeys[Math.floor(Math.random() * cloudKeys.length)];
-        const speed = 20 + Math.random() * 40;
-        const direction = Math.random() > 0.5 ? 1 : -1;
-        const startX = direction > 0 ? -100 : scene.scale.width + 100;
-        const startY = 80;
-
-        cloud.spawn(startX, startY, texture, speed, direction);
     }
 
-    // Spawn a leaf falling
-    function spawnLeaf() {
-        if (leafKeys.length === 0) return;
+    // Place a recycled cloud just off the left edge, keeping MIN_SEPARATION from all others
+    function recycleCloud(cloud: AnimatedCloud) {
+        const otherXs = clouds
+            .filter(c => c !== cloud && c.isActive)
+            .map(c => c.getX());
 
-        // Get or create leaf
+        // Start just off the left edge and push further left until clear of every other cloud
+        let safeX = -150;
+        let changed = true;
+        while (changed) {
+            changed = false;
+            for (const x of otherXs) {
+                if (Math.abs(x - safeX) < MIN_SEPARATION) {
+                    safeX = x - MIN_SEPARATION;
+                    changed = true;
+                }
+            }
+        }
+
+        const y = 50 + Math.random() * 80;
+        const speed = SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN);
+        cloud.spawn(safeX, y, 'cloud', speed);
+    }
+
+    // Spawn a falling leaf
+    function spawnLeaf() {
+        if (!scene.textures.exists('leaf')) return;
+
         let leaf = leaves.find(l => !l.isActive);
         if (!leaf && leaves.length < MAX_LEAVES) {
             leaf = new FallingLeaf(scene);
@@ -49,39 +66,35 @@ export function setupBackgroundAmbience(scene: Scene) {
 
         if (!leaf) return;
 
-        const texture = leafKeys[Math.floor(Math.random() * leafKeys.length)];
-        const speed = 80 + Math.random() * 120;
+        const speed = 60 + Math.random() * 60;
         const startX = Math.random() * scene.scale.width;
-
-        leaf.spawn(startX, -50, texture, speed);
+        leaf.spawn(startX, -50, 'leaf', speed);
     }
 
-    // Spawn clouds and leaves periodically
-    let cloudTimer = 0;
     let leafTimer = 0;
 
-
     function onUpdate(_time: number, delta: number) {
-        // Update all active clouds
-        clouds.forEach(cloud => cloud.update(delta));
+        // Update clouds; recycle any that have drifted off the right edge
+        clouds.forEach(cloud => {
+            cloud.update(delta);
+            if (cloud.needsRecycle) {
+                recycleCloud(cloud);
+            }
+        });
 
         // Update all active leaves
         leaves.forEach(leaf => leaf.update(delta));
 
-        // Spawn new clouds every 2.5-4 seconds
-        cloudTimer += delta;
-        if (cloudTimer > 2500 + Math.random() * 1500) {
-            spawnCloud();
-            cloudTimer = 0;
-        }
-
-        // Spawn new leaves every 200-500ms
+        // Spawn new leaves every 1.5-2.5s
         leafTimer += delta;
-        if (leafTimer > 200 + Math.random() * 300) {
+        if (leafTimer > 1500 + Math.random() * 1000) {
             spawnLeaf();
             leafTimer = 0;
         }
     }
+
+    // Start clouds immediately
+    initClouds();
 
     // Attach update listener
     scene.events.on('update', onUpdate);

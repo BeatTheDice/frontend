@@ -1,63 +1,68 @@
-import { Scene } from 'phaser';
+import { Scene, type GameObjects } from 'phaser';
 
 export class FallingLeaf {
     scene: Scene;
-    sprite: Phaser.GameObjects.Image | null = null;
+    sprite: GameObjects.Image | null = null;
     isActive = false;
-    speed: number;
-    baseX: number;
-    rotation: number;
-    driftX: number;
-    driftAmount: number;
+    speed: number = 0;
+    baseX: number = 0;
+    swayOffset: number = 0;
+    swayAmount: number = 0;
+    tiltOffset: number = 0;
 
     constructor(scene: Scene) {
         this.scene = scene;
-        this.speed = 0;
-        this.baseX = 0;
-        this.rotation = 0;
-        this.driftX = 0;
-        this.driftAmount = 0;
     }
 
     spawn(x: number, y: number, textureKey: string, speed: number) {
         if (!this.sprite) {
             this.sprite = this.scene.add.image(x, y, textureKey);
             this.sprite.setOrigin(0.5);
-            this.sprite.setDepth(-50);
-            this.sprite.setScale(0.4);
+            this.sprite.setDepth(-49);
+            this.sprite.setScale(0.06);
         } else {
-            this.sprite.setTexture(textureKey);
             this.sprite.setPosition(x, y);
             this.sprite.setVisible(true);
         }
 
+        this.sprite.setAlpha(1);
         this.speed = speed;
         this.baseX = x;
-        this.rotation = 0;
-        this.driftX = 0;
-        this.driftAmount = 30 + Math.random() * 30;
+        this.swayOffset = Math.random() * Math.PI * 2;
+        this.swayAmount = 25 + Math.random() * 35;
+        this.tiltOffset = Math.random() * Math.PI * 2;
         this.isActive = true;
     }
 
     update(delta: number) {
         if (!this.isActive || !this.sprite) return;
 
-        const deltaMs = delta / 1000;
+        const dt = delta / 1000;
+        const height = this.scene.scale.height;
 
         // Fall downward
-        this.sprite.y += this.speed * deltaMs;
+        this.sprite.y += this.speed * dt;
 
         // Sway side to side
-        this.driftX += deltaMs * 2;
-        this.sprite.x = this.baseX + Math.sin(this.driftX) * this.driftAmount;
+        this.swayOffset += dt * 1.5;
+        this.sprite.x = this.baseX + Math.sin(this.swayOffset) * this.swayAmount;
 
-        // Spin as it falls
-        this.sprite.angle += 200 * deltaMs;
+        // Gentle back-and-forth tilt (not a full spin)
+        this.tiltOffset += dt * 2.2;
+        this.sprite.angle = Math.sin(this.tiltOffset) * 25;
 
-        // Deactivate when offscreen
-        if (this.sprite.y > this.scene.scale.height + 100) {
+        // Fade out over the bottom 30% of the screen
+        const fadeStart = height * 0.7;
+        if (this.sprite.y > fadeStart) {
+            const alpha = 1 - (this.sprite.y - fadeStart) / (height - fadeStart);
+            this.sprite.setAlpha(Math.max(0, alpha));
+        }
+
+        // Deactivate once fully off screen
+        if (this.sprite.y > height + 30) {
             this.isActive = false;
             this.sprite.setVisible(false);
+            this.sprite.setAlpha(1);
         }
     }
 
