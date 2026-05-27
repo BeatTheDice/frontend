@@ -1,5 +1,7 @@
+import { EnemyLabelKey } from '../labels';
+
 export class Enemy {
-    name: string;
+    name: EnemyLabelKey;
     currentState: string;
     idleTexture: string;
     lowDamageTexture: string;
@@ -9,7 +11,7 @@ export class Enemy {
     currentHitPoints: number;
     maxHitPoints: number;
     
-    constructor(name: string, maxHitPoints: number, idleTexture: string, lowDamageTexture: string, highDamageTexture: string, winTexture: string, deadTexture: string) {
+    constructor(name: EnemyLabelKey, maxHitPoints: number, idleTexture: string, lowDamageTexture: string, highDamageTexture: string, winTexture: string, deadTexture: string) {
         this.currentState = 'idle';
         this.name = name;
         this.maxHitPoints = maxHitPoints;
@@ -20,5 +22,4 @@ export class Enemy {
         this.winTexture = winTexture;
         this.deadTexture = deadTexture;
     }
-
 }
