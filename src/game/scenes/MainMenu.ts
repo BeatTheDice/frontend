@@ -19,6 +19,7 @@ export class MainMenu extends Scene
     {
         const cam = this.cameras.main;
         this.background = this.add.image(768,512, 'mm_background');
+        this.background.setDepth(-100);
         this.logo = this.add.image(768,512, 'logo');
 
         this.title = this.add.text(768, 900, t('mainMenu.clickToStart'), {
