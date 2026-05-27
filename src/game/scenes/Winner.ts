@@ -1,5 +1,6 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
+import { t } from '../labels';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
 
 export class Winner extends Scene {

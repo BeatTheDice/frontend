@@ -3,10 +3,7 @@ import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceCollection } from '../classes/DiceCollection';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
-<<<<<<< HEAD
-=======
 import { t } from '../labels';
->>>>>>> dc2b55da28b9e86f7c13102e1dac5c75f5266099
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;

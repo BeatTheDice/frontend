@@ -3,6 +3,8 @@ import { Scene } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { Dice } from '../classes/Dice';
 import { DiceCollection } from '../classes/DiceCollection';
+import { LevelEngine } from '../classes/LevelEngine';
+import { t } from '../labels';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
 
 export class Reward extends Scene {
