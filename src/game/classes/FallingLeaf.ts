@@ -18,7 +18,7 @@ export class FallingLeaf {
         if (!this.sprite) {
             this.sprite = this.scene.add.image(x, y, textureKey);
             this.sprite.setOrigin(0.5);
-            this.sprite.setDepth(-49);
+            this.sprite.setDepth(-1);
             this.sprite.setScale(0.06);
         } else {
             this.sprite.setPosition(x, y);
@@ -51,15 +51,16 @@ export class FallingLeaf {
         this.tiltOffset += dt * 2.2;
         this.sprite.angle = Math.sin(this.tiltOffset) * 25;
 
-        // Fade out over the bottom 30% of the screen
-        const fadeStart = height * 0.7;
+        // Fade out between 50% and 75% of the screen height
+        const fadeStart = height * 0.5;
+        const fadeEnd = height * 0.7;
         if (this.sprite.y > fadeStart) {
-            const alpha = 1 - (this.sprite.y - fadeStart) / (height - fadeStart);
+            const alpha = 1 - (this.sprite.y - fadeStart) / (fadeEnd - fadeStart);
             this.sprite.setAlpha(Math.max(0, alpha));
         }
 
         // Deactivate once fully off screen
-        if (this.sprite.y > height + 30) {
+        if (this.sprite.y > height) {
             this.isActive = false;
             this.sprite.setVisible(false);
             this.sprite.setAlpha(1);

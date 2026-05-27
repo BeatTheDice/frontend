@@ -17,7 +17,7 @@ export class AnimatedCloud {
         if (!this.sprite) {
             this.sprite = this.scene.add.image(x, y, textureKey);
             this.sprite.setOrigin(0.5);
-            this.sprite.setDepth(-50);
+            this.sprite.setDepth(-3);
             this.sprite.setScale(0.35);
         } else {
             this.sprite.setPosition(x, y);

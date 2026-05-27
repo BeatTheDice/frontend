@@ -44,14 +44,10 @@ export class Game extends Scene {
     create() {
         this.isDiceRolling = false;
         this.camera = this.cameras.main;
+        this.add.image(768, 512, 'sky_background').setDepth(-4);
         this.background = this.add.image(768, 512, 'main_background');
-        this.background.setDepth(-100);
+        this.background.setDepth(-2);
         setupBackgroundAmbience(this);
-
-        // Set endless mode flag for levels 6+
-        // if (this.levelEngine.currentLevel >= 5) {
-        //     this.levelEngine.isEndlessMode = true;
-        // }
 
         this.levelEngine.nextLevel();                
         this.diceHandler.renderPlayerDice();

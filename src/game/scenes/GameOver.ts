@@ -1,6 +1,7 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import { t } from '../labels';
+import { setupBackgroundAmbience } from '../BackgroundAmbience';
 
 export class GameOver extends Scene
 {
@@ -17,7 +18,10 @@ export class GameOver extends Scene
     {
         this.camera = this.cameras.main
 
+        this.add.image(768, 512, 'sky_background').setDepth(-4);
         this.background = this.add.image(768, 512, 'main_background');
+        this.background.setDepth(-2);
+        setupBackgroundAmbience(this);
 
         this.gameOverText = this.add.text(768, 512, t('gameOver.title'), {
             fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
