@@ -18,7 +18,11 @@ export class FallingLeaf {
         if (!this.sprite) {
             this.sprite = this.scene.add.image(x, y, textureKey);
             this.sprite.setOrigin(0.5);
+<<<<<<< HEAD
             this.sprite.setDepth(-1);
+=======
+            this.sprite.setDepth(-49);
+>>>>>>> dc2b55da28b9e86f7c13102e1dac5c75f5266099
             this.sprite.setScale(0.06);
         } else {
             this.sprite.setPosition(x, y);

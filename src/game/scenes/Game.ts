@@ -3,6 +3,10 @@ import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceCollection } from '../classes/DiceCollection';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
+<<<<<<< HEAD
+=======
+import { t } from '../labels';
+>>>>>>> dc2b55da28b9e86f7c13102e1dac5c75f5266099
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -14,6 +18,7 @@ export class Game extends Scene {
     enemyNameText: Phaser.GameObjects.Text;
     enemyHealthText: Phaser.GameObjects.Text;
     remainingThrowsText: Phaser.GameObjects.Text;
+    bonusThrowsText: Phaser.GameObjects.Text;
     bossEffectText: Phaser.GameObjects.Text;
     levelEngine: LevelEngine;
     isDiceRolling: boolean = false;
@@ -53,29 +58,44 @@ export class Game extends Scene {
         this.createTexts();        
         this.createButtons();
         this.createEnemyHealthBar();
-    }
-
-    changeScene() {
-        this.scene.start('GameOver');
+        this.updateTexts();
     }
 
     createTexts() {
-        this.levelNumberText = this.add.text(50, 50, `Level ${this.levelEngine.currentLevel}`, {
+        this.levelNumberText = this.add.text(50, 50, `${t('game.level')} ${this.levelEngine.currentLevel}`, {
             fontFamily: 'funblob', fontSize: 64, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'left'
         }).setOrigin(0, 0);
-        this.remainingThrowsText = this.add.text(50, 130, `Würfe übrig: ${this.levelEngine.remainingThrows}`, {
+        
+        const throwsDisplay = this.levelEngine.bonusThrows > 0 
+            ? `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows} + ${this.levelEngine.bonusThrows}`
+            : `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`;
+            
+        this.remainingThrowsText = this.add.text(50, 130, throwsDisplay, {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'left'
         }).setOrigin(0, 0);
+
+        this.bonusThrowsText = this.add.text(50, 190, '', {
+            fontFamily: 'funblob', fontSize: 36, color: '#00ff00',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'left'
+        }).setOrigin(0, 0);
+
+        if (this.levelEngine.bonusThrows > 0) {
+            this.bonusThrowsText.setText(`${t('game.bonusThrows')}: ${this.levelEngine.bonusThrows}`).setVisible(true);
+        } else {
+            this.bonusThrowsText.setVisible(false);
+        }
+
         this.enemyNameText = this.add.text(1486, 50, `${this.levelEngine.getEnemyName()}`, {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'right'
         }).setOrigin(1, 0);
-        this.enemyHealthText = this.add.text(1486, 100, `HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`, {
+        this.enemyHealthText = this.add.text(1486, 100, `${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`, {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'right'
@@ -108,10 +128,21 @@ export class Game extends Scene {
     }
 
     updateTexts() {
-        this.levelNumberText.setText(`Level ${this.levelEngine.currentLevel}`);
+        this.levelNumberText.setText(`${t('game.level')} ${this.levelEngine.currentLevel}`);
         this.enemyNameText.setText(`${this.levelEngine.getEnemyName()}`);
-        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
+        this.enemyHealthText.setText(`${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+        
+        const throwsDisplay = this.levelEngine.bonusThrows > 0 
+            ? `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows} + ${this.levelEngine.bonusThrows}`
+            : `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`;
+        this.remainingThrowsText.setText(throwsDisplay);
+
+        if (this.levelEngine.bonusThrows > 0) {
+            this.bonusThrowsText.setText(`${t('game.bonusThrows')}: ${this.levelEngine.bonusThrows}`).setVisible(true);
+        } else {
+            this.bonusThrowsText.setVisible(false);
+        }
+        
         this.updateEnemyHealthBar();
     }
 
@@ -164,7 +195,7 @@ export class Game extends Scene {
         // Interaktiv machen
         button.setInteractive();
 
-        this.cupTooltip = this.add.text(0, 0, 'Würfeln', {
+        this.cupTooltip = this.add.text(0, 0, t('game.rollTooltip'), {
         fontSize: '24px',
         fontFamily: 'funblob',
         backgroundColor: '#000000aa',
@@ -183,9 +214,7 @@ export class Game extends Scene {
             }            
             this.cupTooltip.setVisible(false);
             
-            button.setTexture('dicecupLying');
             await this.handleDiceThrow(button);
-            button.setTexture('dicecupStanding');
         });
 
         // Hover-Effekt
@@ -214,64 +243,170 @@ export class Game extends Scene {
             }
         });
 
+        // --- Exit button (bottom-right) with confirmation modal ---
+        const cam = this.cameras.main;
+        const margin = 24;
+        const exitX = cam.width - margin - 80; // leave room for button width
+        const exitY = cam.height - margin - 40;
+
+        const exitBtn = this.add.text(exitX, exitY, t('game.exit'), {
+            fontFamily: 'funblob',
+            fontSize: 32,
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 8,
+            backgroundColor: '#1a1a1a'
+        }).setPadding(12).setOrigin(1, 1).setInteractive({ useHandCursor: true }).setDepth(1000);
+
+        // Modal group (initially hidden)
+        const modalContainer = this.add.container(0, 0).setDepth(2000).setVisible(false);
+
+        const overlay = this.add.rectangle(0, 0, cam.width, cam.height, 0x000000, 0.6).setOrigin(0).setInteractive();
+        const boxW = 700;
+        const boxH = 220;
+
+        const box = this.add.rectangle(cam.centerX, cam.centerY, boxW, boxH, 0x111827, 0.98).setStrokeStyle(4, 0x4f46e5);
+        const msg = this.add.text(cam.centerX, cam.centerY - 30, t('game.confirmExit', { default: 'Run wird abgebrochen. Sicher?' }), {
+            fontFamily: 'funblob', fontSize: 36, color: '#ffffff', stroke: '#000000', strokeThickness: 8, align: 'center', wordWrap: { width: boxW - 60 }
+        }).setOrigin(0.5);
+
+        const yesBtn = this.add.text(cam.centerX - 80, cam.centerY + 60, t('game.yes'), {
+            fontFamily: 'funblob', fontSize: 32, color: '#ffffff', backgroundColor: '#006400', stroke: '#000000', strokeThickness: 8
+        }).setPadding(12).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        const noBtn = this.add.text(cam.centerX + 80, cam.centerY + 60, t('game.no'), {
+            fontFamily: 'funblob', fontSize: 32, color: '#ffffff', backgroundColor: '#8b0000', stroke: '#000000', strokeThickness: 8
+        }).setPadding(12).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        modalContainer.add([overlay, box, msg, yesBtn, noBtn]);
+
+        exitBtn.on('pointerdown', () => {
+            modalContainer.setVisible(true);
+        });
+
+        // Cancel
+        noBtn.on('pointerdown', () => {
+            modalContainer.setVisible(false);
+        });
+
+        // Confirm: go back to MainMenu
+        yesBtn.on('pointerdown', () => {
+            // optionally clear running level state
+            this.scene.start('MainMenu');
+        });
+
     }
 
     private async handleDiceThrow(button: Phaser.GameObjects.Image) {
         if (this.isDiceRolling) return;
-            
+
         this.isDiceRolling = true;
+
         button.setScale(0.25);
-        
+        button.setTexture('dicecupLying');
+
         const result = await this.diceHandler.throwDice();
-        
+
         await this.animateProgressiveSum(result);
-        
+
         const total = result.reduce((s, v) => s + v, 0);
-        this.levelEngine.remainingThrows --;
-        this.remainingThrowsText.setText(`Würfe übrig: ${this.levelEngine.remainingThrows}`);
-        this.levelEngine.dealDamageToEnemy(total, this.levelEngine.remainingThrows === 0);
-        this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
+
+        // Use bonus throw if available, otherwise use regular throw
+        const usedBonusThrow = this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows > 0 && this.levelEngine.useBonusThrow();
+        if (!usedBonusThrow) {
+            if (this.levelEngine.remainingThrows > 0) {
+                this.levelEngine.remainingThrows--;
+            }
+        }
+
+        const throwsDisplay = this.levelEngine.bonusThrows > 0 
+            ? `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows} + ${this.levelEngine.bonusThrows}`
+            : `${t('game.throwsLeft')}: ${this.levelEngine.remainingThrows}`;
+        this.remainingThrowsText.setText(throwsDisplay);
+
+        if (this.levelEngine.bonusThrows > 0) {
+            this.bonusThrowsText.setText(`${t('game.bonusThrows')}: ${this.levelEngine.bonusThrows}`).setVisible(true);
+        } else {
+            this.bonusThrowsText.setVisible(false);
+        }
+
+        this.levelEngine.dealDamageToEnemy(
+            total,
+            this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows === 0
+        );
+
+        this.updateEnemyHealthBar();
+
+        this.enemyHealthText.setText(
+            `${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`
+        );
 
         if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-            this.time.delayedCall(2000, () => {
-                this.diceHandler.clearDice();
-                this.diceSumText.setVisible(false);
-                if (this.levelEngine.currentLevel === 5) {
-                    this.scene.start('Winner');
-                } else {
-                    this.scene.start('Reward');
-                }
-            });
-        } else if (this.levelEngine.currentLevel === 5) {
-            await this.handleVampireCounterattack();
-            this.enemyHealthText.setText(`HP: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`);
-            if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-                this.time.delayedCall(1000, () => {
-                    this.diceHandler.clearDice();
-                    this.diceSumText.setVisible(false);
-                    this.scene.start('Winner');
-                });
-            } else if (this.levelEngine.remainingThrows === 0) {
-                this.time.delayedCall(1000, () => {
-                    if (this.levelEngine.enemySprite) {
-                    }
-                    this.scene.start('GameOver');
-                });
-            } else {
-                this.isDiceRolling = false;
-                button.setAlpha(1);
-            }
-        } else if (this.levelEngine.remainingThrows === 0) {
-            this.time.delayedCall(2000, () => {
-                if (this.levelEngine.enemySprite) {
-                }
-                this.scene.start('GameOver');
-            });
-        } else {
-            this.isDiceRolling = false;
-            button.setAlpha(1);
+            return this.handleVictory(2000, button);
         }
-        this.updateEnemyHealthBar();
+
+        // ===== Vampire Counterattack =====
+        if (this.levelEngine.currentLevel === 5) {
+
+            await this.handleVampireCounterattack();
+
+            this.updateEnemyHealthBar();
+
+            this.enemyHealthText.setText(
+                `${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`
+            );
+
+            // Gegner nach Counterattack trotzdem tot
+            if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
+                return this.handleVictory(1000, button);                
+            }
+        }        
+
+        if (this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows === 0) {
+            return this.handleGameOver();
+        }
+
+        this.resetDiceButton(button);
+    }
+
+    private handleVictory(delay = 2000, diceButton: Phaser.GameObjects.Image) {
+        this.time.delayedCall(delay, () => {
+
+            this.diceHandler.clearDice();
+            this.diceSumText.setVisible(false);            
+            
+            if (this.levelEngine.currentLevel === 5) {
+                this.scene.start('Winner');
+            } else if (this.levelEngine.currentLevel < 5) {
+                this.scene.start('Reward');
+            } else {
+                // Endlos-Modus: Prüfe auf Merchant, Magician oder Reward
+                if (this.levelEngine.shouldShowMerchant()) {
+                    this.scene.start('Merchant');
+                } else if (this.levelEngine.shouldShowMagician()) {
+                    this.scene.start('Magician');
+                } else {
+                    // Kein besonderes Event, nächstes Level
+                    this.scene.start('Reward');
+                    this.resetDiceButton(diceButton);
+                    this.levelEngine.nextLevel();
+                    this.updateTexts();
+                }
+            }
+        });
+    }
+
+    private handleGameOver(delay = 2000) {
+        this.time.delayedCall(delay, () => {
+            this.scene.start('GameOver');
+        });
+    }
+
+    private resetDiceButton(button: Phaser.GameObjects.Image) {
+        this.isDiceRolling = false;
+
+        button.setTexture('dicecupStanding');
+        button.setAlpha(1);
     }
 
     private async animateProgressiveSum(results: number[]): Promise<void> {
@@ -317,9 +452,18 @@ export class Game extends Scene {
         // Check if critical hit (damage > half max HP)
         const maxHP = this.levelEngine.getEnemyMaxHitPoints();
         if (currentSum > maxHP / 2) {
-            this.diceSumText.setText(currentSum.toString() + ' Crit!');
+            this.diceSumText.setText(`${currentSum} ${t('game.crit')}`);
             this.diceSumText.setFontSize(64);
             this.diceSumText.setColor('#ff0000');
+            
+            // Add bonus throw if artifact is equipped
+            if (this.levelEngine.hasArtifact) {
+                const beforeBonus = this.levelEngine.bonusThrows;
+                this.levelEngine.addBonusThrow();
+                if (this.levelEngine.bonusThrows !== beforeBonus) {
+                    this.updateTexts();
+                }
+            }
         }
     }
 
@@ -333,7 +477,7 @@ export class Game extends Scene {
             return;
         }
 
-        const vampireDice = this.diceCollection.getRandomDiceOptions(1)[0];
+        const vampireDice = this.diceCollection.getRandomDiceOptions(1, 1)[0];
         const result = vampireDice.roll();
         const value = Number(Object.keys(result)[0]);
         const texture = Object.values(result)[0];
@@ -359,8 +503,8 @@ export class Game extends Scene {
                 duration: 900,
                 ease: 'Cubic.Out',
                 onComplete: () => {
-                    this.bossEffectText.setText('Der Vampir saugt dich aus und heilt sich um ' + value + ' HP').setVisible(true);
-                    this.levelEngine.healEnemy(value);
+                    this.bossEffectText.setText(t('boss.vampireDrain', { value })).setVisible(true);
+                    this.levelEngine.healEnemy(value, this.levelEngine.remainingThrows === 0);
                     this.time.delayedCall(2500, () => {
                         this.bossEffectText.setVisible(false);
                         rollSprite.destroy();
