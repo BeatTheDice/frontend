@@ -2,15 +2,24 @@ import { EventBus } from '../EventBus';
 import { Scene, type Cameras, type GameObjects } from 'phaser';
 import { t } from '../labels';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
+import { GAME_EVENTS } from '../backend-events';
+import { LevelEngine } from '../classes/LevelEngine';
+import { createVictoryRunSnapshot } from '../runMetrics';
 
 export class Winner extends Scene {
     camera: Cameras.Scene2D.Camera;
     background: GameObjects.Image;
     titleText: GameObjects.Text;
     subtitleText: GameObjects.Text;
+    levelEngine: LevelEngine;
 
     constructor() {
         super('Winner');
+    }
+
+    init() {
+        const gameWindow = globalThis as typeof globalThis & Window;
+        this.levelEngine = gameWindow.levelEngine as LevelEngine;
     }
 
     create() {
@@ -46,6 +55,7 @@ export class Winner extends Scene {
         .setInteractive({ useHandCursor: true });
 
         mainMenuButton.on('pointerdown', () => {
+            EventBus.emit(GAME_EVENTS.runCompleted, createVictoryRunSnapshot(this.levelEngine));
             this.scene.start('MainMenu');
         });
 
@@ -65,8 +75,10 @@ export class Winner extends Scene {
         .setInteractive({ useHandCursor: true });
 
         endlessButton.on('pointerdown', () => {
-            if ((window as any).levelEngine) {
-                (window as any).levelEngine.isEndlessMode = true;
+            const gameWindow = globalThis as typeof globalThis & Window;
+            const levelEngine = gameWindow.levelEngine;
+            if (levelEngine) {
+                levelEngine.isEndlessMode = true;
             }
             this.scene.start('Merchant');
         });

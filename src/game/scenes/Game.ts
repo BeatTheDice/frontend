@@ -3,7 +3,10 @@ import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceCollection } from '../classes/DiceCollection';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
+import { EventBus } from '../EventBus';
+import { GAME_EVENTS } from '../backend-events';
 import { t } from '../labels';
+import { createInProgressRunSnapshot } from '../runMetrics';
 
 export class Game extends Scene {
     camera: Cameras.Scene2D.Camera;
@@ -34,9 +37,10 @@ export class Game extends Scene {
 
     init() {        
         // Update scene context 
-        this.levelEngine = window.levelEngine as LevelEngine;
-        this.diceHandler = window.diceHandler as DiceHandler;
-        this.diceCollection = window.diceCollection as DiceCollection;
+        const gameWindow = globalThis as typeof globalThis & Window;
+        this.levelEngine = gameWindow.levelEngine as LevelEngine;
+        this.diceHandler = gameWindow.diceHandler as DiceHandler;
+        this.diceCollection = gameWindow.diceCollection as DiceCollection;
         if (this.levelEngine) this.levelEngine.scene = this;
         if (this.diceHandler) this.diceHandler.scene = this;
     }
@@ -289,6 +293,7 @@ export class Game extends Scene {
         // Confirm: go back to MainMenu
         yesBtn.on('pointerdown', () => {
             // optionally clear running level state
+            EventBus.emit(GAME_EVENTS.runCompleted, createInProgressRunSnapshot(this.levelEngine));
             this.scene.start('MainMenu');
         });
 
@@ -339,7 +344,7 @@ export class Game extends Scene {
         );
 
         if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-            return this.handleVictory(2000, button);
+            return this.handleVictory(button, 2000);
         }
 
         // ===== Vampire Counterattack =====
@@ -355,7 +360,7 @@ export class Game extends Scene {
 
             // Gegner nach Counterattack trotzdem tot
             if (this.levelEngine.getCurrentEnemyHitPoints() <= 0) {
-                return this.handleVictory(1000, button);                
+                return this.handleVictory(button, 1000);                
             }
         }        
 
@@ -366,7 +371,7 @@ export class Game extends Scene {
         this.resetDiceButton(button);
     }
 
-    private handleVictory(delay = 2000, diceButton: GameObjects.Image) {
+    private handleVictory(diceButton: GameObjects.Image, delay = 2000) {
         this.time.delayedCall(delay, () => {
 
             this.diceHandler.clearDice();
@@ -376,25 +381,23 @@ export class Game extends Scene {
                 this.scene.start('Winner');
             } else if (this.levelEngine.currentLevel < 5) {
                 this.scene.start('Reward');
+            } else if (this.levelEngine.shouldShowMerchant()) {
+                this.scene.start('Merchant');
+            } else if (this.levelEngine.shouldShowMagician()) {
+                this.scene.start('Magician');
             } else {
-                // Endlos-Modus: Prüfe auf Merchant, Magician oder Reward
-                if (this.levelEngine.shouldShowMerchant()) {
-                    this.scene.start('Merchant');
-                } else if (this.levelEngine.shouldShowMagician()) {
-                    this.scene.start('Magician');
-                } else {
-                    // Kein besonderes Event, nächstes Level
-                    this.scene.start('Reward');
-                    this.resetDiceButton(diceButton);
-                    this.levelEngine.nextLevel();
-                    this.updateTexts();
-                }
+                // Kein besonderes Event, nächstes Level
+                this.scene.start('Reward');
+                this.resetDiceButton(diceButton);
+                this.levelEngine.nextLevel();
+                this.updateTexts();
             }
         });
     }
 
     private handleGameOver(delay = 2000) {
         this.time.delayedCall(delay, () => {
+            EventBus.emit(GAME_EVENTS.runCompleted, createInProgressRunSnapshot(this.levelEngine, 'game-over'));
             this.scene.start('GameOver');
         });
     }

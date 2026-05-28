@@ -2,6 +2,51 @@
 
 This is a Phaser 3 project template that uses the Vue framework, TypeScript and Vite for bundling. It includes a bridge for Vue to Phaser game communication, hot-reloading for quick development workflow and scripts to generate production-ready builds.
 
+## Backend Integration
+
+The frontend now talks to the FastAPI backend through a typed fetch client in `src/api/client.ts` and uses `localStorage` for prototype auth and run persistence.
+
+- Environment variable: set `VITE_API_BASE_URL=http://localhost:8000` in `.env.local` or another Vite env file.
+- Prototype auth storage: the access token is stored in `localStorage`. This is acceptable for the prototype, but for production an `httpOnly` cookie setup would be safer.
+- Run persistence: `run_id` and `claim_token` are stored locally after `POST /runs/start` so a pending run or score can be claimed or submitted after login.
+- Security note: `claim_token` is treated as secret in the UI and is never displayed.
+- Register flow: `/auth/register` returns a user object, not a token, so the frontend performs an immediate login after successful registration.
+
+## Local Setup
+
+1. Install dependencies with `npm install`.
+2. Create `.env.local` with `VITE_API_BASE_URL=http://localhost:8000`.
+3. Start the FastAPI backend.
+4. Start the frontend with `npm run dev-nolog` or `npm run dev`.
+
+## Backend CORS
+
+The backend `CORS_ORIGINS` must include the frontend origin.
+
+- Local Vite development: `http://localhost:5173`
+- If you proxy or host elsewhere locally: `http://localhost:3000`
+- Production: your real frontend domain, for example `https://your-game.example.com`
+
+## Manual QA Checklist
+
+1. `VITE_API_BASE_URL` is set and the backend health endpoint responds.
+2. Registration works and logs the user in afterwards.
+3. Login works and protected endpoints use the stored bearer token automatically.
+4. Starting a run creates a backend run and stores `run_id` plus `claim_token` locally.
+5. Finishing a run while logged out keeps the score locally and shows the login/register prompt.
+6. Logging in after a pending score submits that score successfully.
+7. The public leaderboard loads and paginates.
+8. Personal score history loads only for authenticated users.
+9. The personal bestscore view shows either the best score or `Noch kein Score gespeichert`.
+10. Logout removes the stored token and hides personal data again.
+
+## Optional OpenAPI Tooling
+
+For this prototype, a small handwritten client is used. If the API surface grows, a pragmatic next step would be:
+
+- `openapi-typescript` for generated schema types
+- `openapi-fetch` on top of those types for endpoint wrappers
+
 **[This Template is also available as a JavaScript version.](https://github.com/phaserjs/template-vue)**
 
 ### Versions

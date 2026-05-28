@@ -1,6 +1,7 @@
 import { Scene, type GameObjects, type Input, type Tweens } from 'phaser';
 
 import { EventBus } from '../EventBus';
+import { GAME_EVENTS } from '../backend-events';
 import { t, toggleLanguage } from '../labels';
 
 export class MainMenu extends Scene
@@ -61,10 +62,13 @@ export class MainMenu extends Scene
                 return;
             }
 
-            const levelEngine = window.levelEngine;
+            const gameWindow = globalThis as typeof globalThis & Window;
+            const levelEngine = gameWindow.levelEngine;
             if (levelEngine) {
                 levelEngine.reset();
             }
+
+            EventBus.emit(GAME_EVENTS.runStartRequested);
             this.changeScene('Game');
         });
     }
