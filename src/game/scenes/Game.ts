@@ -60,6 +60,8 @@ export class Game extends Scene {
         this.createButtons();
         this.createEnemyHealthBar();
         this.updateTexts();
+
+        EventBus.emit('current-scene-ready', this);
     }
 
     createTexts() {

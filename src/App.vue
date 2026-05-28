@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import type { Scene } from 'phaser';
 import PhaserGame from './PhaserGame.vue';
 import { apiClient, isApiError } from './api/client';
 import type {
@@ -16,6 +17,7 @@ import { useRunState, type RunScoreMetrics } from './state/run';
 import { formatDateTime, formatDuration } from './utils/formatters';
 
 type AuthMode = 'login' | 'register';
+type OverlayView = 'home' | 'leaderboard' | 'auth' | 'history';
 
 interface BackendStatus {
     checking: boolean;
@@ -59,6 +61,8 @@ const {
 } = useRunState();
 
 const authMode = ref<AuthMode>('login');
+const activeView = ref<OverlayView>('home');
+const currentSceneKey = ref('MainMenu');
 const credentials = reactive<AuthCredentials>({
     username: '',
     password: ''
@@ -104,34 +108,10 @@ const bestScore = reactive<BestScoreState>({
 
 const backendBadgeLabel = computed(() => {
     if (backendStatus.checking) {
-        return 'Pruefe Backend';
+        return 'Backend wird geprueft';
     }
 
     return backendStatus.available ? 'Backend online' : 'Backend offline';
-});
-
-const activeRunShortId = computed(() => {
-    if (!runState.activeRun) {
-        return 'Kein aktiver Run';
-    }
-
-    return `${runState.activeRun.runId.slice(0, 8)}...`;
-});
-
-const activeRunStatus = computed(() => {
-    if (!runState.activeRun) {
-        return 'kein Run';
-    }
-
-    if (runState.activeRun.submitted) {
-        return 'gespeichert';
-    }
-
-    if (runState.activeRun.claimed) {
-        return 'geclaimt';
-    }
-
-    return authState.isAuthenticated ? 'offen' : 'anonym';
 });
 
 const pendingScoreSummary = computed(() => {
@@ -147,10 +127,89 @@ const pendingScoreSummary = computed(() => {
     };
 });
 
+const heroStatusText = computed(() => {
+    if (runState.pendingScore) {
+        return authState.isAuthenticated
+            ? 'Ein Score wartet auf das Speichern.'
+            : 'Ein Score wartet auf Login oder Registrierung.';
+    }
+
+    if (runState.activeRun) {
+        return 'Ein Run ist bereits im Browser gespeichert.';
+    }
+
+    return authState.isAuthenticated
+        ? 'Du bist eingeloggt. History ist verfuegbar.'
+        : 'Spielen geht anonym. Login brauchst du nur fuer gespeicherte Scores.';
+});
+
+const historyButtonVisible = computed(() => authState.isAuthenticated);
+const homeLoginLabel = computed(() => authState.isAuthenticated ? 'Account' : 'Login');
+const isHomeScene = computed(() => currentSceneKey.value === 'MainMenu');
+const isEndScene = computed(() => ['GameOver', 'Winner'].includes(currentSceneKey.value));
+const overlayVisible = computed(() => ['MainMenu', 'GameOver', 'Winner'].includes(currentSceneKey.value));
+const overlayLayoutClass = computed(() => ({
+    'overlay-home': isHomeScene.value,
+    'overlay-end': isEndScene.value
+}));
+const menuPanelClass = computed(() => ({
+    'menu-panel-home': isHomeScene.value,
+    'menu-panel-end': isEndScene.value
+}));
+const pagePanelClass = computed(() => ({
+    'page-panel-home': isHomeScene.value,
+    'page-panel-end': isEndScene.value
+}));
+
+const panelTitle = computed(() => {
+    switch (activeView.value) {
+        case 'leaderboard':
+            return 'Leaderboard';
+        case 'auth':
+            return authState.isAuthenticated ? 'Account' : 'Login';
+        case 'history':
+            return 'History';
+        default:
+            return 'Menu';
+    }
+});
+
+const activeRunText = computed(() => {
+    if (!runState.activeRun) {
+        return '';
+    }
+
+    return `Aktiver Run seit ${formatDateTime(runState.activeRun.startedAt)}`;
+});
+
 const canLoadPreviousLeaderboardPage = computed(() => leaderboard.page > 1);
 const canLoadNextLeaderboardPage = computed(() => leaderboard.page * leaderboard.pageSize < leaderboard.total);
 const canLoadPreviousScorePage = computed(() => myScores.page > 1);
 const canLoadNextScorePage = computed(() => myScores.items.length === myScores.pageSize);
+
+const openView = (view: OverlayView) => {
+    activeView.value = view;
+
+    if (view === 'leaderboard' && !leaderboard.items.length && !leaderboard.loading) {
+        void loadLeaderboard(leaderboard.page);
+    }
+
+    if (view === 'history' && authState.isAuthenticated) {
+        void refreshPrivateViews();
+    }
+};
+
+const goHome = () => {
+    activeView.value = 'home';
+};
+
+const handleCurrentScene = (scene: Scene) => {
+    currentSceneKey.value = scene.scene.key;
+
+    if (!overlayVisible.value) {
+        activeView.value = 'home';
+    }
+};
 
 const getErrorMessage = (
     error: unknown,
@@ -258,7 +317,7 @@ const loadBestScore = async () => {
             bestScore.error = '';
         } else {
             bestScore.data = null;
-            bestScore.error = getErrorMessage(error, 'Bestsore konnte nicht geladen werden.', {
+            bestScore.error = getErrorMessage(error, 'Bestscore konnte nicht geladen werden.', {
                 401: 'Bitte erneut einloggen.'
             });
         }
@@ -503,6 +562,7 @@ const handleLogout = () => {
     resetPrivateViews();
     authMessage.value = '';
     feedbackMessage.value = 'Du bist ausgeloggt.';
+    activeView.value = 'home';
 };
 
 const initialize = async () => {
@@ -543,36 +603,114 @@ onUnmounted(() => {
 <template>
     <div class="app-shell">
         <div class="game-stage">
-            <PhaserGame />
+            <PhaserGame @current-active-scene="handleCurrentScene" />
 
-            <div class="overlay-grid">
-                <div class="hud-column">
-                    <section class="panel hero-panel">
-                        <div class="panel-topline">
-                            <span class="eyebrow">Beat The Dice</span>
-                            <span class="status-pill" :class="backendStatus.available ? 'online' : 'offline'">
-                                {{ backendBadgeLabel }}
-                            </span>
-                        </div>
+            <div v-if="overlayVisible" class="overlay-shell" :class="overlayLayoutClass">
+                <section class="menu-panel" :class="menuPanelClass">
+                    <div class="panel-topline">
+                        <span class="eyebrow">Beat The Dice</span>
+                        <span class="status-pill" :class="backendStatus.available ? 'online' : 'offline'">
+                            {{ backendBadgeLabel }}
+                        </span>
+                    </div>
 
-                        <h1>Backend verbunden</h1>
-                        <p class="panel-copy">
-                            Runs starten anonym. Zum Speichern, Claimen und fuer persoenliche Statistiken brauchst du einen Login.
-                        </p>
+                    <p class="panel-copy">{{ heroStatusText }}</p>
 
-                        <p v-if="backendStatus.error" class="message error-message">
-                            {{ backendStatus.error }}
-                        </p>
-                        <p v-if="feedbackMessage" class="message info-message">
-                            {{ feedbackMessage }}
-                        </p>
-                        <p v-if="authMessage" class="message success-message">
-                            {{ authMessage }}
-                        </p>
+                    <p v-if="backendStatus.error" class="status-copy error-copy">{{ backendStatus.error }}</p>
+                    <p v-else-if="feedbackMessage" class="status-copy">{{ feedbackMessage }}</p>
+                    <p v-else-if="authMessage" class="status-copy success-copy">{{ authMessage }}</p>
 
-                        <div class="auth-tabs" v-if="!authState.isAuthenticated">
+                    <div class="menu-buttons">
+                        <button class="game-button" type="button" @click="openView('leaderboard')">
+                            Leaderboard
+                        </button>
+                        <button class="game-button" type="button" @click="openView('auth')">
+                            {{ homeLoginLabel }}
+                        </button>
+                        <button
+                            v-if="historyButtonVisible"
+                            class="game-button"
+                            type="button"
+                            @click="openView('history')"
+                        >
+                            History
+                        </button>
+                    </div>
+
+                    <div v-if="pendingScoreSummary" class="notice-strip">
+                        <span>
+                            Pending Score: Level {{ pendingScoreSummary.completedLevels }},
+                            {{ pendingScoreSummary.currentEnemyRemainingHp }} HP,
+                            {{ pendingScoreSummary.duration }}
+                        </span>
+                        <button
+                            v-if="authState.isAuthenticated"
+                            class="mini-button"
+                            :disabled="integrationState.syncing"
+                            type="button"
+                            @click="syncAfterAuthentication"
+                        >
+                            Speichern
+                        </button>
+                    </div>
+
+                    <p v-else-if="activeRunText" class="subtle-copy">{{ activeRunText }}</p>
+                </section>
+
+                <section v-if="activeView !== 'home'" class="page-panel" :class="pagePanelClass">
+                    <div class="page-header">
+                        <h2>{{ panelTitle }}</h2>
+                        <button class="mini-button" type="button" @click="goHome">
+                            Zurueck
+                        </button>
+                    </div>
+
+                    <template v-if="activeView === 'leaderboard'">
+                        <p v-if="leaderboard.loading" class="empty-copy">Leaderboard laedt...</p>
+                        <p v-else-if="leaderboard.error" class="status-copy error-copy">{{ leaderboard.error }}</p>
+                        <p v-else-if="leaderboard.items.length === 0" class="empty-copy">Noch keine Scores im Leaderboard.</p>
+
+                        <ol v-else class="score-list">
+                            <li v-for="entry in leaderboard.items" :key="`${entry.rank}-${entry.username}-${entry.achieved_at}`">
+                                <div class="score-topline">
+                                    <div>
+                                        <span class="list-rank">#{{ entry.rank }}</span>
+                                        <strong>{{ entry.username }}</strong>
+                                    </div>
+                                    <span>Level {{ entry.completed_levels }}</span>
+                                </div>
+                                <div class="list-meta">
+                                    <span>{{ entry.current_enemy_remaining_hp }} HP uebrig</span>
+                                    <span>{{ formatDateTime(entry.achieved_at) }}</span>
+                                </div>
+                            </li>
+                        </ol>
+
+                        <div class="pagination-row">
                             <button
-                                class="tab-button"
+                                class="mini-button"
+                                :disabled="leaderboard.loading || !canLoadPreviousLeaderboardPage"
+                                type="button"
+                                @click="loadLeaderboard(leaderboard.page - 1)"
+                            >
+                                Zurueck
+                            </button>
+                            <span>Seite {{ leaderboard.page }}</span>
+                            <button
+                                class="mini-button"
+                                :disabled="leaderboard.loading || !canLoadNextLeaderboardPage"
+                                type="button"
+                                @click="loadLeaderboard(leaderboard.page + 1)"
+                            >
+                                Weiter
+                            </button>
+                        </div>
+                    </template>
+
+                    <template v-else-if="activeView === 'auth'">
+                        <div v-if="!authState.isAuthenticated" class="auth-tabs">
+                            <button
+                                class="mini-button"
                                 :class="{ active: authMode === 'login' }"
                                 type="button"
                                 @click="authMode = 'login'"
@@ -580,7 +718,7 @@ onUnmounted(() => {
                                 Login
                             </button>
                             <button
-                                class="tab-button"
+                                class="mini-button"
                                 :class="{ active: authMode === 'register' }"
                                 type="button"
                                 @click="authMode = 'register'"
@@ -611,170 +749,42 @@ onUnmounted(() => {
                                 >
                             </label>
 
-                            <button class="cta-button" :disabled="authState.isBusy || integrationState.syncing" type="submit">
-                                {{ authMode === 'login' ? 'Einloggen' : 'Registrieren und einloggen' }}
+                            <button class="game-button compact" :disabled="authState.isBusy || integrationState.syncing" type="submit">
+                                {{ authMode === 'login' ? 'Einloggen' : 'Registrieren' }}
                             </button>
                         </form>
 
-                        <div v-else class="auth-summary">
-                            <p>Geschuetzte Endpunkte verwenden deinen gespeicherten Access Token automatisch.</p>
-                            <button class="secondary-button" type="button" @click="handleLogout">
+                        <div v-else class="account-card">
+                            <p class="panel-copy">Dein Account ist verbunden. Pending Scores werden automatisch gespeichert, sobald sie abgeschickt werden koennen.</p>
+                            <button class="game-button compact" type="button" @click="handleLogout">
                                 Logout
                             </button>
                         </div>
+                    </template>
 
-                        <p class="security-note">
-                            Prototyp-Hinweis: Das Access Token liegt in <strong>localStorage</strong>. In Production waeren
-                            httpOnly-Cookies sicherer.
-                        </p>
-                    </section>
-
-                    <section class="panel">
-                        <div class="section-heading">
-                            <span class="eyebrow">Run State</span>
-                            <strong>{{ activeRunStatus }}</strong>
-                        </div>
-
-                        <div v-if="runState.activeRun" class="metric-grid">
-                            <div>
-                                <span class="metric-label">Run</span>
-                                <strong>{{ activeRunShortId }}</strong>
-                            </div>
-                            <div>
-                                <span class="metric-label">Gestartet</span>
-                                <strong>{{ formatDateTime(runState.activeRun.startedAt) }}</strong>
-                            </div>
-                        </div>
-                        <p v-else class="empty-copy">Noch kein aktiver Run im Browser gespeichert.</p>
-
-                        <div v-if="pendingScoreSummary" class="pending-card">
-                            <div class="section-heading compact">
-                                <span class="eyebrow">Pending Score</span>
-                                <strong>lokal gehalten</strong>
-                            </div>
-
-                            <div class="metric-grid dense">
-                                <div>
-                                    <span class="metric-label">Level</span>
-                                    <strong>{{ pendingScoreSummary.completedLevels }}</strong>
-                                </div>
-                                <div>
-                                    <span class="metric-label">Rest-HP</span>
-                                    <strong>{{ pendingScoreSummary.currentEnemyRemainingHp }}</strong>
-                                </div>
-                                <div>
-                                    <span class="metric-label">Dauer</span>
-                                    <strong>{{ pendingScoreSummary.duration }}</strong>
-                                </div>
-                                <div>
-                                    <span class="metric-label">Erfasst</span>
-                                    <strong>{{ pendingScoreSummary.createdAt }}</strong>
-                                </div>
-                            </div>
-
-                            <p class="empty-copy">Einloggen oder registrieren, um diesen Score an das Backend zu senden.</p>
-
-                            <button
-                                v-if="authState.isAuthenticated"
-                                class="secondary-button"
-                                :disabled="integrationState.syncing"
-                                type="button"
-                                @click="syncAfterAuthentication"
-                            >
-                                Jetzt speichern
-                            </button>
-                        </div>
-                    </section>
-                </div>
-
-                <div class="hud-column spacer-column"></div>
-
-                <div class="hud-column">
-                    <section class="panel">
-                        <div class="section-heading">
-                            <span class="eyebrow">Leaderboard</span>
-                            <strong>{{ leaderboard.total }} Eintraege</strong>
-                        </div>
-
-                        <p v-if="leaderboard.loading" class="empty-copy">Leaderboard laedt...</p>
-                        <p v-else-if="leaderboard.error" class="message error-message">{{ leaderboard.error }}</p>
-                        <p v-else-if="leaderboard.items.length === 0" class="empty-copy">Noch keine Scores im Leaderboard.</p>
-
-                        <ol v-else class="score-list leaderboard-list">
-                            <li v-for="entry in leaderboard.items" :key="`${entry.rank}-${entry.username}-${entry.achieved_at}`">
-                                <div>
-                                    <span class="list-rank">#{{ entry.rank }}</span>
-                                    <strong>{{ entry.username }}</strong>
-                                </div>
-                                <div class="list-meta">
-                                    <span>Level {{ entry.completed_levels }}</span>
-                                    <span>{{ entry.current_enemy_remaining_hp }} HP uebrig</span>
-                                    <span>{{ formatDateTime(entry.achieved_at) }}</span>
-                                </div>
-                            </li>
-                        </ol>
-
-                        <div class="pagination-row">
-                            <button
-                                class="secondary-button"
-                                :disabled="leaderboard.loading || !canLoadPreviousLeaderboardPage"
-                                type="button"
-                                @click="loadLeaderboard(leaderboard.page - 1)"
-                            >
-                                Zurueck
-                            </button>
-
-                            <span>Seite {{ leaderboard.page }}</span>
-
-                            <button
-                                class="secondary-button"
-                                :disabled="leaderboard.loading || !canLoadNextLeaderboardPage"
-                                type="button"
-                                @click="loadLeaderboard(leaderboard.page + 1)"
-                            >
-                                Weiter
-                            </button>
-                        </div>
-                    </section>
-
-                    <section class="panel">
-                        <div class="section-heading">
-                            <span class="eyebrow">Persoenliche Stats</span>
-                            <strong v-if="authState.isAuthenticated">geschuetzt</strong>
-                            <strong v-else>Login noetig</strong>
-                        </div>
-
+                    <template v-else-if="activeView === 'history'">
                         <template v-if="authState.isAuthenticated">
                             <div class="bestscore-card">
-                                <span class="metric-label">Bestsore</span>
+                                <span class="eyebrow">Bestscore</span>
                                 <p v-if="bestScore.loading" class="empty-copy">Bestscore laedt...</p>
-                                <p v-else-if="bestScore.error" class="message error-message">{{ bestScore.error }}</p>
-                                <div v-else-if="bestScore.data" class="metric-grid dense">
-                                    <div>
-                                        <span class="metric-label">Level</span>
-                                        <strong>{{ bestScore.data.completed_levels }}</strong>
-                                    </div>
-                                    <div>
-                                        <span class="metric-label">Rest-HP</span>
-                                        <strong>{{ bestScore.data.current_enemy_remaining_hp }}</strong>
-                                    </div>
-                                    <div class="full-width">
-                                        <span class="metric-label">Erreicht</span>
-                                        <strong>{{ formatDateTime(bestScore.data.achieved_at) }}</strong>
-                                    </div>
+                                <p v-else-if="bestScore.error" class="status-copy error-copy">{{ bestScore.error }}</p>
+                                <div v-else-if="bestScore.data" class="score-summary">
+                                    <strong>Level {{ bestScore.data.completed_levels }}</strong>
+                                    <span>{{ bestScore.data.current_enemy_remaining_hp }} HP</span>
+                                    <span>{{ formatDateTime(bestScore.data.achieved_at) }}</span>
                                 </div>
                                 <p v-else class="empty-copy">Noch kein Score gespeichert.</p>
                             </div>
 
-                            <p v-if="myScores.loading" class="empty-copy">Persoenliche Scores laden...</p>
-                            <p v-else-if="myScores.error" class="message error-message">{{ myScores.error }}</p>
+                            <p v-if="myScores.loading" class="empty-copy">History laedt...</p>
+                            <p v-else-if="myScores.error" class="status-copy error-copy">{{ myScores.error }}</p>
                             <p v-else-if="myScores.items.length === 0" class="empty-copy">Noch keine persoenlichen Scores vorhanden.</p>
 
                             <ol v-else class="score-list">
                                 <li v-for="entry in myScores.items" :key="`${entry.created_at}-${entry.duration_ms}`">
-                                    <div>
+                                    <div class="score-topline">
                                         <strong>Level {{ entry.completed_levels }}</strong>
-                                        <span class="inline-pill">{{ entry.current_enemy_remaining_hp }} HP uebrig</span>
+                                        <span>{{ entry.current_enemy_remaining_hp }} HP</span>
                                     </div>
                                     <div class="list-meta">
                                         <span>Dauer {{ formatDuration(entry.duration_ms) }}</span>
@@ -785,18 +795,16 @@ onUnmounted(() => {
 
                             <div class="pagination-row">
                                 <button
-                                    class="secondary-button"
+                                    class="mini-button"
                                     :disabled="myScores.loading || !canLoadPreviousScorePage"
                                     type="button"
                                     @click="loadMyScores(myScores.page - 1)"
                                 >
                                     Zurueck
                                 </button>
-
                                 <span>Seite {{ myScores.page }}</span>
-
                                 <button
-                                    class="secondary-button"
+                                    class="mini-button"
                                     :disabled="myScores.loading || !canLoadNextScorePage"
                                     type="button"
                                     @click="loadMyScores(myScores.page + 1)"
@@ -806,11 +814,9 @@ onUnmounted(() => {
                             </div>
                         </template>
 
-                        <p v-else class="empty-copy">
-                            Login oder Registrierung aktivieren `GET /me/scores` und `GET /me/best-score`.
-                        </p>
-                    </section>
-                </div>
+                        <p v-else class="empty-copy">History ist nur nach dem Login verfuegbar.</p>
+                    </template>
+                </section>
             </div>
         </div>
     </div>
@@ -826,8 +832,8 @@ onUnmounted(() => {
     padding: 20px;
     box-sizing: border-box;
     background:
-        radial-gradient(circle at top, rgba(255, 164, 54, 0.2), transparent 32%),
-        linear-gradient(180deg, #20110a 0%, #090505 100%);
+        radial-gradient(circle at top, rgba(255, 164, 54, 0.18), transparent 30%),
+        linear-gradient(180deg, #1f120b 0%, #090505 100%);
 }
 
 .game-stage {
@@ -846,97 +852,93 @@ onUnmounted(() => {
     height: 100%;
 }
 
-.overlay-grid {
+.overlay-shell {
     position: absolute;
     inset: 0;
     display: grid;
-    grid-template-columns: minmax(300px, 360px) 1fr minmax(320px, 380px);
+    grid-template-columns: minmax(280px, 380px) 1fr minmax(320px, 460px);
     gap: 18px;
-    padding: 20px;
+    padding: 24px;
+    align-items: end;
     pointer-events: none;
 }
 
-.hud-column {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
+.overlay-home {
+    grid-template-columns: minmax(280px, 380px) 1fr minmax(320px, 460px);
+    align-items: end;
+}
+
+.overlay-end {
+    grid-template-columns: minmax(320px, 460px) 1fr minmax(280px, 380px);
+    align-items: center;
+}
+
+.menu-panel,
+.page-panel {
+    padding: 18px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(17, 24, 39, 0.9), rgba(12, 17, 29, 0.82));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 18px 32px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(10px);
     pointer-events: auto;
 }
 
-.spacer-column {
-    pointer-events: none;
+.menu-panel {
+    grid-column: 1;
 }
 
-.panel {
-    padding: 18px;
-    border-radius: 24px;
-    backdrop-filter: blur(14px);
-    background: linear-gradient(180deg, rgba(15, 18, 26, 0.82), rgba(15, 18, 26, 0.66));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff7ea;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+.menu-panel-home {
+    grid-column: 1;
+    align-self: end;
+    margin-bottom: 180px;
 }
 
-.hero-panel {
-    background: linear-gradient(180deg, rgba(47, 27, 16, 0.88), rgba(18, 13, 12, 0.78));
+.menu-panel-end {
+    grid-column: 3;
+    align-self: center;
+}
+
+.page-panel {
+    grid-column: 3;
+    align-self: stretch;
+    overflow: auto;
+}
+
+.page-panel-home {
+    grid-column: 3;
+}
+
+.page-panel-end {
+    grid-column: 1;
 }
 
 .panel-topline,
-.section-heading,
 .pagination-row,
-.metric-grid,
-.auth-tabs {
+.auth-tabs,
+.page-header,
+.score-topline,
+.score-summary {
     display: flex;
     gap: 12px;
 }
 
 .panel-topline,
-.section-heading,
-.pagination-row {
+.pagination-row,
+.page-header,
+.score-topline,
+.score-summary {
     justify-content: space-between;
     align-items: center;
 }
 
-.section-heading.compact {
-    margin-bottom: 12px;
-}
-
 .eyebrow,
-h1,
-.cta-button,
-.secondary-button,
-.tab-button,
+.game-button,
+.mini-button,
 .status-pill,
-.inline-pill,
-.list-rank {
+.list-rank,
+h2 {
     font-family: 'funblob', 'Trebuchet MS', sans-serif;
-}
-
-h1 {
-    margin: 10px 0 8px;
-    font-size: clamp(2rem, 2vw + 1rem, 2.8rem);
-    line-height: 1;
-    color: #ffd08b;
-}
-
-.panel-copy,
-.empty-copy,
-.message,
-label span,
-.list-meta,
-.metric-label,
-.security-note,
-.auth-summary p,
-.pagination-row span {
-    font-family: 'Segoe UI', sans-serif;
-}
-
-.panel-copy,
-.security-note,
-.empty-copy,
-.list-meta,
-.metric-label {
-    color: rgba(255, 247, 234, 0.76);
 }
 
 .eyebrow {
@@ -946,8 +948,26 @@ label span,
     color: #ffb75e;
 }
 
-.status-pill,
-.inline-pill {
+.panel-copy,
+.empty-copy,
+.status-copy,
+.list-meta,
+.subtle-copy,
+label span,
+.pagination-row span,
+.notice-strip {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.panel-copy,
+.empty-copy,
+.list-meta,
+.subtle-copy,
+.notice-strip {
+    color: rgba(255, 247, 234, 0.8);
+}
+
+.status-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -967,33 +987,109 @@ label span,
     background: rgba(133, 37, 37, 0.45);
 }
 
-.message {
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.game-button,
+.mini-button {
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    background: #1f2937;
+    transition: transform 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.game-button:hover:not(:disabled),
+.mini-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    color: #ffdd75;
+}
+
+.game-button:disabled,
+.mini-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.game-button {
+    align-self: flex-start;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 34px;
+    line-height: 1;
+    text-shadow:
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000,
+        0 0 8px rgba(0, 0, 0, 0.35);
+}
+
+.game-button.compact {
+    font-size: 28px;
+}
+
+.mini-button {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 22px;
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+}
+
+.mini-button.active {
+    color: #ffdd75;
+}
+
+.status-copy {
     margin: 10px 0 0;
-    padding: 10px 12px;
+    color: #fff7ea;
+}
+
+.error-copy {
+    color: #ffd2c1;
+}
+
+.success-copy {
+    color: #c8ffbc;
+}
+
+.notice-strip,
+.subtle-copy {
+    margin-top: 14px;
+}
+
+.notice-strip {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px;
     border-radius: 14px;
-    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.06);
 }
 
-.info-message {
-    background: rgba(37, 94, 133, 0.28);
+h2 {
+    margin: 0;
+    font-size: 40px;
+    color: #ffb75e;
+    text-shadow:
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000;
 }
 
-.success-message {
-    background: rgba(47, 133, 37, 0.24);
-}
-
-.error-message {
-    background: rgba(133, 37, 37, 0.3);
-}
-
-.auth-tabs {
-    margin-top: 16px;
-}
-
-.auth-form {
+.auth-form,
+.account-card,
+.bestscore-card {
     display: grid;
     gap: 12px;
-    margin-top: 16px;
 }
 
 label {
@@ -1015,93 +1111,6 @@ input::placeholder {
     color: rgba(255, 247, 234, 0.45);
 }
 
-.cta-button,
-.secondary-button,
-.tab-button {
-    border: 0;
-    cursor: pointer;
-    transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
-}
-
-.cta-button:disabled,
-.secondary-button:disabled,
-.tab-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
-}
-
-.cta-button:hover:not(:disabled),
-.secondary-button:hover:not(:disabled),
-.tab-button:hover:not(:disabled) {
-    transform: translateY(-1px);
-}
-
-.cta-button {
-    padding: 12px 16px;
-    border-radius: 16px;
-    background: linear-gradient(180deg, #ffbf69, #f2821f);
-    color: #2d1403;
-    font-size: 1rem;
-}
-
-.secondary-button,
-.tab-button {
-    padding: 10px 14px;
-    border-radius: 14px;
-    background: rgba(7, 9, 15, 0.74);
-    color: #fffdf8;
-}
-
-.tab-button.active {
-    background: rgba(140, 74, 19, 0.86);
-    color: #fff4dc;
-}
-
-.auth-summary {
-    display: grid;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-.security-note {
-    margin: 16px 0 0;
-    font-size: 0.85rem;
-}
-
-.metric-grid {
-    margin-top: 14px;
-    flex-wrap: wrap;
-}
-
-.metric-grid > div {
-    min-width: 120px;
-    flex: 1 1 45%;
-    display: grid;
-    gap: 4px;
-}
-
-.metric-grid.dense > div {
-    flex-basis: 44%;
-}
-
-.full-width {
-    flex-basis: 100%;
-}
-
-.metric-label {
-    font-size: 0.82rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.pending-card,
-.bestscore-card {
-    margin-top: 16px;
-    padding: 14px;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.05);
-}
-
 .score-list {
     margin: 16px 0 0;
     padding: 0;
@@ -1110,16 +1119,17 @@ input::placeholder {
     gap: 10px;
 }
 
-.score-list li {
+.score-list li,
+.bestscore-card,
+.account-card {
     padding: 12px 14px;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.05);
-    display: grid;
-    gap: 8px;
 }
 
-.leaderboard-list {
-    counter-reset: leaderboard;
+.score-topline,
+.score-summary {
+    flex-wrap: wrap;
 }
 
 .list-rank {
@@ -1132,11 +1142,7 @@ input::placeholder {
     flex-wrap: wrap;
     gap: 10px;
     font-size: 0.9rem;
-}
-
-.inline-pill {
-    margin-left: 10px;
-    font-size: 0.78rem;
+    margin-top: 8px;
 }
 
 .pagination-row {
@@ -1146,6 +1152,24 @@ input::placeholder {
 @media (max-width: 1180px) {
     .app-shell {
         padding: 14px;
+    }
+
+    .game-stage {
+        width: min(100%, 1100px);
+    }
+
+    .overlay-shell {
+        grid-template-columns: minmax(260px, 340px) 1fr minmax(300px, 420px);
+        padding: 16px;
+    }
+
+    .overlay-end {
+        grid-template-columns: minmax(300px, 420px) 1fr minmax(260px, 340px);
+    }
+}
+
+@media (max-width: 860px) {
+    .app-shell {
         align-items: flex-start;
     }
 
@@ -1155,19 +1179,32 @@ input::placeholder {
         overflow: visible;
     }
 
-    .overlay-grid {
+    .overlay-shell {
         position: static;
+        display: grid;
         grid-template-columns: 1fr;
+        gap: 14px;
         padding: 14px 0 0;
         pointer-events: auto;
     }
 
-    .spacer-column {
-        display: none;
+    .menu-panel,
+    .page-panel {
+        grid-column: auto;
     }
 
-    .hud-column {
-        pointer-events: auto;
+    .menu-panel-home,
+    .menu-panel-end,
+    .page-panel-home,
+    .page-panel-end {
+        grid-column: auto;
+        align-self: auto;
+        margin-bottom: 0;
+    }
+
+    .page-panel {
+        align-self: auto;
+        max-height: none;
     }
 }
 
@@ -1176,26 +1213,23 @@ input::placeholder {
         padding: 10px;
     }
 
-    .panel {
+    .menu-panel,
+    .page-panel {
         padding: 14px;
         border-radius: 18px;
     }
 
     .panel-topline,
-    .section-heading,
+    .page-header,
     .pagination-row {
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .metric-grid > div,
-    .metric-grid.dense > div {
-        flex-basis: 100%;
-    }
-
-    .auth-tabs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+    .game-button {
+        width: 100%;
+        text-align: left;
+        font-size: 30px;
     }
 }
 </style>
