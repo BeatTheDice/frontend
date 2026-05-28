@@ -1,4 +1,4 @@
-import { GameObjects, Scene } from 'phaser';
+import { Scene, type GameObjects, type Input, type Tweens } from 'phaser';
 
 import { EventBus } from '../EventBus';
 import { t, toggleLanguage } from '../labels';
@@ -8,7 +8,7 @@ export class MainMenu extends Scene
     background: GameObjects.Image;
     logo: GameObjects.Image;
     title: GameObjects.Text;
-    logoTween: Phaser.Tweens.Tween | null;
+    logoTween: Tweens.Tween | null;
 
     constructor ()
     {
@@ -56,7 +56,7 @@ export class MainMenu extends Scene
         EventBus.emit('current-scene-ready', this);
 
         // Listener für Maus-Klick 
-        this.input.on('pointerdown', (_pointer: Phaser.Input.Pointer, currentlyOver: Phaser.GameObjects.GameObject[]) => {
+        this.input.on('pointerdown', (_pointer: Input.Pointer, currentlyOver: GameObjects.GameObject[]) => {
             if (currentlyOver && currentlyOver.length > 0) {
                 return;
             }

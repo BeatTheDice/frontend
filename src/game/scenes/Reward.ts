@@ -1,5 +1,5 @@
 import { EventBus } from '../EventBus';
-import { Scene } from 'phaser';
+import { Scene, type Cameras, type GameObjects } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { Dice } from '../classes/Dice';
 import { DiceCollection } from '../classes/DiceCollection';
@@ -8,27 +8,27 @@ import { t } from '../labels';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
 
 export class Reward extends Scene {
-    camera: Phaser.Cameras.Scene2D.Camera;
-    background: Phaser.GameObjects.Image;
-    titleText: Phaser.GameObjects.Text;
-    rewardDiceSprites: Phaser.GameObjects.Image[] = [];
-    continueButton: Phaser.GameObjects.Image;
-    continueText: Phaser.GameObjects.Text;
-    skipButton: Phaser.GameObjects.Text;
+    camera: Cameras.Scene2D.Camera;
+    background: GameObjects.Image;
+    titleText: GameObjects.Text;
+    rewardDiceSprites: GameObjects.Image[] = [];
+    continueButton: GameObjects.Image;
+    continueText: GameObjects.Text;
+    skipButton: GameObjects.Text;
     diceHandler: DiceHandler;
     levelEngine: LevelEngine;
     selectedDice: Dice | null = null;
     selectedDiceIndex: number | null = null;
     selectedPlayerDiceIndex: number | null = null;
-    infoText: Phaser.GameObjects.Text;
+    infoText: GameObjects.Text;
     diceCollection: DiceCollection;
     isSwapMode: boolean = false;
-    playerDiceSprites: Phaser.GameObjects.Image[] = [];
-    playerDiceBadgeTexts: Phaser.GameObjects.Text[] = [];
-    newDiceBadgeTexts: Phaser.GameObjects.Text[] = [];
-    selectedNewSelectionBorder: Phaser.GameObjects.Graphics | null = null;
-    selectedPlayerSelectionBorder: Phaser.GameObjects.Graphics | null = null;
-    selectionBorder: Phaser.GameObjects.Graphics | null = null;
+    playerDiceSprites: GameObjects.Image[] = [];
+    playerDiceBadgeTexts: GameObjects.Text[] = [];
+    newDiceBadgeTexts: GameObjects.Text[] = [];
+    selectedNewSelectionBorder: GameObjects.Graphics | null = null;
+    selectedPlayerSelectionBorder: GameObjects.Graphics | null = null;
+    selectionBorder: GameObjects.Graphics | null = null;
 
     constructor() {
         super('Reward');
@@ -236,7 +236,7 @@ export class Reward extends Scene {
         });
     }
 
-    private selectNewDiceForSwap(dice: Dice, sprite: Phaser.GameObjects.Image, index: number) {
+    private selectNewDiceForSwap(dice: Dice, sprite: GameObjects.Image, index: number) {
         this.selectedDice = dice;
         this.selectedDiceIndex = index;
         this.clearNewSelectionBorder();
@@ -246,7 +246,7 @@ export class Reward extends Scene {
         this.continueText.setVisible(this.selectedPlayerDiceIndex !== null);
     }
 
-    private selectPlayerDiceForSwap(playerDiceIndex: number, sprite: Phaser.GameObjects.Image) {
+    private selectPlayerDiceForSwap(playerDiceIndex: number, sprite: GameObjects.Image) {
         if (!this.selectedDice || this.selectedDiceIndex === null) {
             this.infoText.setText(t('reward.mustSelectNewDice')).setVisible(true);
             return;
@@ -261,7 +261,7 @@ export class Reward extends Scene {
         this.infoText.setText(t('reward.swapPrepared')).setVisible(true);
     }
 
-    selectDice(dice: Dice, sprite: Phaser.GameObjects.Image) {
+    selectDice(dice: Dice, sprite: GameObjects.Image) {
         // Normal-Modus: Einfach den Würfel hinzufügen
         this.selectedDice = dice;
         this.clearSelectionBorder();
@@ -338,7 +338,7 @@ export class Reward extends Scene {
         }
     }
 
-    private showSelectionBorder(sprite: Phaser.GameObjects.Image, type: 'single' | 'new' | 'player' = 'single') {
+    private showSelectionBorder(sprite: GameObjects.Image, type: 'single' | 'new' | 'player' = 'single') {
         if (type === 'single') {
             this.clearSelectionBorder();
         } else if (type === 'new') {

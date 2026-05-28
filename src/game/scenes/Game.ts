@@ -1,4 +1,4 @@
-import { Math as PhaserMath, Scene } from 'phaser';
+import { Math as PhaserMath, Scene, type Cameras, type GameObjects, type Time } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceCollection } from '../classes/DiceCollection';
@@ -6,27 +6,27 @@ import { setupBackgroundAmbience } from '../BackgroundAmbience';
 import { t } from '../labels';
 
 export class Game extends Scene {
-    camera: Phaser.Cameras.Scene2D.Camera;
-    background: Phaser.GameObjects.Image;
-    gameText: Phaser.GameObjects.Text;
+    camera: Cameras.Scene2D.Camera;
+    background: GameObjects.Image;
+    gameText: GameObjects.Text;
     diceHandler: DiceHandler;
-    diceSumText: Phaser.GameObjects.Text;
-    levelNumberText: Phaser.GameObjects.Text;
-    enemyNameText: Phaser.GameObjects.Text;
-    enemyHealthText: Phaser.GameObjects.Text;
-    remainingThrowsText: Phaser.GameObjects.Text;
-    bonusThrowsText: Phaser.GameObjects.Text;
-    bossEffectText: Phaser.GameObjects.Text;
+    diceSumText: GameObjects.Text;
+    levelNumberText: GameObjects.Text;
+    enemyNameText: GameObjects.Text;
+    enemyHealthText: GameObjects.Text;
+    remainingThrowsText: GameObjects.Text;
+    bonusThrowsText: GameObjects.Text;
+    bossEffectText: GameObjects.Text;
     levelEngine: LevelEngine;
     isDiceRolling: boolean = false;
     diceCollection: DiceCollection;
-    cupTooltip: Phaser.GameObjects.Text;
-    toolTipTimer: any;
+    cupTooltip: GameObjects.Text;
+    toolTipTimer?: Time.TimerEvent;
     enemyHealthBarX: number;
     enemyHealthBarY: number;
     enemyHealthBarWidth: number;
     enemyHealthBarHeight: number;
-    enemyHealthBar: Phaser.GameObjects.Graphics;
+    enemyHealthBar: GameObjects.Graphics;
 
     constructor() {
         super('Game');
@@ -294,7 +294,7 @@ export class Game extends Scene {
 
     }
 
-    private async handleDiceThrow(button: Phaser.GameObjects.Image) {
+    private async handleDiceThrow(button: GameObjects.Image) {
         if (this.isDiceRolling) return;
 
         this.isDiceRolling = true;
@@ -366,7 +366,7 @@ export class Game extends Scene {
         this.resetDiceButton(button);
     }
 
-    private handleVictory(delay = 2000, diceButton: Phaser.GameObjects.Image) {
+    private handleVictory(delay = 2000, diceButton: GameObjects.Image) {
         this.time.delayedCall(delay, () => {
 
             this.diceHandler.clearDice();
@@ -399,7 +399,7 @@ export class Game extends Scene {
         });
     }
 
-    private resetDiceButton(button: Phaser.GameObjects.Image) {
+    private resetDiceButton(button: GameObjects.Image) {
         this.isDiceRolling = false;
 
         button.setTexture('dicecupStanding');
