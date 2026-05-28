@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { EventBus } from '../EventBus';
 import { t } from '../labels';
 
 export class DiceList extends Scene {
@@ -7,6 +8,8 @@ export class DiceList extends Scene {
     }
 
     create() {
+        EventBus.emit('current-scene-ready', this);
+
         const cam = this.cameras.main;
         this.add.rectangle(cam.centerX, cam.centerY, cam.width * 0.92, cam.height * 0.92, 0x0f1726, 0.96);
         this.add.rectangle(cam.centerX, 76, cam.width * 0.96, 120, 0x111827, 0.95).setStrokeStyle(3, 0x4f46e5);
