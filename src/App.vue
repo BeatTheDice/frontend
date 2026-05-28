@@ -55,6 +55,7 @@ const {
     clearPendingScore,
     getActiveRunDurationMs,
     markActiveRunClaimed,
+    markActiveRunRolled,
     markActiveRunSubmitted,
     moveActiveRunToPendingScore,
     setActiveRun
@@ -447,6 +448,12 @@ const submitCurrentRunScore = async (event: GameRunCompletedEvent) => {
         return false;
     }
 
+    if (!runState.activeRun.hasRolled) {
+        clearActiveRun();
+        feedbackMessage.value = 'Run ohne Wurf wurde verworfen.';
+        return false;
+    }
+
     const payload = buildScorePayload({
         completedLevels: event.completedLevels,
         currentEnemyRemainingHp: event.currentEnemyRemainingHp
@@ -584,18 +591,24 @@ const handleRunStartRequested = () => {
     void startRun();
 };
 
+const handleRunRolled = () => {
+    markActiveRunRolled();
+};
+
 const handleRunCompleted = (event: GameRunCompletedEvent) => {
     void submitCurrentRunScore(event);
 };
 
 onMounted(() => {
     EventBus.on(GAME_EVENTS.runStartRequested, handleRunStartRequested);
+    EventBus.on(GAME_EVENTS.runRolled, handleRunRolled);
     EventBus.on(GAME_EVENTS.runCompleted, handleRunCompleted);
     void initialize();
 });
 
 onUnmounted(() => {
     EventBus.off(GAME_EVENTS.runStartRequested, handleRunStartRequested);
+    EventBus.off(GAME_EVENTS.runRolled, handleRunRolled);
     EventBus.off(GAME_EVENTS.runCompleted, handleRunCompleted);
 });
 </script>
@@ -607,19 +620,6 @@ onUnmounted(() => {
 
             <div v-if="overlayVisible" class="overlay-shell" :class="overlayLayoutClass">
                 <section class="menu-panel" :class="menuPanelClass">
-                    <div class="panel-topline">
-                        <span class="eyebrow">Beat The Dice</span>
-                        <span class="status-pill" :class="backendStatus.available ? 'online' : 'offline'">
-                            {{ backendBadgeLabel }}
-                        </span>
-                    </div>
-
-                    <p class="panel-copy">{{ heroStatusText }}</p>
-
-                    <p v-if="backendStatus.error" class="status-copy error-copy">{{ backendStatus.error }}</p>
-                    <p v-else-if="feedbackMessage" class="status-copy">{{ feedbackMessage }}</p>
-                    <p v-else-if="authMessage" class="status-copy success-copy">{{ authMessage }}</p>
-
                     <div class="menu-buttons">
                         <button class="game-button" type="button" @click="openView('leaderboard')">
                             Leaderboard
@@ -636,28 +636,43 @@ onUnmounted(() => {
                             History
                         </button>
                     </div>
-
-                    <div v-if="pendingScoreSummary" class="notice-strip">
-                        <span>
-                            Pending Score: Level {{ pendingScoreSummary.completedLevels }},
-                            {{ pendingScoreSummary.currentEnemyRemainingHp }} HP,
-                            {{ pendingScoreSummary.duration }}
-                        </span>
-                        <button
-                            v-if="authState.isAuthenticated"
-                            class="mini-button"
-                            :disabled="integrationState.syncing"
-                            type="button"
-                            @click="syncAfterAuthentication"
-                        >
-                            Speichern
-                        </button>
-                    </div>
-
-                    <p v-else-if="activeRunText" class="subtle-copy">{{ activeRunText }}</p>
                 </section>
 
                 <section v-if="activeView !== 'home'" class="page-panel" :class="pagePanelClass">
+                    <div class="page-meta">
+                        <div class="panel-topline">
+                            <span class="eyebrow">Beat The Dice</span>
+                            <span class="status-pill" :class="backendStatus.available ? 'online' : 'offline'">
+                                {{ backendBadgeLabel }}
+                            </span>
+                        </div>
+
+                        <p class="panel-copy">{{ heroStatusText }}</p>
+
+                        <p v-if="backendStatus.error" class="status-copy error-copy">{{ backendStatus.error }}</p>
+                        <p v-else-if="feedbackMessage" class="status-copy">{{ feedbackMessage }}</p>
+                        <p v-else-if="authMessage" class="status-copy success-copy">{{ authMessage }}</p>
+
+                        <div v-if="pendingScoreSummary" class="notice-strip">
+                            <span>
+                                Pending Score: Level {{ pendingScoreSummary.completedLevels }},
+                                {{ pendingScoreSummary.currentEnemyRemainingHp }} HP,
+                                {{ pendingScoreSummary.duration }}
+                            </span>
+                            <button
+                                v-if="authState.isAuthenticated"
+                                class="mini-button"
+                                :disabled="integrationState.syncing"
+                                type="button"
+                                @click="syncAfterAuthentication"
+                            >
+                                Speichern
+                            </button>
+                        </div>
+
+                        <p v-else-if="activeRunText" class="subtle-copy">{{ activeRunText }}</p>
+                    </div>
+
                     <div class="page-header">
                         <h2>{{ panelTitle }}</h2>
                         <button class="mini-button" type="button" @click="goHome">
@@ -855,26 +870,34 @@ onUnmounted(() => {
 .overlay-shell {
     position: absolute;
     inset: 0;
-    display: grid;
-    grid-template-columns: minmax(280px, 380px) 1fr minmax(320px, 460px);
-    gap: 18px;
     padding: 24px;
-    align-items: end;
     pointer-events: none;
 }
 
-.overlay-home {
-    grid-template-columns: minmax(280px, 380px) 1fr minmax(320px, 460px);
-    align-items: end;
+.menu-panel {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    pointer-events: auto;
 }
 
-.overlay-end {
-    grid-template-columns: minmax(320px, 460px) 1fr minmax(280px, 380px);
-    align-items: center;
+.menu-panel-home {
+    top: 24px;
+    left: 24px;
+    margin-bottom: 0;
 }
 
-.menu-panel,
+.menu-panel-end {
+    top: 24px;
+    left: 24px;
+}
+
 .page-panel {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: min(420px, calc(100% - 280px));
+    max-height: calc(100% - 48px);
     padding: 18px;
     border-radius: 22px;
     background: linear-gradient(180deg, rgba(17, 24, 39, 0.9), rgba(12, 17, 29, 0.82));
@@ -882,35 +905,17 @@ onUnmounted(() => {
     box-shadow: 0 18px 32px rgba(0, 0, 0, 0.28);
     backdrop-filter: blur(10px);
     pointer-events: auto;
-}
-
-.menu-panel {
-    grid-column: 1;
-}
-
-.menu-panel-home {
-    grid-column: 1;
-    align-self: end;
-    margin-bottom: 180px;
-}
-
-.menu-panel-end {
-    grid-column: 3;
-    align-self: center;
-}
-
-.page-panel {
-    grid-column: 3;
-    align-self: stretch;
     overflow: auto;
 }
 
 .page-panel-home {
-    grid-column: 3;
+    top: 24px;
+    right: 24px;
 }
 
 .page-panel-end {
-    grid-column: 1;
+    top: 24px;
+    right: 24px;
 }
 
 .panel-topline,
@@ -918,7 +923,8 @@ onUnmounted(() => {
 .auth-tabs,
 .page-header,
 .score-topline,
-.score-summary {
+.score-summary,
+.page-meta {
     display: flex;
     gap: 12px;
 }
@@ -990,8 +996,8 @@ label span,
 .menu-buttons {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin-top: 18px;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .game-button,
@@ -1064,6 +1070,11 @@ label span,
 .notice-strip,
 .subtle-copy {
     margin-top: 14px;
+}
+
+.page-meta {
+    flex-direction: column;
+    margin-bottom: 18px;
 }
 
 .notice-strip {
@@ -1159,12 +1170,7 @@ input::placeholder {
     }
 
     .overlay-shell {
-        grid-template-columns: minmax(260px, 340px) 1fr minmax(300px, 420px);
         padding: 16px;
-    }
-
-    .overlay-end {
-        grid-template-columns: minmax(300px, 420px) 1fr minmax(260px, 340px);
     }
 }
 
@@ -1190,21 +1196,23 @@ input::placeholder {
 
     .menu-panel,
     .page-panel {
-        grid-column: auto;
+        position: static;
+        width: auto;
+        max-height: none;
     }
 
     .menu-panel-home,
     .menu-panel-end,
     .page-panel-home,
     .page-panel-end {
-        grid-column: auto;
-        align-self: auto;
+        top: auto;
+        right: auto;
+        left: auto;
         margin-bottom: 0;
     }
 
     .page-panel {
-        align-self: auto;
-        max-height: none;
+        backdrop-filter: blur(10px);
     }
 }
 
@@ -1213,7 +1221,6 @@ input::placeholder {
         padding: 10px;
     }
 
-    .menu-panel,
     .page-panel {
         padding: 14px;
         border-radius: 18px;

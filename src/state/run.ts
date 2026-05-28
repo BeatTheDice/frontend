@@ -16,6 +16,7 @@ export interface ActiveRunRecord {
     startedAtMs: number;
     claimed: boolean;
     submitted: boolean;
+    hasRolled: boolean;
 }
 
 export interface PendingScoreRecord extends RunScoreMetrics {
@@ -56,8 +57,46 @@ const persistJson = (storageKey: string, value: unknown) => {
     globalThis.localStorage.setItem(storageKey, JSON.stringify(value));
 };
 
+const loadActiveRun = (): ActiveRunRecord | null => {
+    const storedRun = loadJson<Partial<ActiveRunRecord>>(ACTIVE_RUN_STORAGE_KEY);
+
+    if (!storedRun || typeof storedRun.runId !== 'string' || typeof storedRun.claimToken !== 'string' || typeof storedRun.startedAt !== 'string') {
+        return null;
+    }
+
+    const parsedStartedAtMs = Date.parse(storedRun.startedAt);
+    let startedAtMs = Date.now();
+
+    if (typeof storedRun.startedAtMs === 'number') {
+        startedAtMs = storedRun.startedAtMs;
+    } else if (Number.isFinite(parsedStartedAtMs)) {
+        startedAtMs = parsedStartedAtMs;
+    }
+
+    return {
+        runId: storedRun.runId,
+        claimToken: storedRun.claimToken,
+        startedAt: storedRun.startedAt,
+        startedAtMs,
+        claimed: Boolean(storedRun.claimed),
+        submitted: Boolean(storedRun.submitted),
+        hasRolled: storedRun.hasRolled ?? true
+    };
+};
+
+let pendingRollForActiveRun = false;
+
+const persistActiveRun = () => {
+    if (!state.activeRun?.hasRolled) {
+        persistJson(ACTIVE_RUN_STORAGE_KEY, null);
+        return;
+    }
+
+    persistJson(ACTIVE_RUN_STORAGE_KEY, state.activeRun);
+};
+
 const state = reactive<RunState>({
-    activeRun: loadJson<ActiveRunRecord>(ACTIVE_RUN_STORAGE_KEY),
+    activeRun: loadActiveRun(),
     pendingScore: loadJson<PendingScoreRecord>(PENDING_SCORE_STORAGE_KEY),
     isStartingRun: false,
     isClaimingRun: false,
@@ -75,15 +114,18 @@ const setActiveRun = (response: RunStartResponse) => {
         startedAt: response.started_at,
         startedAtMs,
         claimed: false,
-        submitted: false
+        submitted: false,
+        hasRolled: pendingRollForActiveRun
     };
 
-    persistJson(ACTIVE_RUN_STORAGE_KEY, state.activeRun);
+    pendingRollForActiveRun = false;
+    persistActiveRun();
     return state.activeRun;
 };
 
 const clearActiveRun = () => {
     state.activeRun = null;
+    pendingRollForActiveRun = false;
     persistJson(ACTIVE_RUN_STORAGE_KEY, null);
 };
 
@@ -93,7 +135,7 @@ const markActiveRunClaimed = () => {
     }
 
     state.activeRun.claimed = true;
-    persistJson(ACTIVE_RUN_STORAGE_KEY, state.activeRun);
+    persistActiveRun();
 };
 
 const markActiveRunSubmitted = () => {
@@ -102,7 +144,21 @@ const markActiveRunSubmitted = () => {
     }
 
     state.activeRun.submitted = true;
-    persistJson(ACTIVE_RUN_STORAGE_KEY, state.activeRun);
+    persistActiveRun();
+};
+
+const markActiveRunRolled = () => {
+    if (!state.activeRun) {
+        pendingRollForActiveRun = true;
+        return;
+    }
+
+    if (state.activeRun.hasRolled) {
+        return;
+    }
+
+    state.activeRun.hasRolled = true;
+    persistActiveRun();
 };
 
 const getActiveRunDurationMs = (endedAtMs = Date.now()) => {
@@ -115,6 +171,11 @@ const getActiveRunDurationMs = (endedAtMs = Date.now()) => {
 
 const moveActiveRunToPendingScore = (metrics: RunScoreMetrics, endedAtMs = Date.now()) => {
     if (!state.activeRun) {
+        return null;
+    }
+
+    if (!state.activeRun.hasRolled) {
+        clearActiveRun();
         return null;
     }
 
@@ -144,6 +205,7 @@ export const useRunState = () => ({
     setActiveRun,
     clearActiveRun,
     markActiveRunClaimed,
+    markActiveRunRolled,
     markActiveRunSubmitted,
     moveActiveRunToPendingScore,
     clearPendingScore,

@@ -305,6 +305,7 @@ export class Game extends Scene {
         if (this.isDiceRolling) return;
 
         this.isDiceRolling = true;
+        EventBus.emit(GAME_EVENTS.runRolled);
 
         button.setScale(0.25);
         button.setTexture('dicecupLying');

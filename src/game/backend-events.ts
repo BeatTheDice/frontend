@@ -1,5 +1,6 @@
 export const GAME_EVENTS = {
     runStartRequested: 'backend:run-start-requested',
+    runRolled: 'backend:run-rolled',
     runCompleted: 'backend:run-completed'
 } as const;
 
