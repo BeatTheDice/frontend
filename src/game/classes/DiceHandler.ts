@@ -1,4 +1,4 @@
-import { Scene, GameObjects } from 'phaser';
+import type { GameObjects, Scene, Time } from 'phaser';
 import { Dice } from '../classes/Dice';
 import { t } from '../labels';
 
@@ -15,7 +15,7 @@ export class DiceHandler {
     baseX = 600;
     baseY = 880;
     bagTooltip: GameObjects.Text;
-    toolTipTimer?: Phaser.Time.TimerEvent;
+    toolTipTimer?: Time.TimerEvent;
 
     constructor(scene: Scene) {
         this.scene = scene;

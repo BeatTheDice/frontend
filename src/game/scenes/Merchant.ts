@@ -1,19 +1,19 @@
-import { Scene } from 'phaser';
+import { Geom, Scene, type Cameras, type GameObjects } from 'phaser';
 import { LevelEngine } from '../classes/LevelEngine';
 import { Artifact } from '../classes/Artifact';
 import { t } from '../labels';
 import { EventBus } from '../EventBus';
 
 export class Merchant extends Scene {
-    camera: Phaser.Cameras.Scene2D.Camera;
-    background: Phaser.GameObjects.Image;
-    titleText: Phaser.GameObjects.Text;
+    camera: Cameras.Scene2D.Camera;
+    background: GameObjects.Image;
+    titleText: GameObjects.Text;
     levelEngine: LevelEngine;
     selectedArtifact: Artifact | null = null;
-    artifactButtons: Phaser.GameObjects.Container[] = [];
-    continueButton: Phaser.GameObjects.Image;
-    continueText: Phaser.GameObjects.Text;
-    infoText: Phaser.GameObjects.Text;
+    artifactButtons: GameObjects.Container[] = [];
+    continueButton: GameObjects.Image;
+    continueText: GameObjects.Text;
+    infoText: GameObjects.Text;
 
     constructor() {
         super('Merchant');
@@ -90,8 +90,8 @@ export class Merchant extends Scene {
         const container = this.add.container(x, y)
             .setDepth(50)
             .setInteractive(
-                new (window as any).Phaser.Geom.Rectangle(-150, -60, 300, 120),
-                (window as any).Phaser.Geom.Rectangle.Contains
+                new Geom.Rectangle(-150, -60, 300, 120),
+                Geom.Rectangle.Contains
             )
             .setVisible(true);
 
@@ -146,13 +146,13 @@ export class Merchant extends Scene {
         this.artifactButtons.push(container);
     }
 
-    private selectArtifact(artifact: Artifact, container: Phaser.GameObjects.Container) {
+    private selectArtifact(artifact: Artifact, container: GameObjects.Container) {
         this.selectedArtifact = artifact;
         this.levelEngine.hasArtifact = true;
         this.levelEngine.currentArtifact = artifact;
 
         // Highlight selected
-        const border = container.list[1] as Phaser.GameObjects.Graphics;
+        const border = container.list[1] as GameObjects.Graphics;
         border.clear();
         border.lineStyle(4, 0x00ff00, 1);
         border.strokeRoundedRect(-150, -60, 300, 120, 10);
