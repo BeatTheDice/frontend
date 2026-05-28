@@ -1,4 +1,4 @@
-import { Scene } from 'phaser';
+import type { GameObjects, Scene } from 'phaser';
 import { Enemy } from './Enemy';
 import { DiceHandler } from './DiceHandler';
 import { EnemyLabelKey, t } from '../labels';
@@ -11,7 +11,7 @@ export class LevelEngine {
     currentLevel : number;
     remainingThrows: number;
     bonusThrows: number = 0;
-    enemySprite: Phaser.GameObjects.Sprite;
+    enemySprite: GameObjects.Sprite;
     enemyCollection: EnemyCollection;
     hasArtifact: boolean = false;
     currentArtifact: Artifact | null = null;

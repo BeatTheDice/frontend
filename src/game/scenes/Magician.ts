@@ -1,4 +1,4 @@
-import { Scene } from 'phaser';
+import { Geom, Scene, type Cameras, type GameObjects } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { Dice } from '../classes/Dice';
 import { Enchantment, EnchantmentType } from '../classes/Enchantment';
@@ -6,26 +6,26 @@ import { t } from '../labels';
 import { EventBus } from '../EventBus';
 
 export class Magician extends Scene {
-    camera: Phaser.Cameras.Scene2D.Camera;
-    background: Phaser.GameObjects.Image;
-    titleText: Phaser.GameObjects.Text;
+    camera: Cameras.Scene2D.Camera;
+    background: GameObjects.Image;
+    titleText: GameObjects.Text;
     diceHandler: DiceHandler;
     selectedDice: Dice | null = null;
     selectedDiceIndex: number | null = null;
     selectedEnchantment: Enchantment | null = null;
-    diceSprites: Phaser.GameObjects.Image[] = [];
-    diceSelectionBadges: Phaser.GameObjects.Text[] = [];
-    enchantmentButtons: Phaser.GameObjects.Container[] = [];
-    enchantmentBadges: Phaser.GameObjects.Text[] = [];
-    previewBadge: Phaser.GameObjects.Text | null = null;
-    selectionBorder: Phaser.GameObjects.Graphics | null = null;
-    selectedEnchantmentContainer: Phaser.GameObjects.Container | null = null;
-    selectedEnchantmentBorder: Phaser.GameObjects.Graphics | null = null;
-    continueButton: Phaser.GameObjects.Image;
-    continueText: Phaser.GameObjects.Text;
-    infoText: Phaser.GameObjects.Text;
-    diceInfoText: Phaser.GameObjects.Text;
-    stepText: Phaser.GameObjects.Text;
+    diceSprites: GameObjects.Image[] = [];
+    diceSelectionBadges: GameObjects.Text[] = [];
+    enchantmentButtons: GameObjects.Container[] = [];
+    enchantmentBadges: GameObjects.Text[] = [];
+    previewBadge: GameObjects.Text | null = null;
+    selectionBorder: GameObjects.Graphics | null = null;
+    selectedEnchantmentContainer: GameObjects.Container | null = null;
+    selectedEnchantmentBorder: GameObjects.Graphics | null = null;
+    continueButton: GameObjects.Image;
+    continueText: GameObjects.Text;
+    infoText: GameObjects.Text;
+    diceInfoText: GameObjects.Text;
+    stepText: GameObjects.Text;
     currentStep: 'selectDice' | 'selectEnchantment' = 'selectDice';
 
     constructor() {
@@ -153,7 +153,7 @@ export class Magician extends Scene {
         });
     }
 
-    private selectDiceForEnchantment(dice: Dice, sprite: Phaser.GameObjects.Image, index: number) {
+    private selectDiceForEnchantment(dice: Dice, sprite: GameObjects.Image, index: number) {
         this.selectedDice = dice;
         this.selectedDiceIndex = index;
         this.currentStep = 'selectEnchantment';
@@ -207,8 +207,8 @@ export class Magician extends Scene {
         const container = this.add.container(x, y)
             .setDepth(50)
             .setInteractive(
-                new (window as any).Phaser.Geom.Rectangle(-halfWidth, -halfHeight, width, height),
-                (window as any).Phaser.Geom.Rectangle.Contains
+                new Geom.Rectangle(-halfWidth, -halfHeight, width, height),
+                Geom.Rectangle.Contains
             )
             .setVisible(true);
 
@@ -264,7 +264,7 @@ export class Magician extends Scene {
         this.enchantmentButtons.push(container);
     }
 
-    private applyEnchantment(enchantment: Enchantment, container: Phaser.GameObjects.Container) {
+    private applyEnchantment(enchantment: Enchantment, container: GameObjects.Container) {
         if (this.selectedDice && this.selectedDiceIndex !== null) {
             this.selectedEnchantment = enchantment;
 
@@ -307,7 +307,7 @@ export class Magician extends Scene {
         }
     }
 
-    private showSelectionBorderOnSprite(sprite: Phaser.GameObjects.Image) {
+    private showSelectionBorderOnSprite(sprite: GameObjects.Image) {
         this.clearDiceSelectionBorder();
         const pad = 16;
         const w = sprite.displayWidth + pad;
@@ -321,7 +321,7 @@ export class Magician extends Scene {
         this.selectionBorder = g;
     }
 
-    private showSelectionBorderOnContainer(container: Phaser.GameObjects.Container) {
+    private showSelectionBorderOnContainer(container: GameObjects.Container) {
         this.clearEnchantmentSelectionBorder();
         const width = 320;
         const height = 150;
