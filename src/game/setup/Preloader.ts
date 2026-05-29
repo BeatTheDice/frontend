@@ -1,8 +1,8 @@
 import { Scene } from 'phaser';
 import { LevelEngine } from '../classes/LevelEngine';
 import { DiceHandler } from '../classes/DiceHandler';
-import { DiceCollection } from '../classes/DiceCollection';
-import { EnemyCollection } from '../classes/EnemyCollection';
+import { DiceCollection } from '../collection classes/DiceCollection';
+import { EnemyCollection } from '../collection classes/EnemyCollection';
 
 export class Preloader extends Scene
 {
@@ -63,7 +63,10 @@ export class Preloader extends Scene
         this.load.image('riskdice-12', './images/dice/riskdice 12.png');
         this.load.image('riskdice-16', './images/dice/riskdice 16.png');
 
-        this.load.image('steeldice-3', './images/dice/steeldice 3.png');
+        this.load.image('irondice-3', './images/dice/irondice 3.png');
+        this.load.image('irondice-4', './images/dice/irondice 4.png');
+        this.load.image('irondice-5', './images/dice/irondice 5.png');
+
         this.load.image('steeldice-4', './images/dice/steeldice 4.png');
         this.load.image('steeldice-5', './images/dice/steeldice 5.png');
         this.load.image('steeldice-6', './images/dice/steeldice 6.png');
@@ -147,13 +150,13 @@ export class Preloader extends Scene
         this.load.image('vampire_damage_low', './images/enemy/vampire/damage_low.png');
         this.load.image('vampire_damage_high', './images/enemy/vampire/damage_high.png');
         this.load.image('vampire_dead', './images/enemy/vampire/dead.png');
-        this.load.image('vampire_victory', './images/enemy/vampire/win.png');
+        this.load.image('vampire_win', './images/enemy/vampire/win.png');
 
         this.load.image('vampire_ice_idle', './images/enemy/vampire_ice/idle.png');
         this.load.image('vampire_ice_damage_low', './images/enemy/vampire_ice/damage_low.png');
         this.load.image('vampire_ice_damage_high', './images/enemy/vampire_ice/damage_high.png');
         this.load.image('vampire_ice_dead', './images/enemy/vampire_ice/dead.png');
-        this.load.image('vampire_ice_victory', './images/enemy/vampire_ice/win.png');
+        this.load.image('vampire_ice_win', './images/enemy/vampire_ice/win.png');
 
         //  Load Fonts
         this.load.font('funblob', 'fonts/fun-blob/FunBlob.ttf', 'truetype')

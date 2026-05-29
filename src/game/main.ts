@@ -1,4 +1,4 @@
-import { Boot } from './scenes/Boot';
+import { Boot } from './setup/Boot';
 import { DiceList } from './scenes/DiceList';
 import { GameOver } from './scenes/GameOver';
 import { Game as MainGame } from './scenes/Game';
@@ -8,7 +8,7 @@ import { Winner } from './scenes/Winner';
 import { Merchant } from './scenes/Merchant';
 import { Magician } from './scenes/Magician';
 import { AUTO, Game, Scale, type Types } from 'phaser';
-import { Preloader } from './scenes/Preloader';
+import { Preloader } from './setup/Preloader';
 
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig

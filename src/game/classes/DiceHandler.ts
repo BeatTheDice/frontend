@@ -1,5 +1,5 @@
 import type { GameObjects, Scene, Time } from 'phaser';
-import { Dice } from '../classes/Dice';
+import { Dice } from '../base classes/Dice';
 import { t } from '../labels';
 
 export class DiceHandler {

@@ -1,6 +1,6 @@
 import { Geom, Scene, type Cameras, type GameObjects } from 'phaser';
 import { LevelEngine } from '../classes/LevelEngine';
-import { Artifact } from '../classes/Artifact';
+import { Artifact } from '../base classes/Artifact';
 import { t } from '../labels';
 import { EventBus } from '../EventBus';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';

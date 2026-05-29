@@ -1,6 +1,6 @@
 import { LevelEngine } from './classes/LevelEngine';
 import { DiceHandler } from './classes/DiceHandler';
-import { DiceCollection } from './classes/DiceCollection';
+import { DiceCollection } from './collection classes/DiceCollection';
 
 declare global {
     interface Window {

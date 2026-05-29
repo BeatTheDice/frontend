@@ -1,7 +1,7 @@
 import { Math as PhaserMath, Scene, type Cameras, type GameObjects, type Time } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
-import { DiceCollection } from '../classes/DiceCollection';
+import { DiceCollection } from '../collection classes/DiceCollection';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
 import { EventBus } from '../EventBus';
 import { GAME_EVENTS } from '../backend-events';
@@ -53,7 +53,7 @@ export class Game extends Scene {
         this.background.setDepth(-2);
         setupBackgroundAmbience(this);
 
-        this.levelEngine.nextLevel();                
+        this.levelEngine.nextLevel();
         this.diceHandler.renderPlayerDice();
         
         this.createTexts();        
@@ -384,16 +384,18 @@ export class Game extends Scene {
                 this.scene.start('Winner');
             } else if (this.levelEngine.currentLevel < 5) {
                 this.scene.start('Reward');
-            } else if (this.levelEngine.shouldShowMerchant()) {
-                this.scene.start('Merchant');
-            } else if (this.levelEngine.shouldShowMagician()) {
-                this.scene.start('Magician');
             } else {
-                // Kein besonderes Event, nächstes Level
-                this.scene.start('Reward');
-                this.resetDiceButton(diceButton);
-                this.levelEngine.nextLevel();
-                this.updateTexts();
+                const specialScene = this.levelEngine.getSpecialScene();
+                if (specialScene === 'Merchant') {
+                    this.scene.start('Merchant');
+                } else if (specialScene === 'Magician') {
+                    this.scene.start('Magician');
+                } else {
+                    // Kein besonderes Event, nächstes Level
+                    this.scene.start('Reward');
+                    this.resetDiceButton(diceButton);
+                    this.updateTexts();
+                }
             }
         });
     }

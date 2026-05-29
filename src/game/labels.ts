@@ -4,6 +4,15 @@ type LabelKey =
     | 'mainMenu.clickToStart'
     | 'mainMenu.allDice'
     | 'mainMenu.languageButton'
+    | 'mainMenu.leaderboard'
+    | 'mainMenu.login'
+    | 'mainMenu.account'
+    | 'mainMenu.history'
+    | 'mainMenu.menu'
+    | 'leaderboard.loading'
+    | 'leaderboard.empty'
+    | 'pagination.prev'
+    | 'pagination.next'
     | 'diceList.header'
     | 'diceList.back'
     | 'diceList.noDiceFound'
@@ -78,9 +87,18 @@ type TranslationKey = LabelKey | DiceLabelKey | EnemyLabelKey;
 
 const labels: Record<Language, Record<TranslationKey, string>> = {
     de: {
+        'mainMenu.leaderboard': 'Bestenliste',
+        'mainMenu.login': 'Login',
+        'mainMenu.account': 'Account',
+        'mainMenu.history': 'Verlauf',
+        'mainMenu.menu': 'Menü',
+        'leaderboard.loading': 'Leaderboard lädt...',
+        'leaderboard.empty': 'Noch keine Scores im Leaderboard.',
+        'pagination.prev': 'Zurück',
+        'pagination.next': 'Weiter',
         'mainMenu.clickToStart': 'Klicke zum Starten',
         'mainMenu.allDice': 'Alle Würfel',
-        'mainMenu.languageButton': 'DE',
+        'mainMenu.languageButton': 'Sprache: DE',
         'diceList.header': 'Würfel-Beutel',
         'diceList.back': 'Zurück',
         'diceList.noDiceFound': 'Keine Würfel gefunden.',
@@ -148,9 +166,18 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enemy.name.vampire_ice': 'Eisiger Vampir'
     },
     en: {
+        'mainMenu.leaderboard': 'Leaderboard',
+        'mainMenu.login': 'Login',
+        'mainMenu.account': 'Account',
+        'mainMenu.history': 'History',
+        'mainMenu.menu': 'Menu',
+        'leaderboard.loading': 'Loading leaderboard...',
+        'leaderboard.empty': 'No scores in the leaderboard yet.',
+        'pagination.prev': 'Back',
+        'pagination.next': 'Next',
         'mainMenu.clickToStart': 'Click to start',
         'mainMenu.allDice': 'All dice',
-        'mainMenu.languageButton': 'EN',
+        'mainMenu.languageButton': 'Language: EN',
         'diceList.header': 'Dice Bag',
         'diceList.back': 'Back',
         'diceList.noDiceFound': 'No dice found.',

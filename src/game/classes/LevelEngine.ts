@@ -1,9 +1,9 @@
 import type { GameObjects, Scene } from 'phaser';
-import { Enemy } from './Enemy';
+import { Enemy } from '../base classes/Enemy';
 import { DiceHandler } from './DiceHandler';
 import { EnemyLabelKey, t } from '../labels';
-import { EnemyCollection } from './EnemyCollection';
-import { Artifact } from './Artifact';
+import { EnemyCollection } from '../collection classes/EnemyCollection';
+import { Artifact } from '../base classes/Artifact';
 
 export class LevelEngine {
     scene: Scene;
@@ -38,7 +38,7 @@ export class LevelEngine {
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 2:
-                this.currentEnemy = new Enemy('enemy.name.skeleton',26, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.skeleton', 26, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
@@ -53,7 +53,7 @@ export class LevelEngine {
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 5:
-                this.currentEnemy = new Enemy('enemy.name.vampire', 60, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_victory', 'vampire_dead');
+                this.currentEnemy = new Enemy('enemy.name.vampire', 60, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_win', 'vampire_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
@@ -93,7 +93,7 @@ export class LevelEngine {
     }
 
     generateEndlessLevel(level: number) {
-        const newHp = Math.floor(60 + 2 * (level - 5) + 1.2 * Math.pow(level - 5, 2));
+        const newHp = Math.floor(40 + 2 * (level - 5) + 1.2 * Math.pow(level - 5, 2));
         var template = this.enemyCollection.getEnemyTemplateByNumber(level - 6);
         const newEnemy = new Enemy(template.name as EnemyLabelKey, newHp, template.idleTexture, template.lowDamageTexture, template.highDamageTexture, template.winTexture, template.deadTexture);
         this.currentEnemy = newEnemy;
@@ -154,43 +154,32 @@ export class LevelEngine {
         }
     }
 
-    /**
-     * Prüft, ob ein Merchant nach diesem Level erscheinen soll
-     * Merchant kommt am Start des Endlos-Modus (nach Level 5) und dann alle 10 Level
-     * Also nach Level 5, 15, 25, 35...
-     */
-    shouldShowMerchant(): boolean {
-        if (!this.isEndlessMode) return false;
-        if (this.currentLevel === 5) return true;
-        if (this.currentLevel > 5 && (this.currentLevel - 5) % 10 === 0) return true;
-        return false;
+    getSpecialScene(): 'Merchant' | 'Magician' | null {
+        console.log('Checking for special scene on level', this.currentLevel);
+        if (this.currentLevel < 5) {
+            return null;
+        }
+
+        console.log('Level for special scene:', this.currentLevel);
+        console.log('Offset % 4:', this.currentLevel % 4);
+        if (this.currentLevel % 4 === 3) {
+            return 'Magician';
+        }
+        
+        console.log('Offset % 2:', this.currentLevel % 2);
+        if (this.currentLevel % 2 === 1) {
+            return 'Merchant';
+        }
+
+        return null;
     }
 
-    /**
-     * Prüft, ob ein Magician nach diesem Level erscheinen soll
-     * Magician kommt nach Level 10 und dann alle 10 Level
-     * Also nach Level 10, 20, 30, 40...
-     */
-    shouldShowMagician(): boolean {
-        if (!this.isEndlessMode) return false;
-        if (this.currentLevel < 10) return false;
-        if ((this.currentLevel - 10) % 10 === 0) return true;
-        return false;
-    }
-
-    /**
-     * Sammelt einen Bonus-Wurf (wird bei Kritischen Treffern aufgerufen)
-     * Maximum 3 Bonus-Würfe
-     */
     addBonusThrow(): void {
         if (this.hasArtifact && this.bonusThrows < 3) {
             this.bonusThrows++;
         }
     }
 
-    /**
-     * Nutzt einen Bonus-Wurf
-     */
     useBonusThrow(): boolean {
         if (this.bonusThrows > 0) {
             this.bonusThrows--;
@@ -199,9 +188,6 @@ export class LevelEngine {
         return false;
     }
 
-    /**
-     * Getter für verfügbare Würfe (Normal + Bonus)
-     */
     getAvailableThrows(): number {
         return this.remainingThrows + this.bonusThrows;
     }

@@ -1,7 +1,7 @@
 import { Geom, Scene, type Cameras, type GameObjects } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
-import { Dice } from '../classes/Dice';
-import { Enchantment, EnchantmentType } from '../classes/Enchantment';
+import { Dice } from '../base classes/Dice';
+import { Enchantment, EnchantmentType } from '../base classes/Enchantment';
 import { t } from '../labels';
 import { EventBus } from '../EventBus';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
