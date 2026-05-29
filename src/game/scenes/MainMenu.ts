@@ -146,6 +146,11 @@ export class MainMenu extends Scene
                 levelEngine.reset();
             }
 
+            const artifactHandler = gameWindow.artifactHandler;
+            if (artifactHandler) {
+                artifactHandler.reset();
+            }
+
             EventBus.emit(GAME_EVENTS.runStartRequested);
             this.changeScene('Game');
         });

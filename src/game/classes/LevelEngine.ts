@@ -3,7 +3,7 @@ import { Enemy } from '../base classes/Enemy';
 import { DiceHandler } from './DiceHandler';
 import { EnemyLabelKey, t } from '../labels';
 import { EnemyCollection } from '../collection classes/EnemyCollection';
-import { Artifact } from '../base classes/Artifact';
+import { ArtifactHandler } from './ArtifactHandler';
 
 export class LevelEngine {
     scene: Scene;
@@ -13,42 +13,41 @@ export class LevelEngine {
     bonusThrows: number = 0;
     enemySprite: GameObjects.Sprite;
     enemyCollection: EnemyCollection;
-    hasArtifact: boolean = false;
-    currentArtifact: Artifact | null = null;
+    artifactHandler: ArtifactHandler;
     isEndlessMode: boolean = false;
-    
+
     constructor(scene: Scene) {
         this.scene = scene;
+        this.artifactHandler = window.artifactHandler as ArtifactHandler;
+        this.enemyCollection = window.enemyCollection as EnemyCollection;
         this.currentLevel = 0;
         this.remainingThrows = 3;
         this.bonusThrows = 0;
-        this.enemyCollection = window.enemyCollection as EnemyCollection;
     }
     
-    startLevel(level: number) {       
-        // Entferne alten Enemy-Sprite, falls vorhanden
+    startLevel(level: number) {
         if (this.enemySprite) {
             this.enemySprite.destroy();
         }
 
         switch (level) {
             case 1:
-                this.currentEnemy = new Enemy('enemy.name.slime', 16, 'slime_green_idle', 'slime_green_damage_low', 'slime_green_damage_high', 'slime_green_win', 'slime_green_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.slime', 16, 'slime_green_idle', 'slime_green_damage_low', 'slime_green_damage_high', 'slime_green_win', 'slime_green_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 2:
-                this.currentEnemy = new Enemy('enemy.name.skeleton', 26, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.skeleton', 26, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 3:
-                this.currentEnemy = new Enemy('enemy.name.goblin', 36, 'goblin_green_idle', 'goblin_green_damage_low', 'goblin_green_damage_high', 'goblin_green_win', 'goblin_green_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.goblin', 36, 'goblin_green_idle', 'goblin_green_damage_low', 'goblin_green_damage_high', 'goblin_green_win', 'goblin_green_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 4:
-                this.currentEnemy = new Enemy('enemy.name.dwarf', 48, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead'); //TODO Passende Leben
+                this.currentEnemy = new Enemy('enemy.name.dwarf', 48, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
@@ -64,7 +63,6 @@ export class LevelEngine {
     }
 
     updateEnemyTexture(lastThrow: boolean) {
-        // Ensure scene is set
         if (!this.scene) {
             console.error('Scene is not set in LevelEngine');
             return;
@@ -93,7 +91,7 @@ export class LevelEngine {
     }
 
     generateEndlessLevel(level: number) {
-        const newHp = Math.floor(40 + 2 * (level - 5) + 1.2 * Math.pow(level - 5, 2));
+        const newHp = Math.floor(50 + 2 * (level - 5) + 1.2 * Math.pow(level - 5, 2));
         var template = this.enemyCollection.getEnemyTemplateByNumber(level - 6);
         const newEnemy = new Enemy(template.name as EnemyLabelKey, newHp, template.idleTexture, template.lowDamageTexture, template.highDamageTexture, template.winTexture, template.deadTexture);
         this.currentEnemy = newEnemy;
@@ -139,8 +137,6 @@ export class LevelEngine {
         this.currentLevel = 0;
         this.remainingThrows = 3;
         this.bonusThrows = 0;
-        this.hasArtifact = false;
-        this.currentArtifact = null;
         this.isEndlessMode = false;
         if (this.enemySprite) {
             this.enemySprite.destroy();
@@ -175,7 +171,7 @@ export class LevelEngine {
     }
 
     addBonusThrow(): void {
-        if (this.hasArtifact && this.bonusThrows < 3) {
+        if (this.bonusThrows < 3) {
             this.bonusThrows++;
         }
     }

@@ -39,6 +39,7 @@ export class Reward extends Scene {
         this.diceHandler.scene = this;
         this.diceCollection = window.diceCollection as DiceCollection;
         this.levelEngine = window.levelEngine as LevelEngine;
+        if (this.levelEngine) this.levelEngine.scene = this;
     }
 
     create() {

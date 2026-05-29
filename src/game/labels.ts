@@ -21,9 +21,12 @@ type LabelKey =
     | 'game.hp'
     | 'game.throwsLeft'
     | 'game.bonusThrows'
+    | 'game.bonusDamage'
     | 'game.crit'
     | 'artifact.name.BonusThrowsOnCrit'
+    | 'artifact.name.CollectorShowcase'
     | 'artifact.description.BonusThrowsOnCrit'
+    | 'artifact.description.CollectorShowcase'
     | 'game.exit'
     | 'game.confirmExit'
     | 'game.yes'
@@ -76,6 +79,7 @@ export type EnemyLabelKey =
     | 'enemy.name.slime_blue'
     | 'enemy.name.slime_purple'
     | 'enemy.name.skeleton'
+    | 'enemy.name.skeleton_black'
     | 'enemy.name.goblin'
     | 'enemy.name.goblin_grey'
     | 'enemy.name.goblin_red'
@@ -107,9 +111,12 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'game.hp': 'HP',
         'game.throwsLeft': 'Würfe übrig',
         'game.bonusThrows': 'Bonusrundwürfe',
+        'game.bonusDamage': 'Bonus',
         'game.crit': 'Kritisch!',
         'artifact.name.BonusThrowsOnCrit': 'Glücksstein',
         'artifact.description.BonusThrowsOnCrit': 'Bei jedem kritischen Treffer sammelt der Spieler einen Bonus-Wurf (max. 3)',
+        'artifact.name.CollectorShowcase': 'Sammlervitrine',
+        'artifact.description.CollectorShowcase': 'Fügt jedem Wurf einen Bonus in Höhe von der Hälfte der Levelnummer hinzu. Dieser Bonus wird für jeden einzigartigen Würfel in deinem Beutel um weitere 25% erhöht.',
         'game.exit': 'Beenden',
         'game.confirmExit': 'Der Run wird abgebrochen. Sicher?',
         'game.yes': 'Ja',
@@ -158,6 +165,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enemy.name.slime_blue': 'Blauer Schleim',
         'enemy.name.slime_purple': 'Lila Schleim',
         'enemy.name.skeleton': 'Skelett',
+        'enemy.name.skeleton_black': 'Antikes Skelett',
         'enemy.name.goblin': 'Kobold',
         'enemy.name.goblin_grey': 'Grauer Kobold',
         'enemy.name.goblin_red': 'Roter Kobold',
@@ -186,9 +194,12 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'game.hp': 'HP',
         'game.throwsLeft': 'Throws left',
         'game.bonusThrows': 'Bonus throws',
+        'game.bonusDamage': 'Bonus',
         'game.crit': 'Critical!',
         'artifact.name.BonusThrowsOnCrit': 'Lucky Stone',
         'artifact.description.BonusThrowsOnCrit': 'On every critical hit the player gains one bonus throw (max 3)',
+        'artifact.name.CollectorShowcase': 'Collector\'s Showcase',
+        'artifact.description.CollectorShowcase': 'Adds a bonus to each throw equal to half the level number. This bonus is increased by another 25% for every unique die in your bag.',
         'game.exit': 'Exit',
         'game.confirmExit': 'This run will be aborted. Are you sure?',
         'game.yes': 'Yes',
@@ -237,6 +248,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enemy.name.slime_blue': 'Blue Slime',
         'enemy.name.slime_purple': 'Purple Slime',
         'enemy.name.skeleton': 'Skeleton',
+        'enemy.name.skeleton_black': 'Ancient Skeleton',
         'enemy.name.goblin': 'Goblin',
         'enemy.name.goblin_grey': 'Grey Kobold',
         'enemy.name.goblin_red': 'Red Kobold',

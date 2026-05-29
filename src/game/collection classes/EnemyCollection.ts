@@ -32,6 +32,13 @@ export class EnemyCollection {
                 winTexture: 'skeleton_win',
                 deadTexture: 'skeleton_dead'
             },{
+                name : 'enemy.name.skeleton_black',
+                idleTexture: 'skeleton_black_idle',
+                lowDamageTexture: 'skeleton_black_damage_low',
+                highDamageTexture: 'skeleton_black_damage_high',
+                winTexture: 'skeleton_black_win',
+                deadTexture: 'skeleton_black_dead'
+            },{
                 name : 'enemy.name.goblin',
                 idleTexture: 'goblin_green_idle',
                 lowDamageTexture: 'goblin_green_damage_low',

@@ -1,20 +1,22 @@
-import { Geom, Scene, type Cameras, type GameObjects } from 'phaser';
+import { Geom, Scene, Utils, type Cameras, type GameObjects } from 'phaser';
 import { LevelEngine } from '../classes/LevelEngine';
-import { Artifact } from '../base classes/Artifact';
 import { t } from '../labels';
 import { EventBus } from '../EventBus';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
+import { Artifact } from '../base classes/Artifact';
+import { ALL_ARTIFACT_TYPES } from '../collection classes/ArtifactCollection';
 
 export class Merchant extends Scene {
     camera: Cameras.Scene2D.Camera;
     background: GameObjects.Image;
     titleText: GameObjects.Text;
     levelEngine: LevelEngine;
-    selectedArtifact: Artifact | null = null;
     artifactButtons: GameObjects.Container[] = [];
     continueButton: GameObjects.Image;
     continueText: GameObjects.Text;
     infoText: GameObjects.Text;
+    selectedArtifact?: Artifact;
+    skipButton: GameObjects.Text;
 
     constructor() {
         super('Merchant');
@@ -22,32 +24,25 @@ export class Merchant extends Scene {
 
     init() {
         this.levelEngine = window.levelEngine as LevelEngine;
-        // if (this.levelEngine.currentLevel >= 5) {
-        //     this.levelEngine.isEndlessMode = true;
-        // }
+        if (this.levelEngine) this.levelEngine.scene = this;
     }
 
     create() {
+        this.artifactButtons = [];
+        this.selectedArtifact = undefined;
+
         this.camera = this.cameras.main;
         this.add.image(768, 512, 'sky_background').setDepth(-4);
         this.background = this.add.image(768, 512, 'main_background');
         this.background.setDepth(-2);
         setupBackgroundAmbience(this);
+
         this.titleText = this.add.text(768, 80, t('merchant.title'), {
             fontFamily: 'funblob',
             fontSize: 56,
             color: '#ff9000',
             stroke: '#000000',
             strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5).setDepth(100);
-
-        const subtitleText = this.add.text(768, 160, t('merchant.subtitle'), {
-            fontFamily: 'funblob',
-            fontSize: 32,
-            color: '#cccccc',
-            stroke: '#000000',
-            strokeThickness: 6,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
@@ -61,29 +56,38 @@ export class Merchant extends Scene {
             wordWrap: { width: 1000 }
         }).setOrigin(0.5).setDepth(100).setVisible(false);
 
-        // Nur ein Artefakt wird angeboten (BonusThrowsOnCrit)
-        const artifact = new Artifact('BonusThrowsOnCrit');
-        this.createArtifactButton(artifact, 768, 400);
-
-        // Continue Button
-        this.continueButton = this.add.image(768, 800, 'dice')
-            .setOrigin(0.5)
-            .setScale(0.3)
-            .setDepth(50)
-            .setVisible(false)
-            .setInteractive({ useHandCursor: true });
-
-        this.continueText = this.add.text(768, 800, t('merchant.continue'), {
+        this.createContinueButton();
+        
+        this.skipButton = this.add.text(this.camera.width - 200, this.camera.height - 100, t('reward.skip'), {
             fontFamily: 'funblob',
             fontSize: 32,
-            color: '#ff9000',
+            color: '#ffffff',
+            backgroundColor: '#444444',
             stroke: '#000000',
-            strokeThickness: 4,
+            strokeThickness: 6,
+            padding: { x: 20, y: 12 },
             align: 'center'
-        }).setOrigin(0.5).setDepth(60).setVisible(false);
+        }).setOrigin(0.5).setDepth(100).setInteractive({ useHandCursor: true }).setVisible(true);
 
-        this.continueButton.on('pointerdown', () => {
+        this.skipButton.on('pointerdown', () => {
             this.continueToGame();
+        });
+
+        const offeredArtifacts = this.getAvailableArtifacts();
+
+        const positions = [
+            { x: 384, y: 450 },
+            { x: 768, y: 450 },
+            { x: 1152, y: 450 }
+        ];
+
+        offeredArtifacts.forEach((artifact, index) => {
+
+            this.createArtifactButton(
+                artifact,
+                positions[index].x,
+                positions[index].y
+            );
         });
 
         EventBus.emit('current-scene-ready', this);
@@ -151,22 +155,71 @@ export class Merchant extends Scene {
 
     private selectArtifact(artifact: Artifact, container: GameObjects.Container) {
         this.selectedArtifact = artifact;
-        this.levelEngine.hasArtifact = true;
-        this.levelEngine.currentArtifact = artifact;
 
-        // Highlight selected
+        this.artifactButtons.forEach(button => {
+            const border = button.list[1] as GameObjects.Graphics;
+
+            border.clear();
+            border.lineStyle(3, 0xffaa00, 1);
+            border.strokeRoundedRect(-150,-60,300,120,10);
+        });
+
         const border = container.list[1] as GameObjects.Graphics;
+
         border.clear();
         border.lineStyle(4, 0x00ff00, 1);
-        border.strokeRoundedRect(-150, -60, 300, 120, 10);
+        border.strokeRoundedRect(-150,-60,300,120,10);
 
-        // Show continue button
         this.continueButton.setVisible(true);
         this.continueText.setVisible(true);
     }
 
+    private getAvailableArtifacts(): Artifact[] {
+
+        const availableTypes = ALL_ARTIFACT_TYPES.filter(
+            type => !this.levelEngine.artifactHandler.hasArtifact(type)
+        );
+
+        Utils.Array.Shuffle(availableTypes);
+
+        const amount = Math.min(3, availableTypes.length);
+
+        return availableTypes
+            .slice(0, amount)
+            .map(type => new Artifact(type));
+    }
+
+    private createContinueButton() {
+
+        this.continueButton = this.add.image(768, 800, 'dice')
+            .setOrigin(0.5)
+            .setScale(0.3)
+            .setDepth(50)
+            .setVisible(false)
+            .setInteractive({ useHandCursor: true });
+
+        this.continueText = this.add.text(768, 800, t('merchant.continue'), {
+            fontFamily: 'funblob',
+            fontSize: 32,
+            color: '#ff9000',
+            stroke: '#000000',
+            strokeThickness: 4,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(60).setVisible(false);
+
+        this.continueButton.on('pointerdown', () => {
+            this.continueToGame();
+        });
+    }
+
     private continueToGame() {
+        if (this.selectedArtifact) {
+            this.levelEngine.artifactHandler.addArtifact(
+                this.selectedArtifact
+            );
+        }
         this.artifactButtons.forEach(button => button.destroy());
+        this.skipButton.destroy();
         this.continueButton.destroy();
         this.continueText.destroy();
         this.titleText.destroy();

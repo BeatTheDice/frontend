@@ -3,6 +3,7 @@ import { LevelEngine } from '../classes/LevelEngine';
 import { DiceHandler } from '../classes/DiceHandler';
 import { DiceCollection } from '../collection classes/DiceCollection';
 import { EnemyCollection } from '../collection classes/EnemyCollection';
+import { ArtifactHandler } from '../classes/ArtifactHandler';
 
 export class Preloader extends Scene
 {
@@ -167,6 +168,7 @@ export class Preloader extends Scene
         // create global instances 
         window.diceCollection = new DiceCollection();
         window.enemyCollection = new EnemyCollection();
+        window.artifactHandler = new ArtifactHandler();
         window.levelEngine = new LevelEngine(this);
         window.diceHandler = new DiceHandler(this);
 
