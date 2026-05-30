@@ -1,4 +1,4 @@
-export type EnchantmentType = 'CopyNPaste' | 'ZweiSamkeit';
+export type EnchantmentType = 'CopyNPaste' | 'ZweiSamkeit' | 'SmallestBonus';
 
 import { t } from '../labels';
 import { Dice } from './Dice';
@@ -22,6 +22,8 @@ export class Enchantment {
                 return t('enchantment.name.CopyNPaste');
             case 'ZweiSamkeit':
                 return t('enchantment.name.ZweiSamkeit');
+            case 'SmallestBonus':
+                return t('enchantment.name.SmallestBonus');
         }
     }
 
@@ -31,6 +33,8 @@ export class Enchantment {
                 return 'CP';
             case 'ZweiSamkeit':
                 return 'ZS';
+            case 'SmallestBonus':
+                return '+4';
         }
     }
 
@@ -40,6 +44,8 @@ export class Enchantment {
                 return t('enchantment.description.CopyNPaste');
             case 'ZweiSamkeit':
                 return t('enchantment.description.ZweiSamkeit');
+            case 'SmallestBonus':
+                return t('enchantment.description.SmallestBonus');
         }
     }
 
@@ -67,6 +73,12 @@ export class Enchantment {
                 }
 
                 return total;
+            case 'SmallestBonus':
+                const minValue = Math.min(...dice.getFaceValues());
+                if (value === minValue) {
+                    return value + 4;
+                }
+                return value;
         }
     }
 }

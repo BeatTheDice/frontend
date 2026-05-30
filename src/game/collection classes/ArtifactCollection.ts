@@ -3,7 +3,7 @@ import { ArtifactEffect, ArtifactType, RollContext, DamageContext } from "../bas
 export const ALL_ARTIFACT_TYPES: ArtifactType[] = [
     'BonusThrowsOnCrit',
     'CollectorShowcase',
-    // 'ForgeSeal',
+    'ForgeSeal',
     // 'MirrorAmulet',
     // 'MasterDice',
     // 'DiceCupOfCourage'
@@ -25,6 +25,19 @@ export class CollectorShowcaseEffect implements ArtifactEffect {
         const uniqueDiceCount = new Set(context.currentDice.map(d => d.name)).size;
         const bonus = Math.floor((context.levelEngine.currentLevel / 2) * (1 + uniqueDiceCount * 0.25));
         return bonus;
+    }
+}
+
+export class ForgeSealEffect implements ArtifactEffect {
+    onThrowCompleted(context: RollContext): number {
+        const counts = context.currentDice.reduce<Record<string, number>>((acc, dice) => {
+            acc[dice.name] = (acc[dice.name] ?? 0) + 1;
+            return acc;
+        }, {});
+
+        return Object.values(counts)
+            .filter(count => count > 1)
+            .reduce((bonus, count) => bonus + 2 * count, 0);
     }
 }
 

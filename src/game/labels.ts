@@ -25,8 +25,10 @@ type LabelKey =
     | 'game.crit'
     | 'artifact.name.BonusThrowsOnCrit'
     | 'artifact.name.CollectorShowcase'
+    | 'artifact.name.ForgeSeal'
     | 'artifact.description.BonusThrowsOnCrit'
     | 'artifact.description.CollectorShowcase'
+    | 'artifact.description.ForgeSeal'
     | 'game.exit'
     | 'game.confirmExit'
     | 'game.yes'
@@ -61,8 +63,10 @@ type LabelKey =
     | 'reward.mustSelectNewAndPlayerDice'
     | 'enchantment.name.CopyNPaste'
     | 'enchantment.name.ZweiSamkeit'
+    | 'enchantment.name.SmallestBonus'
     | 'enchantment.description.CopyNPaste'
-    | 'enchantment.description.ZweiSamkeit';
+    | 'enchantment.description.ZweiSamkeit'
+    | 'enchantment.description.SmallestBonus';
 
 export type DiceLabelKey =
     | 'dice.name.regular'
@@ -117,6 +121,8 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'artifact.description.BonusThrowsOnCrit': 'Bei jedem kritischen Treffer sammelt der Spieler einen Bonus-Wurf (max. 3)',
         'artifact.name.CollectorShowcase': 'Sammlervitrine',
         'artifact.description.CollectorShowcase': 'Fügt jedem Wurf einen Bonus in Höhe von der Hälfte der Levelnummer hinzu. Dieser Bonus wird für jeden einzigartigen Würfel in deinem Beutel um weitere 25% erhöht.',
+        'artifact.name.ForgeSeal': 'Schmiedesiegel',
+        'artifact.description.ForgeSeal': 'Für jeden Würfeltyp, von dem du mindestens eine weitere Kopie besitzt, erhält der Wurf +2 für jede Kopie dieses Typs.',
         'game.exit': 'Beenden',
         'game.confirmExit': 'Der Run wird abgebrochen. Sicher?',
         'game.yes': 'Ja',
@@ -153,6 +159,8 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enchantment.name.ZweiSamkeit': 'Zweisamkeit',
         'enchantment.description.CopyNPaste': 'Jede gewürfelte Augenzahl wird doppelt zum Gesamt-Ergebnis addiert',
         'enchantment.description.ZweiSamkeit': 'Wenn der Würfel eine Eins oder Zwei zeigt, wird er erneut gewürfelt und alle Ergebnisse werden addiert. Dieser Effekt kann mehrfach ausgelöst werden.',
+        'enchantment.name.SmallestBonus': 'Kleiner Bonus',
+        'enchantment.description.SmallestBonus': 'Wenn dieser Würfel das kleinste mögliche Ergebnis würfelt, erhält er +4 Augenzahl.',
         'dice.name.regular': 'Regulärer Würfel',
         'dice.name.even': 'Gerader Würfel',
         'dice.name.odd': 'Ungerader Würfel',
@@ -200,6 +208,8 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'artifact.description.BonusThrowsOnCrit': 'On every critical hit the player gains one bonus throw (max 3)',
         'artifact.name.CollectorShowcase': 'Collector\'s Showcase',
         'artifact.description.CollectorShowcase': 'Adds a bonus to each throw equal to half the level number. This bonus is increased by another 25% for every unique die in your bag.',
+        'artifact.name.ForgeSeal': 'Forge Seal',
+        'artifact.description.ForgeSeal': 'For every die type that you own at least one additional copy of, every throw gains +2 for each copy of that type.',
         'game.exit': 'Exit',
         'game.confirmExit': 'This run will be aborted. Are you sure?',
         'game.yes': 'Yes',
@@ -235,7 +245,9 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enchantment.name.CopyNPaste': 'Copy & Paste',
         'enchantment.name.ZweiSamkeit': 'Togetherness',
         'enchantment.description.CopyNPaste': 'Each rolled face value is added twice to the total result',
-        'enchantment.description.ZweiSamkeit': 'If this rolls a one or a two, reroll and add all results. This Effect can trigger multiple times.',
+        'enchantment.description.ZweiSamkeit': 'If this rolls a one or a two, reroll and add all results. This effect can trigger multiple times.',
+        'enchantment.name.SmallestBonus': 'Smallest Bonus',
+        'enchantment.description.SmallestBonus': 'If this rolls the smallest possible result, it gains +4 to the value.',
         'dice.name.regular': 'Regular Dice',
         'dice.name.even': 'Even Dice',
         'dice.name.odd': 'Odd Dice',

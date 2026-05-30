@@ -1,5 +1,5 @@
 import type { LevelEngine } from '../classes/LevelEngine';
-import { BonusThrowsOnCritEffect, CollectorShowcaseEffect } from '../collection classes/ArtifactCollection';
+import { BonusThrowsOnCritEffect, CollectorShowcaseEffect, ForgeSealEffect } from '../collection classes/ArtifactCollection';
 import { t } from '../labels';
 import { Dice } from './Dice';
 
@@ -54,8 +54,8 @@ export class Artifact {
             case 'CollectorShowcase':
                 return new CollectorShowcaseEffect;
 
-            // case 'ForgeSeal':
-            //     return new ForgeSealEffect();
+            case 'ForgeSeal':
+                return new ForgeSealEffect();
 
             // case 'MirrorAmulet':
             //     return new MirrorAmuletEffect();
@@ -78,8 +78,8 @@ export class Artifact {
             case 'CollectorShowcase':
                 return t('artifact.name.CollectorShowcase');
 
-            // case 'ForgeSeal':
-            //     return t('artifact.name.ForgeSeal');
+            case 'ForgeSeal':
+                return t('artifact.name.ForgeSeal');
 
             // case 'MirrorAmulet':
             //     return t('artifact.name.MirrorAmulet');
@@ -102,8 +102,8 @@ export class Artifact {
             case 'CollectorShowcase':
                 return t('artifact.description.CollectorShowcase');
 
-            // case 'ForgeSeal':
-            //     return t('artifact.description.ForgeSeal');
+            case 'ForgeSeal':
+                return t('artifact.description.ForgeSeal');
 
             // case 'MirrorAmulet':
             //     return t('artifact.description.MirrorAmulet');

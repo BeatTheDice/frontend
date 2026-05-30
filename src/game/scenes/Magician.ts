@@ -189,7 +189,7 @@ export class Magician extends Scene {
         this.selectedEnchantmentContainer = null;
         this.clearEnchantmentSelectionBorder();
 
-        const enchantmentTypes: EnchantmentType[] = ['CopyNPaste', 'ZweiSamkeit'];
+        const enchantmentTypes: EnchantmentType[] = ['CopyNPaste', 'ZweiSamkeit', 'SmallestBonus'];
         const baseY = this.cameras.main.centerY + 260;
         const spacing = 400;
         const startX = 768 - ((enchantmentTypes.length - 1) * spacing) / 2;
