@@ -82,7 +82,7 @@ export class Dice {
      */
     applyEnchantmentToValue(value: number): number {
         if (this.enchantment) {
-            return this.enchantment.applyEnchantment(value);
+            return this.enchantment.applyEnchantment(this, value);
         }
         return value;
     }

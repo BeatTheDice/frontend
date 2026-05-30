@@ -120,6 +120,12 @@ export class Preloader extends Scene
         this.load.image('skeleton_win', './images/enemy/skeleton/win.png');
         this.load.image('skeleton_dead', './images/enemy/skeleton/dead.png');
 
+        this.load.image('skeleton_black_idle', './images/enemy/skeleton_black/idle.png');
+        this.load.image('skeleton_black_damage_low', './images/enemy/skeleton_black/damage_low.png');
+        this.load.image('skeleton_black_damage_high', './images/enemy/skeleton_black/damage_high.png');
+        this.load.image('skeleton_black_win', './images/enemy/skeleton_black/win.png');
+        this.load.image('skeleton_black_dead', './images/enemy/skeleton_black/dead.png');
+
         // goblin
         this.load.image('goblin_green_idle', './images/enemy/goblin_green/idle.png');
         this.load.image('goblin_green_damage_low', './images/enemy/goblin_green/damage_low.png');

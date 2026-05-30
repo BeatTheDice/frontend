@@ -1,6 +1,7 @@
 export type EnchantmentType = 'CopyNPaste' | 'ZweiSamkeit';
 
 import { t } from '../labels';
+import { Dice } from './Dice';
 
 export class Enchantment {
     type: EnchantmentType;
@@ -45,17 +46,27 @@ export class Enchantment {
     /**
      * Wendet die Verzauberung auf ein gewürfeltes Ergebnis an
      */
-    applyEnchantment(value: number): number {
+    applyEnchantment(dice: Dice, value: number): number {
         switch (this.type) {
             case 'CopyNPaste':
                 // Verdoppelt den Wert
                 return value * 2;
             case 'ZweiSamkeit':
-                // Wenn es eine Zwei ist, +5 addieren
-                if (value === 2) {
-                    return value + 5;
+                // Wenn eine Zwei oder Eins gewürfelt wird, erneut würfeln und addieren
+                if (value !== 2 && value !== 1) {
+                    return value;
                 }
-                return value;
+
+                let total = value;
+                let rerollValue = value;
+
+                while (rerollValue === 2 || rerollValue === 1) {
+                    const reroll = dice.roll();
+                    rerollValue = Number(Object.keys(reroll)[0]);
+                    total += rerollValue;
+                }
+
+                return total;
         }
     }
 }
