@@ -1,7 +1,7 @@
 import { Geom, Scene, type Cameras, type GameObjects } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
-import { Dice } from '../classes/Dice';
-import { Enchantment, EnchantmentType } from '../classes/Enchantment';
+import { Dice } from '../base classes/Dice';
+import { Enchantment, EnchantmentType } from '../base classes/Enchantment';
 import { t } from '../labels';
 import { EventBus } from '../EventBus';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
@@ -189,7 +189,7 @@ export class Magician extends Scene {
         this.selectedEnchantmentContainer = null;
         this.clearEnchantmentSelectionBorder();
 
-        const enchantmentTypes: EnchantmentType[] = ['CopyNPaste', 'ZweiSamkeit'];
+        const enchantmentTypes: EnchantmentType[] = ['CopyNPaste', 'ZweiSamkeit', 'SmallestBonus'];
         const baseY = this.cameras.main.centerY + 260;
         const spacing = 400;
         const startX = 768 - ((enchantmentTypes.length - 1) * spacing) / 2;

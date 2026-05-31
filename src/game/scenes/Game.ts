@@ -1,7 +1,7 @@
 import { Math as PhaserMath, Scene, type Cameras, type GameObjects, type Time } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
 import { LevelEngine } from '../classes/LevelEngine';
-import { DiceCollection } from '../classes/DiceCollection';
+import { DiceCollection } from '../collection classes/DiceCollection';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
 import { EventBus } from '../EventBus';
 import { GAME_EVENTS } from '../backend-events';
@@ -19,6 +19,7 @@ export class Game extends Scene {
     enemyHealthText: GameObjects.Text;
     remainingThrowsText: GameObjects.Text;
     bonusThrowsText: GameObjects.Text;
+    bonusDamageText: GameObjects.Text;
     bossEffectText: GameObjects.Text;
     levelEngine: LevelEngine;
     isDiceRolling: boolean = false;
@@ -53,7 +54,7 @@ export class Game extends Scene {
         this.background.setDepth(-2);
         setupBackgroundAmbience(this);
 
-        this.levelEngine.nextLevel();                
+        this.levelEngine.nextLevel();
         this.diceHandler.renderPlayerDice();
         
         this.createTexts();        
@@ -86,13 +87,13 @@ export class Game extends Scene {
             stroke: '#000000', strokeThickness: 8,
             align: 'left'
         }).setOrigin(0, 0);
-
+        
         if (this.levelEngine.bonusThrows > 0) {
             this.bonusThrowsText.setText(`${t('game.bonusThrows')}: ${this.levelEngine.bonusThrows}`).setVisible(true);
         } else {
             this.bonusThrowsText.setVisible(false);
         }
-
+        
         this.enemyNameText = this.add.text(1486, 50, `${this.levelEngine.getEnemyName()}`, {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
@@ -103,11 +104,17 @@ export class Game extends Scene {
             stroke: '#000000', strokeThickness: 10,
             align: 'right'
         }).setOrigin(1, 0);
-
+        
         this.diceSumText = this.add.text(748, 300, '', {
             fontFamily: 'funblob', fontSize: 48, color: '#ff9000',
             stroke: '#000000', strokeThickness: 10,
             align: 'center'
+        }).setOrigin(0.5).setDepth(100).setVisible(false);
+
+        this.bonusDamageText = this.add.text(700, 200, '', {
+            fontFamily: 'funblob', fontSize: 36, color: '#00ff00',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'left'
         }).setOrigin(0.5).setDepth(100).setVisible(false);
 
         this.bossEffectText = this.add.text(768, 180, '', {
@@ -312,9 +319,16 @@ export class Game extends Scene {
 
         const result = await this.diceHandler.throwDice();
 
-        await this.animateProgressiveSum(result);
+        const throwBonus = window.artifactHandler?.triggerThrowCompleted({
+            rollResults: result,
+            currentDice: this.diceHandler.playersDice,
+            levelEngine: this.levelEngine
+        }) ?? 0;
 
-        const total = result.reduce((s, v) => s + v, 0);
+        await this.animateProgressiveSum(result, throwBonus);
+
+        const total = result.reduce((s, v) => s + v, 0) + throwBonus;
+        const isCritical = total > this.levelEngine.getEnemyMaxHitPoints() / 2;
 
         // Use bonus throw if available, otherwise use regular throw
         const usedBonusThrow = this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows > 0 && this.levelEngine.useBonusThrow();
@@ -339,8 +353,15 @@ export class Game extends Scene {
             total,
             this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows === 0
         );
+        
+        EventBus.emit(GAME_EVENTS.damageDealt, {
+            damage: total,
+            isCritical,
+            levelEngine: this.levelEngine
+        });
 
         this.updateEnemyHealthBar();
+        this.updateTexts();
 
         this.enemyHealthText.setText(
             `${t('game.hp')}: ${this.levelEngine.getCurrentEnemyHitPoints()} / ${this.levelEngine.getEnemyMaxHitPoints()}`
@@ -378,22 +399,25 @@ export class Game extends Scene {
         this.time.delayedCall(delay, () => {
 
             this.diceHandler.clearDice();
-            this.diceSumText.setVisible(false);            
+            this.diceSumText.setVisible(false);
+            this.bonusDamageText.setVisible(false);            
             
             if (this.levelEngine.currentLevel === 5) {
                 this.scene.start('Winner');
             } else if (this.levelEngine.currentLevel < 5) {
                 this.scene.start('Reward');
-            } else if (this.levelEngine.shouldShowMerchant()) {
-                this.scene.start('Merchant');
-            } else if (this.levelEngine.shouldShowMagician()) {
-                this.scene.start('Magician');
             } else {
-                // Kein besonderes Event, nächstes Level
-                this.scene.start('Reward');
-                this.resetDiceButton(diceButton);
-                this.levelEngine.nextLevel();
-                this.updateTexts();
+                const specialScene = this.levelEngine.getSpecialScene();
+                if (specialScene === 'Merchant') {
+                    this.scene.start('Merchant');
+                } else if (specialScene === 'Magician') {
+                    this.scene.start('Magician');
+                } else {
+                    // Kein besonderes Event, nächstes Level
+                    this.scene.start('Reward');
+                    this.resetDiceButton(diceButton);
+                    this.updateTexts();
+                }
             }
         });
     }
@@ -412,7 +436,8 @@ export class Game extends Scene {
         button.setAlpha(1);
     }
 
-    private async animateProgressiveSum(results: number[]): Promise<void> {
+    private async animateProgressiveSum(results: number[], bonus: number): Promise<void> {
+        this.bonusDamageText.setVisible(false);
         this.diceSumText.setVisible(true);
         let currentSum = 0;
 
@@ -451,6 +476,11 @@ export class Game extends Scene {
                 });
             }
         }
+        if (bonus > 0) {
+            currentSum += bonus;
+            this.diceSumText.setText(currentSum.toString());
+            this.bonusDamageText.setText(`+${bonus} ${t('game.bonusDamage')}`).setVisible(true);
+        }
 
         // Check if critical hit (damage > half max HP)
         const maxHP = this.levelEngine.getEnemyMaxHitPoints();
@@ -458,15 +488,6 @@ export class Game extends Scene {
             this.diceSumText.setText(`${currentSum} ${t('game.crit')}`);
             this.diceSumText.setFontSize(64);
             this.diceSumText.setColor('#ff0000');
-            
-            // Add bonus throw if artifact is equipped
-            if (this.levelEngine.hasArtifact) {
-                const beforeBonus = this.levelEngine.bonusThrows;
-                this.levelEngine.addBonusThrow();
-                if (this.levelEngine.bonusThrows !== beforeBonus) {
-                    this.updateTexts();
-                }
-            }
         }
     }
 

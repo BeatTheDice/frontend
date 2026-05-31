@@ -1,8 +1,8 @@
 import { EventBus } from '../EventBus';
 import { Scene, type Cameras, type GameObjects } from 'phaser';
 import { DiceHandler } from '../classes/DiceHandler';
-import { Dice } from '../classes/Dice';
-import { DiceCollection } from '../classes/DiceCollection';
+import { Dice } from '../base classes/Dice';
+import { DiceCollection } from '../collection classes/DiceCollection';
 import { LevelEngine } from '../classes/LevelEngine';
 import { t } from '../labels';
 import { setupBackgroundAmbience } from '../BackgroundAmbience';
@@ -39,6 +39,7 @@ export class Reward extends Scene {
         this.diceHandler.scene = this;
         this.diceCollection = window.diceCollection as DiceCollection;
         this.levelEngine = window.levelEngine as LevelEngine;
+        if (this.levelEngine) this.levelEngine.scene = this;
     }
 
     create() {
@@ -281,14 +282,14 @@ export class Reward extends Scene {
             this.diceHandler.renderPlayerDice();
             this.cleanup();
             this.scene.stop();
-            this.scene.start('Game', { nextLevel: true });
+            this.scene.start('Game');
         } else {
             // Normal-Modus: Würfel hinzufügen
             if (this.selectedDice) {
                 this.diceHandler.addDice(this.selectedDice);
                 this.cleanup();
                 this.scene.stop();
-                this.scene.start('Game', { nextLevel: true });
+                this.scene.start('Game');
             }
         }
     }
@@ -296,7 +297,7 @@ export class Reward extends Scene {
     private skipSwap() {
         this.cleanup();
         this.scene.stop();
-        this.scene.start('Game', { nextLevel: true });
+        this.scene.start('Game');
     }
 
     private cleanup() {

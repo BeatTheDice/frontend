@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import type { Scene } from 'phaser';
 import PhaserGame from './PhaserGame.vue';
+import { t } from './game/labels';
 import { apiClient, isApiError } from './api/client';
 import type {
     AuthCredentials,
@@ -145,7 +146,7 @@ const heroStatusText = computed(() => {
 });
 
 const historyButtonVisible = computed(() => authState.isAuthenticated);
-const homeLoginLabel = computed(() => authState.isAuthenticated ? 'Account' : 'Login');
+const homeLoginLabel = computed(() => authState.isAuthenticated ? t('mainMenu.account') : t('mainMenu.login'));
 const isHomeScene = computed(() => currentSceneKey.value === 'MainMenu');
 const isEndScene = computed(() => ['GameOver', 'Winner'].includes(currentSceneKey.value));
 const overlayVisible = computed(() => ['MainMenu', 'GameOver', 'Winner'].includes(currentSceneKey.value));
@@ -165,13 +166,13 @@ const pagePanelClass = computed(() => ({
 const panelTitle = computed(() => {
     switch (activeView.value) {
         case 'leaderboard':
-            return 'Leaderboard';
+            return t('mainMenu.leaderboard');
         case 'auth':
-            return authState.isAuthenticated ? 'Account' : 'Login';
+            return authState.isAuthenticated ? t('mainMenu.account') : t('mainMenu.login');
         case 'history':
-            return 'History';
+            return t('mainMenu.history');
         default:
-            return 'Menu';
+            return t('mainMenu.menu');
     }
 });
 
@@ -622,7 +623,7 @@ onUnmounted(() => {
                 <section class="menu-panel" :class="menuPanelClass">
                     <div class="menu-buttons">
                         <button class="game-button" type="button" @click="openView('leaderboard')">
-                            Leaderboard
+                            {{ t('mainMenu.leaderboard') }}
                         </button>
                         <button class="game-button" type="button" @click="openView('auth')">
                             {{ homeLoginLabel }}
@@ -633,7 +634,7 @@ onUnmounted(() => {
                             type="button"
                             @click="openView('history')"
                         >
-                            History
+                            {{ t('mainMenu.history') }}
                         </button>
                     </div>
                 </section>
@@ -676,14 +677,14 @@ onUnmounted(() => {
                     <div class="page-header">
                         <h2>{{ panelTitle }}</h2>
                         <button class="mini-button" type="button" @click="goHome">
-                            Zurueck
+                            {{ t('pagination.prev') }}
                         </button>
                     </div>
 
                     <template v-if="activeView === 'leaderboard'">
-                        <p v-if="leaderboard.loading" class="empty-copy">Leaderboard laedt...</p>
+                        <p v-if="leaderboard.loading" class="empty-copy">{{ t('leaderboard.loading') }}</p>
                         <p v-else-if="leaderboard.error" class="status-copy error-copy">{{ leaderboard.error }}</p>
-                        <p v-else-if="leaderboard.items.length === 0" class="empty-copy">Noch keine Scores im Leaderboard.</p>
+                        <p v-else-if="leaderboard.items.length === 0" class="empty-copy">{{ t('leaderboard.empty') }}</p>
 
                         <ol v-else class="score-list">
                             <li v-for="entry in leaderboard.items" :key="`${entry.rank}-${entry.username}-${entry.achieved_at}`">
@@ -708,7 +709,7 @@ onUnmounted(() => {
                                 type="button"
                                 @click="loadLeaderboard(leaderboard.page - 1)"
                             >
-                                Zurueck
+                                {{ t('pagination.prev') }}
                             </button>
                             <span>Seite {{ leaderboard.page }}</span>
                             <button
@@ -717,7 +718,7 @@ onUnmounted(() => {
                                 type="button"
                                 @click="loadLeaderboard(leaderboard.page + 1)"
                             >
-                                Weiter
+                                {{ t('pagination.next') }}
                             </button>
                         </div>
                     </template>

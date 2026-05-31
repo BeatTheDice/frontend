@@ -4,6 +4,15 @@ type LabelKey =
     | 'mainMenu.clickToStart'
     | 'mainMenu.allDice'
     | 'mainMenu.languageButton'
+    | 'mainMenu.leaderboard'
+    | 'mainMenu.login'
+    | 'mainMenu.account'
+    | 'mainMenu.history'
+    | 'mainMenu.menu'
+    | 'leaderboard.loading'
+    | 'leaderboard.empty'
+    | 'pagination.prev'
+    | 'pagination.next'
     | 'diceList.header'
     | 'diceList.back'
     | 'diceList.noDiceFound'
@@ -12,9 +21,14 @@ type LabelKey =
     | 'game.hp'
     | 'game.throwsLeft'
     | 'game.bonusThrows'
+    | 'game.bonusDamage'
     | 'game.crit'
     | 'artifact.name.BonusThrowsOnCrit'
+    | 'artifact.name.CollectorShowcase'
+    | 'artifact.name.ForgeSeal'
     | 'artifact.description.BonusThrowsOnCrit'
+    | 'artifact.description.CollectorShowcase'
+    | 'artifact.description.ForgeSeal'
     | 'game.exit'
     | 'game.confirmExit'
     | 'game.yes'
@@ -49,8 +63,10 @@ type LabelKey =
     | 'reward.mustSelectNewAndPlayerDice'
     | 'enchantment.name.CopyNPaste'
     | 'enchantment.name.ZweiSamkeit'
+    | 'enchantment.name.SmallestBonus'
     | 'enchantment.description.CopyNPaste'
-    | 'enchantment.description.ZweiSamkeit';
+    | 'enchantment.description.ZweiSamkeit'
+    | 'enchantment.description.SmallestBonus';
 
 export type DiceLabelKey =
     | 'dice.name.regular'
@@ -67,6 +83,7 @@ export type EnemyLabelKey =
     | 'enemy.name.slime_blue'
     | 'enemy.name.slime_purple'
     | 'enemy.name.skeleton'
+    | 'enemy.name.skeleton_black'
     | 'enemy.name.goblin'
     | 'enemy.name.goblin_grey'
     | 'enemy.name.goblin_red'
@@ -78,9 +95,18 @@ type TranslationKey = LabelKey | DiceLabelKey | EnemyLabelKey;
 
 const labels: Record<Language, Record<TranslationKey, string>> = {
     de: {
+        'mainMenu.leaderboard': 'Bestenliste',
+        'mainMenu.login': 'Login',
+        'mainMenu.account': 'Account',
+        'mainMenu.history': 'Verlauf',
+        'mainMenu.menu': 'Menü',
+        'leaderboard.loading': 'Leaderboard lädt...',
+        'leaderboard.empty': 'Noch keine Scores im Leaderboard.',
+        'pagination.prev': 'Zurück',
+        'pagination.next': 'Weiter',
         'mainMenu.clickToStart': 'Klicke zum Starten',
         'mainMenu.allDice': 'Alle Würfel',
-        'mainMenu.languageButton': 'DE',
+        'mainMenu.languageButton': 'Sprache: DE',
         'diceList.header': 'Würfel-Beutel',
         'diceList.back': 'Zurück',
         'diceList.noDiceFound': 'Keine Würfel gefunden.',
@@ -89,9 +115,14 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'game.hp': 'HP',
         'game.throwsLeft': 'Würfe übrig',
         'game.bonusThrows': 'Bonusrundwürfe',
+        'game.bonusDamage': 'Bonus',
         'game.crit': 'Kritisch!',
         'artifact.name.BonusThrowsOnCrit': 'Glücksstein',
         'artifact.description.BonusThrowsOnCrit': 'Bei jedem kritischen Treffer sammelt der Spieler einen Bonus-Wurf (max. 3)',
+        'artifact.name.CollectorShowcase': 'Sammlervitrine',
+        'artifact.description.CollectorShowcase': 'Fügt jedem Wurf einen Bonus in Höhe von der Hälfte der Levelnummer hinzu. Dieser Bonus wird für jeden einzigartigen Würfel in deinem Beutel um weitere 25% erhöht.',
+        'artifact.name.ForgeSeal': 'Schmiedesiegel',
+        'artifact.description.ForgeSeal': 'Für jeden Würfeltyp, von dem du mindestens eine weitere Kopie besitzt, erhält der Wurf +2 für jede Kopie dieses Typs.',
         'game.exit': 'Beenden',
         'game.confirmExit': 'Der Run wird abgebrochen. Sicher?',
         'game.yes': 'Ja',
@@ -127,7 +158,9 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enchantment.name.CopyNPaste': 'Copy & Paste',
         'enchantment.name.ZweiSamkeit': 'Zweisamkeit',
         'enchantment.description.CopyNPaste': 'Jede gewürfelte Augenzahl wird doppelt zum Gesamt-Ergebnis addiert',
-        'enchantment.description.ZweiSamkeit': 'Für jede gewürfelte Zwei +5 zur Augenzahl',
+        'enchantment.description.ZweiSamkeit': 'Wenn der Würfel eine Eins oder Zwei zeigt, wird er erneut gewürfelt und alle Ergebnisse werden addiert. Dieser Effekt kann mehrfach ausgelöst werden.',
+        'enchantment.name.SmallestBonus': 'Kleiner Bonus',
+        'enchantment.description.SmallestBonus': 'Wenn dieser Würfel das kleinste mögliche Ergebnis würfelt, erhält er +4 Augenzahl.',
         'dice.name.regular': 'Regulärer Würfel',
         'dice.name.even': 'Gerader Würfel',
         'dice.name.odd': 'Ungerader Würfel',
@@ -140,6 +173,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enemy.name.slime_blue': 'Blauer Schleim',
         'enemy.name.slime_purple': 'Lila Schleim',
         'enemy.name.skeleton': 'Skelett',
+        'enemy.name.skeleton_black': 'Antikes Skelett',
         'enemy.name.goblin': 'Kobold',
         'enemy.name.goblin_grey': 'Grauer Kobold',
         'enemy.name.goblin_red': 'Roter Kobold',
@@ -148,9 +182,18 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enemy.name.vampire_ice': 'Eisiger Vampir'
     },
     en: {
+        'mainMenu.leaderboard': 'Leaderboard',
+        'mainMenu.login': 'Login',
+        'mainMenu.account': 'Account',
+        'mainMenu.history': 'History',
+        'mainMenu.menu': 'Menu',
+        'leaderboard.loading': 'Loading leaderboard...',
+        'leaderboard.empty': 'No scores in the leaderboard yet.',
+        'pagination.prev': 'Back',
+        'pagination.next': 'Next',
         'mainMenu.clickToStart': 'Click to start',
         'mainMenu.allDice': 'All dice',
-        'mainMenu.languageButton': 'EN',
+        'mainMenu.languageButton': 'Language: EN',
         'diceList.header': 'Dice Bag',
         'diceList.back': 'Back',
         'diceList.noDiceFound': 'No dice found.',
@@ -159,9 +202,14 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'game.hp': 'HP',
         'game.throwsLeft': 'Throws left',
         'game.bonusThrows': 'Bonus throws',
+        'game.bonusDamage': 'Bonus',
         'game.crit': 'Critical!',
         'artifact.name.BonusThrowsOnCrit': 'Lucky Stone',
         'artifact.description.BonusThrowsOnCrit': 'On every critical hit the player gains one bonus throw (max 3)',
+        'artifact.name.CollectorShowcase': 'Collector\'s Showcase',
+        'artifact.description.CollectorShowcase': 'Adds a bonus to each throw equal to half the level number. This bonus is increased by another 25% for every unique die in your bag.',
+        'artifact.name.ForgeSeal': 'Forge Seal',
+        'artifact.description.ForgeSeal': 'For every die type that you own at least one additional copy of, every throw gains +2 for each copy of that type.',
         'game.exit': 'Exit',
         'game.confirmExit': 'This run will be aborted. Are you sure?',
         'game.yes': 'Yes',
@@ -197,7 +245,9 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enchantment.name.CopyNPaste': 'Copy & Paste',
         'enchantment.name.ZweiSamkeit': 'Togetherness',
         'enchantment.description.CopyNPaste': 'Each rolled face value is added twice to the total result',
-        'enchantment.description.ZweiSamkeit': 'For every rolled two, add +5 to the face value',
+        'enchantment.description.ZweiSamkeit': 'If this rolls a one or a two, reroll and add all results. This effect can trigger multiple times.',
+        'enchantment.name.SmallestBonus': 'Smallest Bonus',
+        'enchantment.description.SmallestBonus': 'If this rolls the smallest possible result, it gains +4 to the value.',
         'dice.name.regular': 'Regular Dice',
         'dice.name.even': 'Even Dice',
         'dice.name.odd': 'Odd Dice',
@@ -210,6 +260,7 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enemy.name.slime_blue': 'Blue Slime',
         'enemy.name.slime_purple': 'Purple Slime',
         'enemy.name.skeleton': 'Skeleton',
+        'enemy.name.skeleton_black': 'Ancient Skeleton',
         'enemy.name.goblin': 'Goblin',
         'enemy.name.goblin_grey': 'Grey Kobold',
         'enemy.name.goblin_red': 'Red Kobold',

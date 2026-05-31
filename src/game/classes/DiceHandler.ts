@@ -1,5 +1,5 @@
 import type { GameObjects, Scene, Time } from 'phaser';
-import { Dice } from '../classes/Dice';
+import { Dice } from '../base classes/Dice';
 import { t } from '../labels';
 
 export class DiceHandler {
@@ -178,7 +178,14 @@ export class DiceHandler {
         });
     }
 
-    private animateDice(sprite: GameObjects.Image, dice: Dice, finalTexture: string, delayOffset = 0): number {
+    private animateDice(
+        sprite: GameObjects.Image,
+        dice: Dice,
+        finalTexture: string,
+        delayOffset = 0,
+        zweiSamkeitRerolls?: { faceValue: number; texture: string }[],
+        smallestBonusAmount?: number
+    ): number {
         let totalDuration = 0;
 
         for (let i = 0; i < 12; i++) {
@@ -220,26 +227,59 @@ export class DiceHandler {
                 ease: 'Quad.Out'
             });
 
-            // Wenn der Würfel verzaubert ist, zeige ein temporäres Badge/duplizierten Face
-            // Erzeuge eine kleine Anzeige rechts vom Würfel
             const enchant = dice.enchantment;
             if (enchant) {
                 if (enchant.type === 'CopyNPaste') {
-                    // Zeige ein kleineres Duplikat des Face
-                    const dup = this.scene.add.image(sprite.x + 44, sprite.y, finalTexture)
+                    const dup = this.scene.add.image(sprite.x, sprite.y - 44, finalTexture)
                         .setOrigin(0.5)
                         .setDepth(sprite.depth + 1)
                         .setScale(this.diceScale * 0.7)
                         .setAlpha(0);
 
                     this.scene.tweens.add({ targets: dup, alpha: 1, duration: 200 });
-                    this.scene.time.delayedCall(900, () => { dup.destroy(); });
+                    this.scene.time.delayedCall(2300, () => { dup.destroy(); });
                 } else if (enchant.type === 'ZweiSamkeit') {
-                    const zBadge = this.scene.add.text(sprite.x + 44, sprite.y - 24, 'ZS', {
-                        fontFamily: 'funblob', fontSize: '20px', color: '#ffffff', backgroundColor: '#aa00aa', padding: { x: 6, y: 4 }
-                    }).setDepth(sprite.depth + 1).setOrigin(0.5).setAlpha(0);
-                    this.scene.tweens.add({ targets: zBadge, alpha: 1, duration: 200 });
-                    this.scene.time.delayedCall(900, () => { zBadge.destroy(); });
+                    if (zweiSamkeitRerolls && zweiSamkeitRerolls.length > 0) {
+                        const startY = sprite.y - 44;
+                        zweiSamkeitRerolls.forEach((reroll, rerollIndex) => {
+                            const offsetY = startY - rerollIndex * 46;
+                            const rerollDice = this.scene.add.image(sprite.x, offsetY, reroll.texture)
+                                .setOrigin(0.5)
+                                .setDepth(sprite.depth + 1)
+                                .setScale(this.diceScale * 0.7)
+                                .setAlpha(0);
+
+                            const plusText = this.scene.add.text(sprite.x, offsetY + 28, `+${reroll.faceValue}`, {
+                                fontFamily: 'funblob',
+                                fontSize: '18px',
+                                color: '#ffffff',
+                                stroke: '#000000',
+                                strokeThickness: 4,
+                            }).setDepth(sprite.depth + 1).setOrigin(0.5).setAlpha(0);
+
+                            this.scene.tweens.add({ targets: [rerollDice, plusText], alpha: 1, duration: 200, delay: rerollIndex * 120 });
+                            this.scene.time.delayedCall(2300 + rerollIndex * 120, () => { rerollDice.destroy(); plusText.destroy(); });
+                        });
+                    } else {
+                        const zBadge = this.scene.add.text(sprite.x, sprite.y - 44, 'ZS', {
+                            fontFamily: 'funblob', fontSize: '20px', color: '#ffffff', backgroundColor: '#aa00aa', padding: { x: 6, y: 4 }
+                        }).setDepth(sprite.depth + 1).setOrigin(0.5).setAlpha(0);
+                        this.scene.tweens.add({ targets: zBadge, alpha: 1, duration: 200 });
+                        this.scene.time.delayedCall(2300, () => { zBadge.destroy(); });
+                    }
+                } else if (enchant.type === 'SmallestBonus') {
+                    if (smallestBonusAmount && smallestBonusAmount > 0) {
+                        const plusText = this.scene.add.text(sprite.x, sprite.y - 44, `+${smallestBonusAmount}`, {
+                            fontFamily: 'funblob',
+                            fontSize: '24px',
+                            color: '#ffffff',
+                            stroke: '#000000',
+                            strokeThickness: 5,
+                        }).setDepth(sprite.depth + 1).setOrigin(0.5).setAlpha(0);
+
+                        this.scene.tweens.add({ targets: plusText, alpha: 1, duration: 200 });
+                        this.scene.time.delayedCall(2300, () => { plusText.destroy(); });
+                    }
                 }
             }
         });
@@ -261,17 +301,41 @@ export class DiceHandler {
 
         this.playersDice.forEach((dice, index) => {
             const result = dice.roll();
-            let value = Number(Object.keys(result)[0]);
-            
-            // Apply enchantment if present
-            value = dice.applyEnchantmentToValue(value);
-            
-            results.push(value);
+            const initialValue = Number(Object.keys(result)[0]);
+            const initialTexture = Object.values(result)[0];
+            let finalValue = initialValue;
+            let zweiSamkeitRerolls: { faceValue: number; texture: string }[] | undefined;
+            let smallestBonusAmount = 0;
+
+            if (dice.enchantment) {
+                if (dice.enchantment.type === 'CopyNPaste') {
+                    finalValue = dice.applyEnchantmentToValue(initialValue);
+                } else if (dice.enchantment.type === 'ZweiSamkeit') {
+                    if (initialValue === 1 || initialValue === 2) {
+                        zweiSamkeitRerolls = [];
+                        let rerollValue = initialValue;
+
+                        while (rerollValue === 1 || rerollValue === 2) {
+                            const reroll = dice.roll();
+                            rerollValue = Number(Object.keys(reroll)[0]);
+                            const rerollTexture = Object.values(reroll)[0];
+
+                            finalValue += rerollValue;
+                            zweiSamkeitRerolls.push({ faceValue: rerollValue, texture: rerollTexture });
+                        }
+                    }
+                } else if (dice.enchantment.type === 'SmallestBonus') {
+                    finalValue = dice.applyEnchantmentToValue(initialValue);
+                    smallestBonusAmount = finalValue - initialValue;
+                }
+            }
+
+            results.push(finalValue);
 
             let sprite: GameObjects.Image;
 
             try {
-                sprite = this.createDiceSprite(Object.values(result)[0], startX, startY, 200 + index);
+                sprite = this.createDiceSprite(initialTexture, startX, startY, 200 + index);
             } catch (error) {
                 console.error(error);
                 return;
@@ -279,7 +343,7 @@ export class DiceHandler {
 
             this.activeDiceSprites.push(sprite);
 
-            const rollDuration = this.animateDice(sprite, dice, Object.values(result)[0], index * 10);
+            const rollDuration = this.animateDice(sprite, dice, initialTexture, index * 10, zweiSamkeitRerolls, smallestBonusAmount);
             maxDuration = Math.max(maxDuration, rollDuration);
 
             const moveDuration = 700 + index * 80;
