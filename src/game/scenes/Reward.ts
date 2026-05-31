@@ -194,7 +194,7 @@ export class Reward extends Scene {
         }).setOrigin(0.5).setDepth(100);
 
         const playerDiceCount = this.diceHandler.playersDice.length;
-        const playerSpacing = 150;
+        const playerSpacing = 190;
         
         const playerItemScale = 0.55;
         const playerHoverScale = 0.6;
@@ -348,9 +348,10 @@ export class Reward extends Scene {
             this.clearPlayerSelectionBorder();
         }
 
-        const pad = 16;
-        const w = sprite.displayWidth + pad;
-        const h = sprite.displayHeight + pad;
+        const pad = 12;
+        const shrink = /d8|d10/i.test(sprite.texture.key) ? 0.75 : 0.9;
+        const w = sprite.displayWidth * shrink + pad;
+        const h = sprite.displayHeight * shrink + pad;
         const x = sprite.x - w / 2;
         const y = sprite.y - h / 2;
         const g = this.add.graphics();

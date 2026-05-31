@@ -112,7 +112,7 @@ export class Magician extends Scene {
         const baseY = 340;
         const playerDiceY = baseY + 120;
         const playerDiceCount = this.diceHandler.playersDice.length;
-        const playerSpacing = 150;
+        const playerSpacing = 190;
         const baseScale = 0.55;
         const hoverScale = 0.65;
 
@@ -172,7 +172,6 @@ export class Magician extends Scene {
         this.clearEnchantmentSelectionBorder();
 
         sprite.setScale(0.7);
-        sprite.setTint(0x00ff00);
         this.showSelectionBorderOnSprite(sprite);
 
         // Update step text
@@ -312,9 +311,10 @@ export class Magician extends Scene {
 
     private showSelectionBorderOnSprite(sprite: GameObjects.Image) {
         this.clearDiceSelectionBorder();
-        const pad = 16;
-        const w = sprite.displayWidth + pad;
-        const h = sprite.displayHeight + pad;
+        const pad = 12;
+        const shrink = /d8|d10/i.test(sprite.texture.key) ? 0.75 : 0.9;
+        const w = sprite.displayWidth * shrink + pad;
+        const h = sprite.displayHeight * shrink + pad;
         const x = sprite.x - w / 2;
         const y = sprite.y - h / 2;
         const g = this.add.graphics();

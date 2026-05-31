@@ -32,27 +32,27 @@ export class LevelEngine {
 
         switch (level) {
             case 1:
-                this.currentEnemy = new Enemy('enemy.name.slime', 1, 'slime_green_idle', 'slime_green_damage_low', 'slime_green_damage_high', 'slime_green_win', 'slime_green_dead');
+                this.currentEnemy = new Enemy('enemy.name.slime', 16, 'slime_green_idle', 'slime_green_damage_low', 'slime_green_damage_high', 'slime_green_win', 'slime_green_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 2:
-                this.currentEnemy = new Enemy('enemy.name.skeleton', 1, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead');
+                this.currentEnemy = new Enemy('enemy.name.skeleton', 26, 'skeleton_idle', 'skeleton_damage_low', 'skeleton_damage_high', 'skeleton_win', 'skeleton_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 3:
-                this.currentEnemy = new Enemy('enemy.name.goblin', 1, 'goblin_green_idle', 'goblin_green_damage_low', 'goblin_green_damage_high', 'goblin_green_win', 'goblin_green_dead');
+                this.currentEnemy = new Enemy('enemy.name.goblin', 36, 'goblin_green_idle', 'goblin_green_damage_low', 'goblin_green_damage_high', 'goblin_green_win', 'goblin_green_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 4:
-                this.currentEnemy = new Enemy('enemy.name.dwarf', 1, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead');
+                this.currentEnemy = new Enemy('enemy.name.dwarf', 48, 'dwarf_idle', 'dwarf_damage_low', 'dwarf_damage_high', 'dwarf_win', 'dwarf_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
             case 5:
-                this.currentEnemy = new Enemy('enemy.name.vampire', 1, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_win', 'vampire_dead');
+                this.currentEnemy = new Enemy('enemy.name.vampire', 60, 'vampire_idle', 'vampire_damage_low', 'vampire_damage_high', 'vampire_win', 'vampire_dead');
                 this.enemySprite= this.scene.add.sprite(1048, 520, this.currentEnemy.idleTexture);
                 this.enemySprite.setScale(0.25, 0.25);
                 break;
@@ -171,6 +171,10 @@ export class LevelEngine {
     }
 
     addBonusThrow(): void {
+        if (!this.isEndlessMode) {
+            return;
+        }
+
         if (this.bonusThrows < 3) {
             this.bonusThrows++;
         }
