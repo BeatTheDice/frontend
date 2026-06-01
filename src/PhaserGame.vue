@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref } from 'vue';
 import { EventBus } from './game/EventBus';
 import StartGame from './game/main';
-import Phaser from 'phaser';
+import type { Scene } from 'phaser';
 
 // Save the current scene instance
 const scene = ref();
@@ -14,7 +14,7 @@ onMounted(() => {
 
     game.value = StartGame('game-container');
     
-    EventBus.on('current-scene-ready', (scene_instance: Phaser.Scene) => {
+    EventBus.on('current-scene-ready', (scene_instance: Scene) => {
         
         emit('current-active-scene', scene_instance);
     
