@@ -1,4 +1,4 @@
-import { Scene, type GameObjects, type Input, type Tweens } from 'phaser';
+import { Geom, Scene, type GameObjects, type Input, type Tweens } from 'phaser';
 
 import { EventBus } from '../EventBus';
 import { GAME_EVENTS } from '../backend-events';
@@ -43,7 +43,7 @@ export class MainMenu extends Scene
             const gfx = this.add.graphics();
 
             // invisible rectangle used for interaction & cursor
-            const hit = this.add.rectangle(0, 0, 10, 10, 0x000000, 0).setOrigin(0, 0).setInteractive(new Phaser.Geom.Rectangle(0, 0, 10, 10), Phaser.Geom.Rectangle.Contains).setDepth(101);
+            const hit = this.add.rectangle(0, 0, 10, 10, 0x000000, 0).setOrigin(0, 0).setInteractive(new Geom.Rectangle(0, 0, 10, 10), Geom.Rectangle.Contains).setDepth(101);
 
             const container = this.add.container(0, 0, [gfx, hit, txt]);
             container.setDepth(100);
@@ -62,7 +62,7 @@ export class MainMenu extends Scene
                 // update hit area without destroying the object to avoid input glitches
                 // @ts-ignore
                 hit.setDisplaySize(rectW, rectH);
-                hit.setInteractive(new Phaser.Geom.Rectangle(0, 0, rectW, rectH), Phaser.Geom.Rectangle.Contains);
+                hit.setInteractive(new Geom.Rectangle(0, 0, rectW, rectH), Geom.Rectangle.Contains);
 
                 // update container size for positioning
                 // @ts-ignore - Phaser container setSize exists at runtime
