@@ -77,35 +77,49 @@ export class MainMenu extends Scene
         };
 
         const allDice = createRoundedButton(t('mainMenu.allDice'), 40);
+        const gameGuide = createRoundedButton(t('mainMenu.gameGuide'), 40);
         const language = createRoundedButton(t('mainMenu.languageButton'), 30);
 
         // Position: 24px margin to match overlay/menu spacing
         const margin = 24;
 
-        // Position both buttons bottom-left, language above allDice (mirrors overlay layout)
+        // Position buttons bottom-left: language at bottom, then allDice above it, then gameGuide above allDice
         allDice.container.x = margin;
         // place allDice at bottom with margin
         // @ts-ignore
         allDice.container.y = cam.height - margin - allDice.height;
 
-        // rebuild language to get correct dims then place above allDice
+        // rebuild all to get correct dims
         const langDims = language.rebuild();
         const allDims = allDice.rebuild();
+        const guideDims = gameGuide.rebuild();
+
+        // gap of 10px between the buttons
+        const gap = 10;
 
         language.container.x = margin;
-        // gap of 10px between the two
-        const gap = 10;
         // @ts-ignore
         language.container.y = cam.height - margin - allDims.h - gap - langDims.h;
+
+        gameGuide.container.x = margin;
+        // @ts-ignore
+        gameGuide.container.y = cam.height - margin - allDims.h - gap - langDims.h - gap - guideDims.h;
 
         // wire up interactions on the hit rectangles (returned directly)
         const allHit = allDice.hit;
         const langHit = language.hit;
+        const guideHit = gameGuide.hit;
 
         if (allHit) {
             allHit.on('pointerover', () => allDice.txt.setStyle({ color: '#ffdd75' }));
             allHit.on('pointerout', () => allDice.txt.setStyle({ color: '#ffffff' }));
             allHit.on('pointerdown', () => this.scene.start('DiceList'));
+        }
+
+        if (guideHit) {
+            guideHit.on('pointerover', () => gameGuide.txt.setStyle({ color: '#ffdd75' }));
+            guideHit.on('pointerout', () => gameGuide.txt.setStyle({ color: '#ffffff' }));
+            guideHit.on('pointerdown', () => this.scene.start('GameGuide'));
         }
 
         if (langHit) {
@@ -119,6 +133,9 @@ export class MainMenu extends Scene
                 allDice.txt.setText(t('mainMenu.allDice'));
                 const nd = allDice.rebuild();
 
+                gameGuide.txt.setText(t('mainMenu.gameGuide'));
+                const gd = gameGuide.rebuild();
+
                 language.txt.setText(t('mainMenu.languageButton'));
                 const ld = language.rebuild();
 
@@ -129,6 +146,9 @@ export class MainMenu extends Scene
                 language.container.x = margin;
                 // @ts-ignore
                 language.container.y = cam.height - margin - nd.h - gap - ld.h;
+                gameGuide.container.x = margin;
+                // @ts-ignore
+                gameGuide.container.y = cam.height - margin - nd.h - gap - ld.h - gap - gd.h;
             });
         }
 

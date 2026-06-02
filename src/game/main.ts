@@ -1,5 +1,6 @@
 import { Boot } from './setup/Boot';
 import { DiceList } from './scenes/DiceList';
+import { GameGuide } from './scenes/GameGuide';
 import { GameOver } from './scenes/GameOver';
 import { Game as MainGame } from './scenes/Game';
 import { MainMenu } from './scenes/MainMenu';
@@ -26,6 +27,7 @@ const config: Types.Core.GameConfig = {
         Preloader,
         MainMenu,
         DiceList,
+        GameGuide,
         MainGame,
         Reward,
         Winner,

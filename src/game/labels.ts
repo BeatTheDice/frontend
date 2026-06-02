@@ -4,11 +4,28 @@ type LabelKey =
     | 'mainMenu.clickToStart'
     | 'mainMenu.allDice'
     | 'mainMenu.languageButton'
+    | 'mainMenu.gameGuide'
     | 'mainMenu.leaderboard'
     | 'mainMenu.login'
     | 'mainMenu.account'
     | 'mainMenu.history'
     | 'mainMenu.menu'
+    | 'gameGuide.title'
+    | 'gameGuide.gameplay'
+    | 'gameGuide.gameplayDesc'
+    | 'gameGuide.levelProgression'
+    | 'gameGuide.levelProgressionDesc'
+    | 'gameGuide.vampire'
+    | 'gameGuide.vampireDesc'
+    | 'gameGuide.endlessMode'
+    | 'gameGuide.endlessModeDesc'
+    | 'gameGuide.merchant'
+    | 'gameGuide.merchantDesc'
+    | 'gameGuide.magician'
+    | 'gameGuide.magicianDesc'
+    | 'gameGuide.leaderboardInfo'
+    | 'gameGuide.leaderboardInfoDesc'
+    | 'gameGuide.back'
     | 'leaderboard.loading'
     | 'leaderboard.empty'
     | 'pagination.prev'
@@ -106,7 +123,24 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'pagination.next': 'Weiter',
         'mainMenu.clickToStart': 'Klicke zum Starten',
         'mainMenu.allDice': 'Alle Würfel',
+        'mainMenu.gameGuide': 'Spielanleitung',
         'mainMenu.languageButton': 'Sprache: DE',
+        'gameGuide.title': 'Spielanleitung',
+        'gameGuide.gameplay': 'Spielprinzip',
+        'gameGuide.gameplayDesc': 'Jede Runde hat 3 Würfe. Wähle einen Würfel und wirf ihn, um Schaden gegen deinen Gegner auszuteilen. Wenn du Schaden machst, hast du gewonnen! Nach jeder gewonnenen Runde kannst du einen neuen Würfel aus der Sammlung auswählen.',
+        'gameGuide.levelProgression': 'Level 1–5',
+        'gameGuide.levelProgressionDesc': 'Durchlaufe 5 Level und besiegte verschiedene Gegner: Schleim, Skelett, Kobold, Zwerg und den mächtigen Vampir. Mit jedem Level werden deine Gegner stärker. Bestehe alle 5 Level, um ins Endlos-Abenteuer zu gelangen!',
+        'gameGuide.vampire': 'Vampir-Boss',
+        'gameGuide.vampireDesc': 'Der Vampir auf Level 5 ist ein besonderer Gegner: Nach deinem Wurf wirft der Vampir zurück und heilt sich selbst! Du musst genug Schaden machen, um ihn zu besiegen, bevor seine Heilkräfte ihn retten.',
+        'gameGuide.endlessMode': 'Unendlich-Modus',
+        'gameGuide.endlessModeDesc': 'Nach Level 5 entdeckst du den Endlos-Modus! Hier behältst du deine 6 Würfel, wechselst aber nach jedem Level einen gegen einen von 3 Angeboten. Es gibt kein Ende – wie weit kommst du? Melde dich an, um deine beste Runde auf der Bestenliste zu speichern!',
+        'gameGuide.merchant': 'Der Händler',
+        'gameGuide.merchantDesc': 'Der Händler taucht alle 4 Level auf (Level 5, 9, 13, 17...). Bei ihm kannst du 3 mächtige Artefakte kaufen: Glücksstein (sammelt Bonuswürfe bei kritischen Treffern), Schmiedesiegel (verstärkt schwache Würfe) und Sammlervitrine (je mehr verschiedene Würfel du hast, desto stärker!). Diese Effekte wirken dauerhaft.',
+        'gameGuide.magician': 'Der Zauberer',
+        'gameGuide.magicianDesc': 'Der Zauberer erscheint alle 4 Level (Level 7, 11, 15, 19...). Er kann deine Würfel verzaubern und ihnen spezielle Effekte verleihen: Manche doppeln bei bestimmten Zahlen, andere bekommen Zusatzschaden. Wähle weise, welcher deiner Würfel verzaubert werden soll!',
+        'gameGuide.leaderboardInfo': 'Leaderboard & Dein Account',
+        'gameGuide.leaderboardInfoDesc': 'Um deine Bestleistung im Endlos-Modus zu speichern, melde dich mit deinem Account an. Deine beste Runde wird automatisch auf der Bestenliste eingetragen. Konkurriere mit anderen Spielern und erklimme die Spitzenpositionen!',
+        'gameGuide.back': 'Zurück',
         'diceList.header': 'Würfel-Beutel',
         'diceList.back': 'Zurück',
         'diceList.noDiceFound': 'Keine Würfel gefunden.',
@@ -193,7 +227,24 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'pagination.next': 'Next',
         'mainMenu.clickToStart': 'Click to start',
         'mainMenu.allDice': 'All dice',
+        'mainMenu.gameGuide': 'Game Guide',
         'mainMenu.languageButton': 'Language: EN',
+        'gameGuide.title': 'Game Guide',
+        'gameGuide.gameplay': 'Gameplay',
+        'gameGuide.gameplayDesc': 'Each round, you have 3 throws. Pick a dice and roll to deal damage to your opponent. Deal damage to win! After each victory, select a new dice from the collection for the next round.',
+        'gameGuide.levelProgression': 'Levels 1–5',
+        'gameGuide.levelProgressionDesc': 'Battle through 5 levels defeating different enemies: Slime, Skeleton, Goblin, Dwarf, and the mighty Vampire. Enemies grow stronger with each level. Complete all 5 and unlock the endless adventure!',
+        'gameGuide.vampire': 'Vampire Boss',
+        'gameGuide.vampireDesc': 'The Vampire on level 5 is unique: After your turn, the Vampire strikes back and heals himself! You must deal enough damage to overcome his healing powers and win.',
+        'gameGuide.endlessMode': 'Endless Mode',
+        'gameGuide.endlessModeDesc': 'After level 5, you unlock Endless Mode! Keep your 6 dice but swap one for a choice of 3 after each level. There\'s no end – how far can you go? Log in to save your best run to the leaderboard!',
+        'gameGuide.merchant': 'The Merchant',
+        'gameGuide.merchantDesc': 'The Merchant appears every 4 levels (levels 5, 9, 13, 17...). Buy 3 powerful artifacts: Lucky Stone (collects bonus throws on critical hits), Smith\'s Seal (boosts weak rolls), and Collector\'s Showcase (stronger with more unique dice). These effects persist permanently.',
+        'gameGuide.magician': 'The Magician',
+        'gameGuide.magicianDesc': 'The Magician appears every 4 levels (levels 7, 11, 15, 19...). He enchants your dice with special powers: Some double on certain numbers, others gain bonus damage. Choose wisely which dice to enhance!',
+        'gameGuide.leaderboardInfo': 'Leaderboard & Your Account',
+        'gameGuide.leaderboardInfoDesc': 'To save your best Endless Mode run, log in with your account. Your highest score automatically appears on the leaderboard. Compete with other players and climb to the top!',
+        'gameGuide.back': 'Back',
         'diceList.header': 'Dice Bag',
         'diceList.back': 'Back',
         'diceList.noDiceFound': 'No dice found.',
