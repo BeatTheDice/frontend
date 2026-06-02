@@ -183,7 +183,7 @@ export class DiceHandler {
         dice: Dice,
         finalTexture: string,
         delayOffset = 0,
-        zweiSamkeitRerolls?: { faceValue: number; texture: string }[],
+        rekursionRerolls?: { faceValue: number; texture: string }[],
         smallestBonusAmount?: number
     ): number {
         let totalDuration = 0;
@@ -238,10 +238,10 @@ export class DiceHandler {
 
                     this.scene.tweens.add({ targets: dup, alpha: 1, duration: 200 });
                     this.scene.time.delayedCall(2300, () => { dup.destroy(); });
-                } else if (enchant.type === 'ZweiSamkeit') {
-                    if (zweiSamkeitRerolls && zweiSamkeitRerolls.length > 0) {
+                } else if (enchant.type === 'Rekursion') {
+                    if (rekursionRerolls && rekursionRerolls.length > 0) {
                         const startY = sprite.y - 44;
-                        zweiSamkeitRerolls.forEach((reroll, rerollIndex) => {
+                        rekursionRerolls.forEach((reroll, rerollIndex) => {
                             const offsetY = startY - rerollIndex * 46;
                             const rerollDice = this.scene.add.image(sprite.x, offsetY, reroll.texture)
                                 .setOrigin(0.5)
@@ -261,7 +261,7 @@ export class DiceHandler {
                             this.scene.time.delayedCall(2300 + rerollIndex * 120, () => { rerollDice.destroy(); plusText.destroy(); });
                         });
                     } else {
-                        const zBadge = this.scene.add.text(sprite.x, sprite.y - 44, 'ZS', {
+                        const zBadge = this.scene.add.text(sprite.x, sprite.y - 44, 'RK', {
                             fontFamily: 'funblob', fontSize: '20px', color: '#ffffff', backgroundColor: '#aa00aa', padding: { x: 6, y: 4 }
                         }).setDepth(sprite.depth + 1).setOrigin(0.5).setAlpha(0);
                         this.scene.tweens.add({ targets: zBadge, alpha: 1, duration: 200 });
@@ -304,15 +304,15 @@ export class DiceHandler {
             const initialValue = Number(Object.keys(result)[0]);
             const initialTexture = Object.values(result)[0];
             let finalValue = initialValue;
-            let zweiSamkeitRerolls: { faceValue: number; texture: string }[] | undefined;
+            let rekursionRerolls: { faceValue: number; texture: string }[] | undefined;
             let smallestBonusAmount = 0;
 
             if (dice.enchantment) {
                 if (dice.enchantment.type === 'CopyNPaste') {
                     finalValue = dice.applyEnchantmentToValue(initialValue);
-                } else if (dice.enchantment.type === 'ZweiSamkeit') {
+                } else if (dice.enchantment.type === 'Rekursion') {
                     if (initialValue === 1 || initialValue === 2) {
-                        zweiSamkeitRerolls = [];
+                        rekursionRerolls = [];
                         let rerollValue = initialValue;
 
                         while (rerollValue === 1 || rerollValue === 2) {
@@ -321,7 +321,7 @@ export class DiceHandler {
                             const rerollTexture = Object.values(reroll)[0];
 
                             finalValue += rerollValue;
-                            zweiSamkeitRerolls.push({ faceValue: rerollValue, texture: rerollTexture });
+                            rekursionRerolls.push({ faceValue: rerollValue, texture: rerollTexture });
                         }
                     }
                 } else if (dice.enchantment.type === 'SmallestBonus') {
@@ -343,7 +343,7 @@ export class DiceHandler {
 
             this.activeDiceSprites.push(sprite);
 
-            const rollDuration = this.animateDice(sprite, dice, initialTexture, index * 10, zweiSamkeitRerolls, smallestBonusAmount);
+            const rollDuration = this.animateDice(sprite, dice, initialTexture, index * 10, rekursionRerolls, smallestBonusAmount);
             maxDuration = Math.max(maxDuration, rollDuration);
 
             const moveDuration = 700 + index * 80;

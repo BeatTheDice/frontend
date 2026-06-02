@@ -79,10 +79,10 @@ type LabelKey =
     | 'reward.swapPrepared'
     | 'reward.mustSelectNewAndPlayerDice'
     | 'enchantment.name.CopyNPaste'
-    | 'enchantment.name.ZweiSamkeit'
+    | 'enchantment.name.Rekursion'
     | 'enchantment.name.SmallestBonus'
     | 'enchantment.description.CopyNPaste'
-    | 'enchantment.description.ZweiSamkeit'
+    | 'enchantment.description.Rekursion'
     | 'enchantment.description.SmallestBonus';
 
 export type DiceLabelKey =
@@ -105,8 +105,12 @@ export type EnemyLabelKey =
     | 'enemy.name.goblin_grey'
     | 'enemy.name.goblin_red'
     | 'enemy.name.dwarf'
+    | 'enemy.name.dwarf_fire'
+    | 'enemy.name.dwarf_lightning'
     | 'enemy.name.vampire'
-    | 'enemy.name.vampire_ice';
+    | 'enemy.name.vampire_dark'
+    | 'enemy.name.vampire_ice'
+    | 'enemy.name.skeleton_burning';
 
 type TranslationKey = LabelKey | DiceLabelKey | EnemyLabelKey;
 
@@ -190,9 +194,9 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'reward.swapPrepared': 'Deine Wahl ist vorbereitet. Klicke auf Weiter, um den Tausch abzuschließen.',
         'reward.mustSelectNewAndPlayerDice': 'Bitte wähle zuerst einen neuen Würfel und deinen eigenen Würfel zum Tauschen.',
         'enchantment.name.CopyNPaste': 'Copy & Paste',
-        'enchantment.name.ZweiSamkeit': 'Zweisamkeit',
+        'enchantment.name.Rekursion': 'Rekursion',
         'enchantment.description.CopyNPaste': 'Jede gewürfelte Augenzahl wird doppelt zum Gesamt-Ergebnis addiert',
-        'enchantment.description.ZweiSamkeit': 'Wenn der Würfel eine Eins oder Zwei zeigt, wird er erneut gewürfelt und alle Ergebnisse werden addiert. Dieser Effekt kann mehrfach ausgelöst werden.',
+        'enchantment.description.Rekursion': 'Wenn der Würfel eine Eins oder Zwei zeigt, wird er erneut gewürfelt und alle Ergebnisse werden addiert. Dieser Effekt kann mehrfach ausgelöst werden.',
         'enchantment.name.SmallestBonus': 'Kleiner Bonus',
         'enchantment.description.SmallestBonus': 'Wenn dieser Würfel das kleinste mögliche Ergebnis würfelt, erhält er +4 Augenzahl.',
         'dice.name.regular': 'Regulärer Würfel',
@@ -212,8 +216,12 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enemy.name.goblin_grey': 'Grauer Kobold',
         'enemy.name.goblin_red': 'Roter Kobold',
         'enemy.name.dwarf': 'Zwerg',
+        'enemy.name.dwarf_fire': 'Feuerzwerg',
+        'enemy.name.dwarf_lightning': 'Blitzzwerg',
         'enemy.name.vampire': 'Vampir',
-        'enemy.name.vampire_ice': 'Eisiger Vampir'
+        'enemy.name.vampire_dark': 'Dunkler Vampir',
+        'enemy.name.vampire_ice': 'Eisiger Vampir',
+        'enemy.name.skeleton_burning': 'Brennendes Skelett'
     },
     en: {
         'mainMenu.leaderboard': 'Leaderboard',
@@ -294,9 +302,9 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'reward.swapPrepared': 'Your swap is ready. Click Continue to complete the swap.',
         'reward.mustSelectNewAndPlayerDice': 'Please choose a new dice and one of your own dice to swap first.',
         'enchantment.name.CopyNPaste': 'Copy & Paste',
-        'enchantment.name.ZweiSamkeit': 'Togetherness',
+        'enchantment.name.Rekursion': 'Recursion',
         'enchantment.description.CopyNPaste': 'Each rolled face value is added twice to the total result',
-        'enchantment.description.ZweiSamkeit': 'If this rolls a one or a two, reroll and add all results. This effect can trigger multiple times.',
+        'enchantment.description.Rekursion': 'If this rolls a one or a two, reroll and add all results. This effect can trigger multiple times.',
         'enchantment.name.SmallestBonus': 'Smallest Bonus',
         'enchantment.description.SmallestBonus': 'If this rolls the smallest possible result, it gains +4 to the value.',
         'dice.name.regular': 'Regular Dice',
@@ -316,8 +324,12 @@ const labels: Record<Language, Record<TranslationKey, string>> = {
         'enemy.name.goblin_grey': 'Grey Kobold',
         'enemy.name.goblin_red': 'Red Kobold',
         'enemy.name.dwarf': 'Dwarf',
+        'enemy.name.dwarf_fire': 'Fire Dwarf',
+        'enemy.name.dwarf_lightning': 'Lightning Dwarf',
         'enemy.name.vampire': 'Vampire',
-        'enemy.name.vampire_ice': 'Ice Vampire'
+        'enemy.name.vampire_dark': 'Dark Vampire',
+        'enemy.name.vampire_ice': 'Ice Vampire',
+        'enemy.name.skeleton_burning': 'Burning Skeleton'
     }
 };
 
