@@ -126,6 +126,12 @@ export class Preloader extends Scene
         this.load.image('skeleton_black_win', './images/enemy/skeleton_black/win.png');
         this.load.image('skeleton_black_dead', './images/enemy/skeleton_black/dead.png');
 
+        this.load.image('skeleton_burning', './images/enemy/skeleton_burning/idle.png');
+        this.load.image('skeleton_burning_damage_low', './images/enemy/skeleton_burning/damage_low.png');
+        this.load.image('skeleton_burning_damage_high', './images/enemy/skeleton_burning/damage_high.png');
+        this.load.image('skeleton_burning_win', './images/enemy/skeleton_burning/win.png');
+        this.load.image('skeleton_burning_dead', './images/enemy/skeleton_burning/dead.png');
+
         // goblin
         this.load.image('goblin_green_idle', './images/enemy/goblin_green/idle.png');
         this.load.image('goblin_green_damage_low', './images/enemy/goblin_green/damage_low.png');
@@ -152,6 +158,18 @@ export class Preloader extends Scene
         this.load.image('dwarf_win', './images/enemy/dwarf/win.png');
         this.load.image('dwarf_dead', './images/enemy/dwarf/dead.png');
 
+        this.load.image('dwarf_fire_idle', './images/enemy/dwarf_fire/idle.png');
+        this.load.image('dwarf_fire_damage_low', './images/enemy/dwarf_fire/damage_low.png');
+        this.load.image('dwarf_fire_damage_high', './images/enemy/dwarf_fire/damage_high.png');
+        this.load.image('dwarf_fire_win', './images/enemy/dwarf_fire/win.png');
+        this.load.image('dwarf_fire_dead', './images/enemy/dwarf_fire/dead.png');
+
+        this.load.image('dwarf_lightning_idle', './images/enemy/dwarf_lightning/idle.png');
+        this.load.image('dwarf_lightning_damage_low', './images/enemy/dwarf_lightning/damage_low.png');
+        this.load.image('dwarf_lightning_damage_high', './images/enemy/dwarf_lightning/damage_high.png');
+        this.load.image('dwarf_lightning_win', './images/enemy/dwarf_lightning/win.png');
+        this.load.image('dwarf_lightning_dead', './images/enemy/dwarf_lightning/dead.png');
+
         // vampire
         this.load.image('vampire_idle', './images/enemy/vampire/idle.png');        
         this.load.image('vampire_damage_low', './images/enemy/vampire/damage_low.png');
@@ -164,6 +182,12 @@ export class Preloader extends Scene
         this.load.image('vampire_ice_damage_high', './images/enemy/vampire_ice/damage_high.png');
         this.load.image('vampire_ice_dead', './images/enemy/vampire_ice/dead.png');
         this.load.image('vampire_ice_win', './images/enemy/vampire_ice/win.png');
+
+        this.load.image('vampire_dark_idle', './images/enemy/vampire_dark/idle.png');
+        this.load.image('vampire_dark_damage_low', './images/enemy/vampire_dark/damage_low.png');
+        this.load.image('vampire_dark_damage_high', './images/enemy/vampire_dark/damage_high.png');
+        this.load.image('vampire_dark_dead', './images/enemy/vampire_dark/dead.png');
+        this.load.image('vampire_dark_win', './images/enemy/vampire_dark/win.png');
 
         //  Load Fonts
         this.load.font('funblob', 'fonts/fun-blob/FunBlob.ttf', 'truetype')

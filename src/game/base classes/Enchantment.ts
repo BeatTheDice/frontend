@@ -1,4 +1,4 @@
-export type EnchantmentType = 'CopyNPaste' | 'ZweiSamkeit' | 'SmallestBonus';
+export type EnchantmentType = 'CopyNPaste' | 'Rekursion' | 'SmallestBonus';
 
 import { t } from '../labels';
 import { Dice } from './Dice';
@@ -20,8 +20,8 @@ export class Enchantment {
         switch (type) {
             case 'CopyNPaste':
                 return t('enchantment.name.CopyNPaste');
-            case 'ZweiSamkeit':
-                return t('enchantment.name.ZweiSamkeit');
+            case 'Rekursion':
+                return t('enchantment.name.Rekursion');
             case 'SmallestBonus':
                 return t('enchantment.name.SmallestBonus');
         }
@@ -31,8 +31,8 @@ export class Enchantment {
         switch (type) {
             case 'CopyNPaste':
                 return 'CP';
-            case 'ZweiSamkeit':
-                return 'ZS';
+            case 'Rekursion':
+                return 'RK';
             case 'SmallestBonus':
                 return '+4';
         }
@@ -42,8 +42,8 @@ export class Enchantment {
         switch (type) {
             case 'CopyNPaste':
                 return t('enchantment.description.CopyNPaste');
-            case 'ZweiSamkeit':
-                return t('enchantment.description.ZweiSamkeit');
+            case 'Rekursion':
+                return t('enchantment.description.Rekursion');
             case 'SmallestBonus':
                 return t('enchantment.description.SmallestBonus');
         }
@@ -57,7 +57,7 @@ export class Enchantment {
             case 'CopyNPaste':
                 // Verdoppelt den Wert
                 return value * 2;
-            case 'ZweiSamkeit':
+            case 'Rekursion':
                 // Wenn eine Zwei oder Eins gewürfelt wird, erneut würfeln und addieren
                 if (value !== 2 && value !== 1) {
                     return value;
