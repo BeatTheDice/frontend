@@ -14,7 +14,7 @@ export class AnimatedCloud {
     }
 
     spawn(x: number, y: number, textureKey: string, speed: number) {
-        if (!this.sprite) {
+        if (this.sprite === null) {
             this.sprite = this.scene.add.image(x, y, textureKey);
             this.sprite.setOrigin(0.5);
             this.sprite.setDepth(-3);

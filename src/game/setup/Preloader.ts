@@ -196,11 +196,12 @@ export class Preloader extends Scene
     create ()
     {
         // create global instances 
-        window.diceCollection = new DiceCollection();
-        window.enemyCollection = new EnemyCollection();
-        window.artifactHandler = new ArtifactHandler();
-        window.levelEngine = new LevelEngine(this);
-        window.diceHandler = new DiceHandler(this);
+        const gameWindow = globalThis as typeof globalThis & Window;
+        gameWindow.diceCollection = new DiceCollection();
+        gameWindow.enemyCollection = new EnemyCollection();
+        gameWindow.artifactHandler = new ArtifactHandler();
+        gameWindow.levelEngine = new LevelEngine(this);
+        gameWindow.diceHandler = new DiceHandler(this);
 
         // Move to the MainMenu.
         this.scene.start('MainMenu');

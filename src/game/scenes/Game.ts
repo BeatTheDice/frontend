@@ -32,16 +32,18 @@ export class Game extends Scene {
     enemyHealthBarHeight: number;
     enemyHealthBar: GameObjects.Graphics;
 
+    gameWindow = globalThis as typeof globalThis & Window;
+
     constructor() {
         super('Game');
     }
 
     init() {        
         // Update scene context 
-        const gameWindow = globalThis as typeof globalThis & Window;
-        this.levelEngine = gameWindow.levelEngine as LevelEngine;
-        this.diceHandler = gameWindow.diceHandler as DiceHandler;
-        this.diceCollection = gameWindow.diceCollection as DiceCollection;
+        
+        this.levelEngine = this.gameWindow.levelEngine as LevelEngine;
+        this.diceHandler = this.gameWindow.diceHandler as DiceHandler;
+        this.diceCollection = this.gameWindow.diceCollection as DiceCollection;
         if (this.levelEngine) this.levelEngine.scene = this;
         if (this.diceHandler) this.diceHandler.scene = this;
     }
@@ -319,7 +321,7 @@ export class Game extends Scene {
 
         const result = await this.diceHandler.throwDice();
 
-        const throwBonus = window.artifactHandler?.triggerThrowCompleted({
+        const throwBonus = this.gameWindow.artifactHandler?.triggerThrowCompleted({
             rollResults: result,
             currentDice: this.diceHandler.playersDice,
             levelEngine: this.levelEngine
@@ -349,10 +351,7 @@ export class Game extends Scene {
             this.bonusThrowsText.setVisible(false);
         }
 
-        this.levelEngine.dealDamageToEnemy(
-            total,
-            this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows === 0
-        );
+        this.levelEngine.dealDamageToEnemy(total);
         
         EventBus.emit(GAME_EVENTS.damageDealt, {
             damage: total,
@@ -388,7 +387,7 @@ export class Game extends Scene {
             }
         }        
 
-        if (this.levelEngine.remainingThrows === 0 && this.levelEngine.bonusThrows === 0) {
+        if (!this.levelEngine.hasAvailableThrows()) {
             return this.handleGameOver();
         }
 
@@ -528,7 +527,7 @@ export class Game extends Scene {
                 ease: 'Cubic.Out',
                 onComplete: () => {
                     this.bossEffectText.setText(t('boss.vampireDrain', { value })).setVisible(true);
-                    this.levelEngine.healEnemy(value, this.levelEngine.remainingThrows === 0);
+                    this.levelEngine.healEnemy(value);
                     this.time.delayedCall(2500, () => {
                         this.bossEffectText.setVisible(false);
                         rollSprite.destroy();

@@ -5,6 +5,30 @@ import { EnemyLabelKey, t } from '../labels';
 import { EnemyCollection } from '../collection classes/EnemyCollection';
 import { ArtifactHandler } from './ArtifactHandler';
 
+// --- Endlosmodus: HP-Skalierung der Gegner ---
+// Level 1-5 sind fest definiert. Ab Level 6 werden Gegner prozedural erzeugt und
+// ihre HP wachsen quadratisch mit der Endlos-Stufe n (= Level - LAST_FIXED_LEVEL):
+//   HP = ENDLESS_BASE_HP + ENDLESS_HP_LINEAR_FACTOR * n + ENDLESS_HP_QUADRATIC_FACTOR * n^2
+//
+// Warum kombiniert linear + quadratisch (und nicht nur eins davon)?
+//  - Rein LINEAR (base + a*n): konstante Steigung -> die Schwierigkeit steigt gleich
+//    schnell wie der Schadens-Output des Spielers. Der Lauf wird nie wirklich schwerer
+//    und koennte theoretisch ewig weitergehen -> kein natuerliches Ende.
+//  - Rein QUADRATISCH (base + c*n^2): die Kurve ist bei kleinem n fast flach
+//    (n^2 ~ 0), die ersten Endlos-Level fuehlen sich also kaum schwerer an ("toter"
+//    Anfang), danach explodiert sie schlagartig.
+//  - KOMBINIERT: Der lineare Term garantiert von der ersten Stufe an einen spuerbaren,
+//    gleichmaessigen Zuwachs (kein flacher Start), waehrend der quadratische Term die
+//    Schwierigkeit beschleunigt, sodass jeder Lauf irgendwann zwangslaeufig endet
+//    (weicher Soft-Cap). Ergebnis: eine glatte, stetig ansteigende und sich
+//    beschleunigende Schwierigkeitskurve.
+// ENDLESS_BASE_HP ist dabei so gewaehlt, dass der erste Endlos-Gegner (~53 HP) nahtlos
+// an den letzten festen Gegner (Vampir, 60 HP auf Level 5) anschliesst.
+const LAST_FIXED_LEVEL = 5;              // letztes fest definiertes Level; Endlosmodus beginnt ab Level 6
+const ENDLESS_BASE_HP = 50;              // Basis-HP des ersten Endlos-Gegners
+const ENDLESS_HP_LINEAR_FACTOR = 2;      // linearer HP-Zuwachs pro Endlos-Stufe
+const ENDLESS_HP_QUADRATIC_FACTOR = 1.2; // quadratischer HP-Zuwachs (greift bei hohen Leveln stark)
+
 export class LevelEngine {
     scene: Scene;
     currentEnemy : Enemy;
@@ -16,10 +40,12 @@ export class LevelEngine {
     artifactHandler: ArtifactHandler;
     isEndlessMode: boolean = false;
 
+    gameWindow = globalThis as typeof globalThis & Window;
+
     constructor(scene: Scene) {
         this.scene = scene;
-        this.artifactHandler = window.artifactHandler as ArtifactHandler;
-        this.enemyCollection = window.enemyCollection as EnemyCollection;
+        this.artifactHandler = this.gameWindow.artifactHandler as ArtifactHandler;
+        this.enemyCollection = this.gameWindow.enemyCollection as EnemyCollection;
         this.currentLevel = 0;
         this.remainingThrows = 3;
         this.bonusThrows = 0;
@@ -62,13 +88,13 @@ export class LevelEngine {
            }
     }
 
-    updateEnemyTexture(lastThrow: boolean) {
+    updateEnemyTexture() {
         if (!this.scene) {
             console.error('Scene is not set in LevelEngine');
             return;
         }
 
-        if (lastThrow && this.currentEnemy.currentHitPoints > 0) {
+        if (!this.hasAvailableThrows() && this.currentEnemy.currentHitPoints > 0) {
             this.enemySprite.setTexture(this.currentEnemy.winTexture);
             return;
         }
@@ -91,22 +117,29 @@ export class LevelEngine {
     }
 
     generateEndlessLevel(level: number) {
-        const newHp = Math.floor(50 + 2 * (level - 5) + 1.2 * Math.pow(level - 5, 2));
-        var template = this.enemyCollection.getEnemyTemplateByNumber(level - 6);
-        const newEnemy = new Enemy(template.name as EnemyLabelKey, newHp, template.idleTexture, template.lowDamageTexture, template.highDamageTexture, template.winTexture, template.deadTexture);
-        this.currentEnemy = newEnemy;
+        // Endlos-Stufe relativ zum letzten festen Level (Level 6 -> Stufe 1, Level 7 -> Stufe 2, ...)
+        const endlessStage = level - LAST_FIXED_LEVEL;
+        // HP = Basis + linearer Anteil + quadratischer Anteil, auf ganze HP abgerundet
+        const newHp = Math.floor(
+            ENDLESS_BASE_HP +
+            ENDLESS_HP_LINEAR_FACTOR * endlessStage +
+            ENDLESS_HP_QUADRATIC_FACTOR * Math.pow(endlessStage, 2)
+        );
+        // Gegner-Template anhand des 0-basierten Index wählen (Level 6 -> Template 0)
+        let template = this.enemyCollection.getEnemyTemplateByNumber(endlessStage - 1);
+        this.currentEnemy = new Enemy(template.name as EnemyLabelKey, newHp, template.idleTexture, template.lowDamageTexture, template.highDamageTexture, template.winTexture, template.deadTexture);
         this.enemySprite= this.scene.add.sprite(1048, 550, this.currentEnemy.idleTexture);
         this.enemySprite.setScale(0.25, 0.25);
     }
 
-    dealDamageToEnemy(damage: number, lastThrow: boolean) {
+    dealDamageToEnemy(damage: number) {
         if (damage >= this.currentEnemy.currentHitPoints) {
             this.currentEnemy.currentHitPoints = 0;
         }
         else {
             this.currentEnemy.currentHitPoints -= damage;
         }
-        this.updateEnemyTexture(lastThrow);
+        this.updateEnemyTexture();
     }
 
     getCurrentEnemyHitPoints() {
@@ -127,10 +160,10 @@ export class LevelEngine {
         return t(this.currentEnemy.name);
     }
 
-    healEnemy(amount: number, lastThrow: boolean) {
+    healEnemy(amount: number) {
         if (!this.currentEnemy) return;
         this.currentEnemy.currentHitPoints = Math.min(this.currentEnemy.currentHitPoints + amount, this.currentEnemy.maxHitPoints);
-        this.updateEnemyTexture(lastThrow);
+        this.updateEnemyTexture();
     }
 
     reset() {
@@ -190,5 +223,9 @@ export class LevelEngine {
 
     getAvailableThrows(): number {
         return this.remainingThrows + this.bonusThrows;
+    }
+
+    hasAvailableThrows(): boolean {
+        return this.getAvailableThrows() > 0;
     }
 }

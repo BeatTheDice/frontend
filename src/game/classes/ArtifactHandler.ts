@@ -41,11 +41,4 @@ export class ArtifactHandler {
     reset(): void {
         this.artifacts = [];
     }
-
-    // triggerRollFinished(context: RollContext): void {
-
-    //     for (const artifact of this.artifacts) {
-    //         artifact.effect.onRollFinished?.(context);
-    //     }
-    // }
 }

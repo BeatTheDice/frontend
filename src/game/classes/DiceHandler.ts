@@ -1,11 +1,13 @@
 import type { GameObjects, Scene, Time } from 'phaser';
 import { Dice } from '../base classes/Dice';
 import { t } from '../labels';
+import { DiceCollection } from '../collection classes/DiceCollection';
 
 export class DiceHandler {
     scene: Scene;
     diceScale = 0.3;
     playersDice: Dice[] = [];
+    diceCollection: DiceCollection;
     activeDiceSprites: GameObjects.Image[] = [];
     playerDiceSprites: GameObjects.Image[] = [];
     playerBadgeSprites: GameObjects.Text[] = [];
@@ -19,13 +21,10 @@ export class DiceHandler {
 
     constructor(scene: Scene) {
         this.scene = scene;
+        const gameWindow = globalThis as typeof globalThis & Window;
+        this.diceCollection = gameWindow.diceCollection as DiceCollection;
 
-        this.playersDice.push(
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'dice.name.regular')
-        );
-        this.playersDice.push(
-            new Dice([{ 1: 'regular-dice-1' }, { 2: 'regular-dice-2' }, { 3: 'regular-dice-3' }, { 4: 'regular-dice-4' }, { 5: 'regular-dice-5' }, { 6: 'regular-dice-6' }], 'dice.name.regular')
-        );
+        this.playersDice = [this.diceCollection.getDefaultDice(), this.diceCollection.getDefaultDice()];
     }
 
     clearDice() {

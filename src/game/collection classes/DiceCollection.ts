@@ -1,6 +1,7 @@
 import { Dice } from '../base classes/Dice';
 
 export class DiceCollection {
+
     private readonly allDiceOptions: Dice[] = [ ];
 
     constructor() {
@@ -14,6 +15,10 @@ export class DiceCollection {
         new Dice([{ 1: 'd8-1' }, { 2: 'd8-2' }, { 3: 'd8-3' }, { 4: 'd8-4' }, { 5: 'd8-5' }, { 6: 'd8-6' }, { 7: 'd8-7' }, { 8: 'd8-8' }], 'dice.name.d8', 3),
         new Dice([{ 1: 'd10-1' }, { 2: 'd10-2' }, { 3: 'd10-3' }, { 4: 'd10-4' }, { 5: 'd10-5' }, { 6: 'd10-6' }, { 7: 'd10-7' }, { 8: 'd10-8' }, { 9: 'd10-9' }, { 10: 'd10-10' }], 'dice.name.d10', 5)
         ];
+    }
+
+    getDefaultDice(): Dice {
+        return this.allDiceOptions[0];
     }
 
     getAllDiceOptions(): Dice[] {
